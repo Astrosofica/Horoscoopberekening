@@ -1,0 +1,132 @@
+<?php
+
+namespace Tijd\Ephemeris;
+
+class SwissEphemeris
+{
+    public const SEFLG_SWIEPH    = 2;
+    public const SEFLG_SPEED     = 256;
+    public const SEFLG_HELCTR    = 8;
+    public const SEFLG_TRUEPOS   = 16;
+    public const SEFLG_J2000     = 32;
+    public const SEFLG_NONUT     = 64;
+    public const SEFLG_TOPOCTR   = 1024;
+
+    public const SE_SUN          = 0;
+    public const SE_MOON         = 1;
+    public const SE_MERCURY      = 2;
+    public const SE_VENUS        = 3;
+    public const SE_MARS         = 4;
+    public const SE_JUPITER      = 5;
+    public const SE_SATURN       = 6;
+    public const SE_URANUS       = 7;
+    public const SE_NEPTUNE      = 8;
+    public const SE_PLUTO        = 9;
+
+    private static ?\FFI $ffi = null;
+
+    public static function getFfi(): \FFI
+    {
+        return self::$ffi;
+    }
+    private EphemerisConfig $config;
+
+    public function __construct(?EphemerisConfig $config = null)
+    {
+        $this->config = $config ?? new EphemerisConfig();
+        $this->initialize();
+    }
+
+    private function initialize(): void
+    {
+        if (self::$ffi === null) {
+            self::$ffi = \FFI::cdef("
+                void swe_set_ephe_path(char *path);
+                double swe_julday(int year, int month, int day, double hour, int gregflag);
+                int swe_calc_ut(double tjd_ut, int ipl, int iflag, double *xx, char *serr);
+                int swe_calc(double tjd, int ipl, int iflag, double *xx, char *serr);
+                int swe_houses(double tjd_ut, double lat, double lon, int hsys, double *cusps, double *ascmc);
+                int swe_houses_ex(double tjd_ut, int iflag, double lat, double lon, int hsys, double *cusps, double *ascmc);
+                int swe_houses_armc(double armc, double lat, double ecl, int hsys, double *cusps, double *ascmc);
+                void swe_close(void);
+            ", $this->config->getLibraryPath());
+
+            self::$ffi->swe_set_ephe_path($this->config->getEphemerisPath());
+        }
+    }
+
+    public function julianDay(int $year, int $month, int $day, float $hour = 0.0, bool $gregorian = true): float
+    {
+        return self::$ffi->swe_julday($year, $month, $day, $hour, $gregorian ? 1 : 0);
+    }
+
+    public function julianDayFromTimestamp(int $timestamp): float
+    {
+        return $this->julianDay(
+            (int)date('Y', $timestamp),
+            (int)date('n', $timestamp),
+            (int)date('j', $timestamp),
+            (float)date('G', $timestamp) + (float)date('i', $timestamp)/60 + (float)date('s', $timestamp)/3600
+        );
+    }
+
+    public function calculatePlanet(
+        float $julianDay,
+        int $planet,
+        int $iflag = self::SEFLG_SPEED
+    ): array {
+        $xx = \FFI::new("double[6]");
+        $serr = \FFI::new("char[256]");
+
+        $result = self::$ffi->swe_calc_ut($julianDay, $planet, $iflag, $xx, $serr);
+
+        if ($result >= 0) {
+            return [
+                'success' => true,
+                'longitude' => $xx[0],
+                'latitude' => $xx[1],
+                'distance' => $xx[2],
+                'speed_longitude' => $xx[3],
+                'speed_latitude' => $xx[4],
+                'speed_distance' => $xx[5],
+            ];
+        }
+
+        return [
+            'success' => false,
+            'error' => \FFI::string($serr)
+        ];
+    }
+
+    public function calculateAllPlanets(
+        float $julianDay,
+        int $iflag = self::SEFLG_SPEED,
+        array $planets = null
+    ): array {
+        $planetList = $planets ?? range(0, 9);
+        $planetNames = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+        
+        $results = [];
+
+        foreach ($planetList as $planet) {
+            if ($planet < 0 || $planet > 9) continue;
+            
+            $results[$planetNames[$planet]] = $this->calculatePlanet($julianDay, $planet, $iflag);
+        }
+
+        return $results;
+    }
+
+    public function close(): void
+    {
+        if (self::$ffi !== null) {
+            self::$ffi->swe_close();
+            self::$ffi = null;
+        }
+    }
+
+    public function __destruct()
+    {
+        $this->close();
+    }
+}

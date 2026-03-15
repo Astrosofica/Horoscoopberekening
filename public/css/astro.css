@@ -1,0 +1,20 @@
+@font-face {
+    font-family: 'Astro';
+    src: url('../fonts/symbol.woff2') format('woff2'),
+         url('../fonts/symbol.woff') format('woff'),
+         url('../fonts/symbol.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+.astro-font {
+    font-family: 'Astro', sans-serif;
+    font-weight: normal;
+    font-style: normal;
+}
+
+.astro-glyph {
+    display: inline-block;
+    font-family: 'Astro', sans-serif;
+}
