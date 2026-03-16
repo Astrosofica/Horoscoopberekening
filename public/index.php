@@ -141,7 +141,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
     <title>Astrologische Tijd Calculator</title>
     <link rel="stylesheet" href="css/astro.css">
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; line-height: 1.6; background: #f5f5f5; }
         .astro-glyph { font-family: 'Astro', sans-serif; font-size: 1.2em; }
     </style>
 </head>
@@ -219,35 +218,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
             </div>
         </div>
 
+        <div class="houses-planets-container">
         <div class="data-card">
-            <h4>Huizensysteem: <?= htmlspecialchars($result['houses']['systemName']) ?></h4>
-            <table>
-                <tr style="background: #9C27B0; color: white;">
-                    <th style="text-align: left;">Huis</th>
-                    <th>Positie</th>
-                </tr>
-                <?php foreach ($result['houses']['houses'] as $houseNum => $house): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($house['name']) ?></td>
-                        <td style="text-align: center;"><?= Formatter::formatLongitudeWithGlyph($house['longitude']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-        </div>
-
-        <div class="data-card">
-            <h4>Planeetposities</h4>
             <table>
                 <tr style="background: #2196F3; color: white;">
-                    <th style="text-align: center;">Planeet</th>
-                    <th>Positie</th>
-                    <th>Status</th>
+                    <th colspan="3">Planeetposities</th>
                 </tr>
-                <?php
-                $planetIndex = 0;
-                foreach ($result['planets'] as $name => $data): ?>
+                <?php foreach ($result['planets'] as $name => $data): ?>
                     <tr>
-                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($planetIndex) ?></span></td>
+                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByName($name) ?></span></td>
                         <td style="text-align: center;">
                             <?php if (isset($data['success']) && $data['success']): ?>
                                 <?= Formatter::formatLongitudeWithGlyph($data['longitude']) ?>
@@ -267,13 +246,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
                             <?php endif; ?>
                         </td>
                     </tr>
-                <?php $planetIndex++; endforeach; ?>
+                <?php endforeach; ?>
             </table>
         </div>
 
         <div class="data-card">
-            <h4>Radix</h4>
-            <img src="../src/Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix" style="max-width: 100%; height: auto;">
+            <table>
+                <tr style="background: #9C27B0; color: white;">
+                    <th colspan="2">Huizensysteem: <?= htmlspecialchars($result['houses']['systemName']) ?></th>
+                </tr>
+                <?php foreach ($result['houses']['houses'] as $houseNum => $house): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($house['name']) ?></td>
+                        <td style="text-align: center;"><?= Formatter::formatLongitudeWithGlyph($house['longitude']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    </div>
+
+        <div class="wheel-container">
+            <img src="../src/Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix">
         </div>
 
         <div class="data-card">

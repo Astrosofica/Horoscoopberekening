@@ -410,18 +410,19 @@ function draw_mc_line($im, $center_pt, $house_cusps, $radius, $inner_diameter_of
  * Draw planets on the chart wheel
  */
 function draw_planets($im, $center_pt, $planets, $house_cusps, $radius, $inner_diameter_offset, $spacing, $colors) {
-    global $sign_glyph, $pl_glyph;
+    global $sign_glyph;
     
-    // Create parallel arrays for compatibility with original functions
     $num_planets = count($planets);
     $longitude = [];
     $house_pos = [];
     $speeds = [];
+    $names = [];
     
     foreach ($planets as $i => $planet) {
         $longitude[$i] = $planet['longitude'];
         $house_pos[$i] = $planet['house'];
         $speeds[$i] = $planet['speed'];
+        $names[$i] = $planet['name'];
     }
     
     // Sort planets by descending longitude (original algorithm)
@@ -518,7 +519,8 @@ function draw_planets($im, $center_pt, $planets, $house_cusps, $radius, $inner_d
         // Draw planet glyph
         $xy = [];
         display_planet_glyph($our_angle, $rad_angle, $radius - 32, $xy, 0);
-        imagettftext($im, 16, 0, (int)($xy[0] + $center_pt), (int)($xy[1] + $center_pt), $colors['black'], HAMBURG_FONT, chr($pl_glyph[$sort_pos[$i]]));
+        $planet_glyph_code = get_planet_glyph($names[$sort_pos[$i]]);
+        imagettftext($im, 16, 0, (int)($xy[0] + $center_pt), (int)($xy[1] + $center_pt), $colors['black'], HAMBURG_FONT, chr($planet_glyph_code));
         
         // Draw degree
         $reduced_pos = Reduce_below_30($sort[$i]);
@@ -573,7 +575,8 @@ function get_planet_glyph($planet_name) {
     $glyphs = [
         'Sun' => 33, 'Moon' => 34, 'Mercury' => 35, 'Venus' => 36,
         'Mars' => 37, 'Jupiter' => 38, 'Saturn' => 39, 'Uranus' => 40,
-        'Neptune' => 41, 'Pluto' => 42, 'Chiron' => 51, 'TNode' => 43, 'POF' => 66
+        'Neptune' => 41, 'Pluto' => 42, 'Chiron' => 51, 'TNode' => 43, 
+        'NorthNode' => 43, 'POF' => 66
     ];
     return $glyphs[$planet_name] ?? 52;
 }

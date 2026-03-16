@@ -39,14 +39,27 @@
   - Geboortegegevens: naam, moment, locatie, UTC referentie
   - Nieuwe volgorde: Geboortegegevens → Huizen → Planeten → Radix → Aspecten
 
+- [x] **UI verfijnd** (2026-03)
+  - Warme beige body background (#f0ede8), witte cards
+  - Planeten- en huizentabellen naast elkaar (flexbox)
+  - Wheel gecentreerd met border-radius 50% voor ronde weergave
+  - Tabellen met samengevoegde headers
+
+- [x] **Planeten uitgebreid** (2026-03)
+  - Noordknoop (NorthNode) toegevoegd met SE_TRUE_NODE flag
+  - Chiron toegevoegd met SE_CHIRON flag
+  - Beide tonen in planetenlijst, wheel en aspecten
+  - Ephemeris bestand seas_18.se1 toegevoegd
+
+- [x] **Glyphs uitgebreid** (2026-03)
+  - Noordknoop glyph (+) toegevoegd
+  - Chiron glyph (3) toegevoegd
+  - Ascendant glyph (-) en MC glyph (.) gecorrigeerd in aspecten
+  - `getPlanetGlyphByName()` functie voor robuustere lookup
+
 ---
 
 ## Weergave & UI
-
-- [ ] **Glyphs uitbreiden**
-  - [ ] Asc en MC glyphs toevoegen aan huizentabel
-  - [ ] Noordknoop glyph toevoegen
-  - [ ] Optioneel: Pars Fortuna en Chiron glyphs
 
 - [ ] **Formulier uitbreiden**
   - [ ] Huizensysteem selector (meerdere opties?)
@@ -66,7 +79,6 @@
 ## Data & Berekeningen
 
 - [ ] **Weergegeven data heroverwegen**
-  - [ ] Welke planeten tonen? (alle 10 of selectie)
   - [ ] Extra punten toevoegen:
     - [ ] Zuidknoop
     - [ ] Lilith
@@ -150,12 +162,12 @@
 ## Prioriteit
 
 ### Hoog
-1. Glyphs uitbreiden (Asc, MC, Noordknoop)
-2. Responsive design voor mobiel
+1. Responsive design voor mobiel
+2. Print-vriendelijke stylesheet
 
 ### Medium
-3. Print-vriendelijke stylesheet
-4. Composer autoloading
+3. Composer autoloading
+4. Huizensysteem selector
 
 ### Laag
 5. Minor aspects

@@ -40,7 +40,7 @@ $radius = $diameter / 2;				// radius of circle drawn
 $middle_radius = ($outer_outer_diameter + $diameter) / 4 - 3;		//the radius for the middle of the two outer circles
 $center_pt = $size_of_rect / 2;		// center of circle
 
-$last_planet_num = 10;				//add a planet
+$last_planet_num = 11;				// 11 planets including NorthNode
 $num_planets = $last_planet_num + 1;
 $spacing = 4;     // spacing between planet glyphs around wheel - this number is really one more than shown here
 

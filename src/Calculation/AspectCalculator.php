@@ -124,25 +124,36 @@ class AspectCalculator
     {
         $aspects = [];
         
-        $planetsWithIndices = $planets;
+        // Reindex planets array to numeric indices
+        $planetsWithIndices = [];
+        $index = 0;
+        foreach ($planets as $name => $data) {
+            $planetsWithIndices[$index] = [
+                'longitude' => $data['longitude'] ?? 0,
+                'name' => $name
+            ];
+            $index++;
+        }
         
+        // Add Ascendant and MC
         if ($houses !== null && isset($houses['houses'][1], $houses['houses'][10])) {
-            $planetsWithIndices[10] = [
+            $planetsWithIndices[20] = [
                 'longitude' => $houses['houses'][1]['longitude'],
                 'name' => 'Ascendant'
             ];
-            $planetsWithIndices[11] = [
+            $planetsWithIndices[21] = [
                 'longitude' => $houses['houses'][10]['longitude'],
                 'name' => 'Midhemel'
             ];
         }
         
         $totalPlanets = count($planetsWithIndices);
+        $planetIndices = array_keys($planetsWithIndices);
         
-        for ($p1 = 0; $p1 < $totalPlanets; $p1++) {
-            if ($p1 > 9) continue;
-            
-            for ($p2 = $p1 + 1; $p2 < $totalPlanets; $p2++) {
+        foreach ($planetIndices as $i => $p1) {
+            for ($j = $i + 1; $j < count($planetIndices); $j++) {
+                $p2 = $planetIndices[$j];
+                
                 $distance = $this->calculateDistance(
                     $planetsWithIndices[$p1]['longitude'],
                     $planetsWithIndices[$p2]['longitude']
@@ -189,7 +200,7 @@ class AspectCalculator
      */
     public function isDominantAspect(int $planet2Index, int $aspectDegrees, float $orb): bool
     {
-        if ($planet2Index === 10 || $planet2Index === 11) {
+        if ($planet2Index === 20 || $planet2Index === 21) {
             if (in_array($aspectDegrees, self::HARD_ASPECTS, true) && $orb < 2) {
                 return true;
             }

@@ -8,6 +8,14 @@
     font-display: swap;
 }
 
+body {
+    background: #f0ede8;
+    font-family: sans-serif;
+    max-width: 800px;
+    margin: 40px auto;
+    line-height: 1.6;
+}
+
 .astro-font {
     font-family: 'Astro', sans-serif;
     font-weight: normal;
@@ -20,12 +28,12 @@
 }
 
 .birth-form-card {
-    background: #fafbfc;
+    background: #ffffff;
     border-radius: 16px;
     padding: 32px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     margin-bottom: 24px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid #e5e5e5;
 }
 
 .birth-form-card h2 {
@@ -106,12 +114,12 @@
 }
 
 .birth-info-card {
-    background: #fafbfc;
+    background: #ffffff;
     border-radius: 16px;
     padding: 32px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     margin-bottom: 24px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid #e5e5e5;
 }
 
 .birth-info-card h2 {
@@ -148,12 +156,12 @@
 }
 
 .data-card {
-    background: #fafbfc;
+    background: #ffffff;
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     margin-bottom: 24px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid #e5e5e5;
 }
 
 .data-card h4 {
@@ -166,6 +174,7 @@
 .data-card table {
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 0;
 }
 
 .data-card th {
@@ -181,4 +190,31 @@
 
 .data-card tr:last-child td {
     border-bottom: none;
+}
+
+.houses-planets-container {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.houses-planets-container .data-card {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.houses-planets-container table {
+    margin-bottom: 0;
+}
+
+.wheel-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.wheel-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 50%;
 }

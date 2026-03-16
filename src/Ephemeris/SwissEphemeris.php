@@ -22,6 +22,9 @@ class SwissEphemeris
     public const SE_URANUS       = 7;
     public const SE_NEPTUNE      = 8;
     public const SE_PLUTO        = 9;
+    public const SE_MEAN_NODE    = 10;
+    public const SE_TRUE_NODE    = 11;
+    public const SE_CHIRON       = 15;
 
     private static ?\FFI $ffi = null;
 
@@ -49,6 +52,8 @@ class SwissEphemeris
                 int swe_houses_ex(double tjd_ut, int iflag, double lat, double lon, int hsys, double *cusps, double *ascmc);
                 int swe_houses_armc(double armc, double lat, double ecl, int hsys, double *cusps, double *ascmc);
                 void swe_close(void);
+                int swe_fixstar_ut(char *star, double tjd_ut, int iflag, double *xx, char *serr);
+                char *swe_get_planet_name(int ipl, char *s);
             ", $this->config->getLibraryPath());
 
             self::$ffi->swe_set_ephe_path($this->config->getEphemerisPath());
@@ -103,15 +108,34 @@ class SwissEphemeris
         int $iflag = self::SEFLG_SPEED,
         array $planets = null
     ): array {
-        $planetList = $planets ?? range(0, 9);
-        $planetNames = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+        $planetList = $planets ?? [
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+            self::SE_TRUE_NODE,
+            self::SE_CHIRON
+        ];
+        
+        $planetNames = [
+            0 => 'Sun',
+            1 => 'Moon',
+            2 => 'Mercury',
+            3 => 'Venus',
+            4 => 'Mars',
+            5 => 'Jupiter',
+            6 => 'Saturn',
+            7 => 'Uranus',
+            8 => 'Neptune',
+            9 => 'Pluto',
+            self::SE_TRUE_NODE => 'NorthNode',
+            self::SE_CHIRON => 'Chiron',
+        ];
         
         $results = [];
 
         foreach ($planetList as $planet) {
-            if ($planet < 0 || $planet > 9) continue;
+            $name = $planetNames[$planet] ?? null;
+            if ($name === null) continue;
             
-            $results[$planetNames[$planet]] = $this->calculatePlanet($julianDay, $planet, $iflag);
+            $results[$name] = $this->calculatePlanet($julianDay, $planet, $iflag);
         }
 
         return $results;

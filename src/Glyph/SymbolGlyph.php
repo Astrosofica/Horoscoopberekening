@@ -154,9 +154,43 @@ class SymbolGlyph
             7 => self::PLANET_URANUS,
             8 => self::PLANET_NEPTUNE,
             9 => self::PLANET_PLUTO,
+            10 => self::PLANET_NORTH_NODE,
+            11 => self::PLANET_CHIRON,
+            12 => self::PLANET_PARS_FORTUNA,
+            20 => self::PLANET_ASCENDANT,
+            21 => self::PLANET_MC,
         ];
 
         $code = $mapping[$planetIndex] ?? null;
+        if ($code === null || !isset(self::$planets[$code])) {
+            return '?';
+        }
+
+        return self::$planets[$code]['code'];
+    }
+    
+    public static function getPlanetGlyphByName(string $name): string
+    {
+        $mapping = [
+            'Sun' => self::PLANET_SUN,
+            'Moon' => self::PLANET_MOON,
+            'Mercury' => self::PLANET_MERCURY,
+            'Venus' => self::PLANET_VENUS,
+            'Mars' => self::PLANET_MARS,
+            'Jupiter' => self::PLANET_JUPITER,
+            'Saturn' => self::PLANET_SATURN,
+            'Uranus' => self::PLANET_URANUS,
+            'Neptune' => self::PLANET_NEPTUNE,
+            'Pluto' => self::PLANET_PLUTO,
+            'NorthNode' => self::PLANET_NORTH_NODE,
+            'Ascendant' => self::PLANET_ASCENDANT,
+            'MC' => self::PLANET_MC,
+            'Midhemel' => self::PLANET_MC,
+            'Chiron' => self::PLANET_CHIRON,
+            'ParsFortuna' => self::PLANET_PARS_FORTUNA,
+        ];
+
+        $code = $mapping[$name] ?? null;
         if ($code === null || !isset(self::$planets[$code])) {
             return '?';
         }
