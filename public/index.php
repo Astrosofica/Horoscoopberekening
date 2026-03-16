@@ -13,6 +13,37 @@ if (file_exists(__DIR__ . '/../.env')) {
 }
 
 define('GOOGLE_API_KEY', $_ENV['GOOGLE_API_KEY'] ?? '');
+define('ERROR_LOG_PATH', __DIR__ . '/../var/log/error.log');
+
+// Error logging setup
+ini_set('log_errors', true);
+ini_set('error_log', ERROR_LOG_PATH);
+
+// Rate limiting: max 10 requests per minute per IP
+$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$rateLimit = 10;
+$ratePeriod = 60; // seconds
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_SESSION['requests'])) {
+        $_SESSION['requests'] = [];
+    }
+    
+    // Clean old requests
+    $_SESSION['requests'][$ip] = array_filter(
+        $_SESSION['requests'][$ip] ?? [],
+        fn($time) => $time > time() - $ratePeriod
+    );
+    
+    // Check rate limit
+    if (count($_SESSION['requests'][$ip] ?? []) >= $rateLimit) {
+        $error = "Te veel verzoeken. Wacht " . $ratePeriod . " seconden.";
+        error_log("[Tijd] Rate limit exceeded for IP: $ip");
+    } else {
+        // Record this request
+        $_SESSION['requests'][$ip][] = time();
+    }
+}
 
 require_once __DIR__ . '/../src/Geo/GeocodingService.php';
 require_once __DIR__ . '/../src/Time/AstroTime.php';
@@ -69,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
     }
 
     if (!isset($error)) {
+        error_log("[Tijd] Starting calculation for: {$personName} at {$location}");
         $timestamp = strtotime("$date $time");
 
         $geoService = new GeocodingService(GOOGLE_API_KEY);
@@ -76,79 +108,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
 
         if (isset($geoResult['error'])) {
             $error = $geoResult['error'];
+            error_log("[Tijd] Geocoding error: {$error} for location: {$location}");
         } else {
             $tzResult = $geoService->getTimezoneId($geoResult['lat'], $geoResult['lng'], $timestamp);
 
             if (isset($tzResult['error'])) {
                 $error = $tzResult['error'];
+                error_log("[Tijd] Timezone error: {$error} for coords: {$geoResult['lat']},{$geoResult['lng']}");
             } else {
                 $astroTime = new AstroTime($tzResult['timezoneId'], $geoResult['lng']);
                 $timeResult = $astroTime->getOffset($timestamp);
 
                 $utcTimestamp = $timestamp - $timeResult['offset'];
-
-                $calculator = new PlanetCalculator();
-                $planetResult = $calculator->calculateForTimestamp($utcTimestamp);
-
-                $houseCalculator = new HouseCalculator();
-                $houseResult = $houseCalculator->calculateByTimestamp(
-                    $utcTimestamp,
-                    $geoResult['lat'],
-                    $geoResult['lng'],
-                    HouseCalculator::HSYS_KOCH
-                );
-
-                // Calculate Pars Fortuna
-                $ascendant = $houseResult['ascmc']['ascendant']['longitude'];
-                $moon = $planetResult['planets']['Moon']['longitude'] ?? 0;
-                $sun = $planetResult['planets']['Sun']['longitude'] ?? 0;
                 
-                $planetResult['planets']['ParsFortuna'] = ParsFortuna::calculateWithSpeed(
-                    $ascendant,
-                    $moon,
-                    $sun
-                );
+                error_log("[Tijd] Timezone offset: {$timeResult['offset']} ({$timeResult['label']}) for {$tzResult['timezoneId']}");
 
-                $aspectCalculator = new AspectCalculator();
-                $planetsForAspects = [];
-                foreach ($planetResult['planets'] as $name => $data) {
-                    if ($name === 'ParsFortuna') continue;
-                    if (isset($data['success']) && $data['success']) {
-                        $planetsForAspects[$name] = [
-                            'longitude' => $data['longitude']
-                        ];
+                try {
+                    $calculator = new PlanetCalculator();
+                    $planetResult = $calculator->calculateForTimestamp($utcTimestamp);
+                    
+                    $houseCalculator = new HouseCalculator();
+                    $houseResult = $houseCalculator->calculateByTimestamp(
+                        $utcTimestamp,
+                        $geoResult['lat'],
+                        $geoResult['lng'],
+                        HouseCalculator::HSYS_KOCH
+                    );
+
+                    // Calculate Pars Fortuna
+                    $ascendant = $houseResult['ascmc']['ascendant']['longitude'];
+                    $moon = $planetResult['planets']['Moon']['longitude'] ?? 0;
+                    $sun = $planetResult['planets']['Sun']['longitude'] ?? 0;
+                    
+                    $planetResult['planets']['ParsFortuna'] = ParsFortuna::calculateWithSpeed(
+                        $ascendant,
+                        $moon,
+                        $sun
+                    );
+
+                    $aspectCalculator = new AspectCalculator();
+                    $planetsForAspects = [];
+                    foreach ($planetResult['planets'] as $name => $data) {
+                        if ($name === 'ParsFortuna') continue;
+                        if (isset($data['success']) && $data['success']) {
+                            $planetsForAspects[$name] = [
+                                'longitude' => $data['longitude']
+                            ];
+                        }
                     }
+                    $aspectResult = $aspectCalculator->calculate($planetsForAspects, $houseResult);
+                    
+                    error_log("[Tijd] Calculation successful: " . count($planetResult['planets']) . " planets, " . count($aspectResult) . " aspects");
+                    
+                    $result = [
+                        'name' => $personName,
+                        'offset' => $timeResult['offset'],
+                        'source' => $timeResult['source'],
+                        'label' => $timeResult['label'],
+                        'coords' => ['lat' => $geoResult['lat'], 'lng' => $geoResult['lng']],
+                        'address' => $geoResult['address'],
+                        'timezone' => $tzResult['timezoneId'],
+                        'planets' => $planetResult['planets'],
+                        'julian_day' => $planetResult['julian_day'],
+                        'houses' => $houseResult,
+                        'aspects' => $aspectResult,
+                        'local_timestamp' => $timestamp,
+                        'utc_timestamp' => $utcTimestamp
+                    ];
+
+                    $housePlanetMatcher = new HousePlanetMatcher();
+                    $planetsForWheel = $housePlanetMatcher->match(
+                        $result['planets'],
+                        $result['houses']['houses']
+                    );
+                    $houseCuspsForWheel = $housePlanetMatcher->extractHouseCusps($result['houses']['houses']);
+
+                    $_SESSION['wheel_data'] = [
+                        'name' => $personName,
+                        'house_cusps' => $houseCuspsForWheel,
+                        'planets' => $planetsForWheel
+                    ];
+                } catch (\Exception $e) {
+                    $error = "Berekening mislukt: " . $e->getMessage();
+                    error_log("[Tijd] Calculation error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
                 }
-                $aspectResult = $aspectCalculator->calculate($planetsForAspects, $houseResult);
-
-                $result = [
-                    'name' => $personName,
-                    'offset' => $timeResult['offset'],
-                    'source' => $timeResult['source'],
-                    'label' => $timeResult['label'],
-                    'coords' => ['lat' => $geoResult['lat'], 'lng' => $geoResult['lng']],
-                    'address' => $geoResult['address'],
-                    'timezone' => $tzResult['timezoneId'],
-                    'planets' => $planetResult['planets'],
-                    'julian_day' => $planetResult['julian_day'],
-                    'houses' => $houseResult,
-                    'aspects' => $aspectResult,
-                    'local_timestamp' => $timestamp,
-                    'utc_timestamp' => $utcTimestamp
-                ];
-
-                $housePlanetMatcher = new HousePlanetMatcher();
-                $planetsForWheel = $housePlanetMatcher->match(
-                    $result['planets'],
-                    $result['houses']['houses']
-                );
-                $houseCuspsForWheel = $housePlanetMatcher->extractHouseCusps($result['houses']['houses']);
-
-                $_SESSION['wheel_data'] = [
-                    'name' => $personName,
-                    'house_cusps' => $houseCuspsForWheel,
-                    'planets' => $planetsForWheel
-                ];
             }
         }
     }
