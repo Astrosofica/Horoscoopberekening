@@ -124,10 +124,13 @@ class AspectCalculator
     {
         $aspects = [];
         
-        // Reindex planets array to numeric indices
+        // Reindex planets array to numeric indices, skip NorthNode and Chiron
         $planetsWithIndices = [];
         $index = 0;
         foreach ($planets as $name => $data) {
+            if ($name === 'NorthNode' || $name === 'Chiron') {
+                continue;
+            }
             $planetsWithIndices[$index] = [
                 'longitude' => $data['longitude'] ?? 0,
                 'name' => $name
@@ -135,24 +138,37 @@ class AspectCalculator
             $index++;
         }
         
+        $ascIndex = null;
+        $mcIndex = null;
+        
         // Add Ascendant and MC
         if ($houses !== null && isset($houses['houses'][1], $houses['houses'][10])) {
-            $planetsWithIndices[20] = [
+            $ascIndex = $index;
+            $planetsWithIndices[$index] = [
                 'longitude' => $houses['houses'][1]['longitude'],
                 'name' => 'Ascendant'
             ];
-            $planetsWithIndices[21] = [
+            $index++;
+            
+            $mcIndex = $index;
+            $planetsWithIndices[$index] = [
                 'longitude' => $houses['houses'][10]['longitude'],
                 'name' => 'Midhemel'
             ];
+            $index++;
         }
         
-        $totalPlanets = count($planetsWithIndices);
         $planetIndices = array_keys($planetsWithIndices);
         
         foreach ($planetIndices as $i => $p1) {
             for ($j = $i + 1; $j < count($planetIndices); $j++) {
                 $p2 = $planetIndices[$j];
+                
+                // Skip Asc-MC aspect
+                if (($p1 === $ascIndex && $p2 === $mcIndex) ||
+                    ($p1 === $mcIndex && $p2 === $ascIndex)) {
+                    continue;
+                }
                 
                 $distance = $this->calculateDistance(
                     $planetsWithIndices[$p1]['longitude'],
@@ -168,7 +184,7 @@ class AspectCalculator
                     
                     if ($orb !== null) {
                         $isDominant = $this->isDominantAspect(
-                            $p2,
+                            $planetsWithIndices[$p2]['name'],
                             $definition['degrees'],
                             $orb
                         );
@@ -198,9 +214,9 @@ class AspectCalculator
     /**
      * Check of een aspect dominant is (harde aspecten naar Ascendant/MC met orb < 2°)
      */
-    public function isDominantAspect(int $planet2Index, int $aspectDegrees, float $orb): bool
+    public function isDominantAspect(string $planet2Name, int $aspectDegrees, float $orb): bool
     {
-        if ($planet2Index === 20 || $planet2Index === 21) {
+        if ($planet2Name === 'Ascendant' || $planet2Name === 'Midhemel') {
             if (in_array($aspectDegrees, self::HARD_ASPECTS, true) && $orb < 2) {
                 return true;
             }

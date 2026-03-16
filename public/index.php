@@ -88,12 +88,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
                     HouseCalculator::HSYS_KOCH
                 );
 
+                // Calculate Pars Fortuna: Ascendant + Moon - Sun
+                $ascendant = $houseResult['ascmc']['ascendant']['longitude'];
+                $moon = $planetResult['planets']['Moon']['longitude'] ?? 0;
+                $sun = $planetResult['planets']['Sun']['longitude'] ?? 0;
+                $parsFortuna = ($ascendant + $moon - $sun);
+                while ($parsFortuna < 0) $parsFortuna += 360;
+                while ($parsFortuna >= 360) $parsFortuna -= 360;
+                
+                $planetResult['planets']['ParsFortuna'] = [
+                    'success' => true,
+                    'longitude' => $parsFortuna,
+                    'speed_longitude' => 0
+                ];
+
                 $aspectCalculator = new AspectCalculator();
                 $planetsForAspects = [];
                 foreach ($planetResult['planets'] as $name => $data) {
+                    if ($name === 'ParsFortuna') continue;
                     if (isset($data['success']) && $data['success']) {
-                        $planetsForAspects[] = [
-                            'name' => $name,
+                        $planetsForAspects[$name] = [
                             'longitude' => $data['longitude']
                         ];
                     }
@@ -146,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
 </head>
 <body>
 
-<div class="birth-form-card">
+<div class="card card--large">
     <h2>Geboortegegevens</h2>
     <form method="POST">
         <div class="form-row full">
@@ -198,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
         $utcTimeStr = sprintf('%02d:%02d:%02d', $utcDate['hours'], $utcDate['minutes'], $utcDate['seconds']);
         ?>
         
-        <div class="birth-info-card">
+        <div class="card card--large">
             <h2>Geboortegegevens</h2>
             <div class="birth-info-row">
                 <span class="birth-info-label">Naam:</span>
@@ -219,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
         </div>
 
         <div class="houses-planets-container">
-        <div class="data-card">
+        <div class="card">
             <table>
                 <tr style="background: #2196F3; color: white;">
                     <th colspan="3">Planeetposities</th>
@@ -250,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
             </table>
         </div>
 
-        <div class="data-card">
+        <div class="card">
             <table>
                 <tr style="background: #9C27B0; color: white;">
                     <th colspan="2">Huizensysteem: <?= htmlspecialchars($result['houses']['systemName']) ?></th>
@@ -269,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
             <img src="../src/Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix">
         </div>
 
-        <div class="data-card">
+        <div class="card">
             <h4>Aspecten (<?= count($result['aspects']) ?> totaal)</h4>
             <table>
                 <tr style="background: #FF9800; color: white;">
@@ -282,9 +296,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
                 </tr>
                 <?php foreach ($result['aspects'] as $aspect): ?>
                     <tr style="<?= $aspect->isDominant ? 'background-color: #ffcccb;' : '' ?>">
-                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($aspect->planet1Index) ?></span></td>
+                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByName($aspect->planet1Name) ?></span></td>
                         <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($aspect->aspectDegrees) ?></span></td>
-                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($aspect->planet2Index) ?></span></td>
+                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByName($aspect->planet2Name) ?></span></td>
                         <td style="text-align: center;"><?= $aspectCalculator->formatOrb($aspect->orb) ?></td>
                         <td style="text-align: center;"><?= Formatter::formatLongitudeWithGlyph($aspect->planet1Longitude) ?></td>
                         <td style="text-align: center;"><?= Formatter::formatLongitudeWithGlyph($aspect->planet2Longitude) ?></td>

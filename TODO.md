@@ -57,6 +57,25 @@
   - Ascendant glyph (-) en MC glyph (.) gecorrigeerd in aspecten
   - `getPlanetGlyphByName()` functie voor robuustere lookup
 
+- [x] **CSS refactoring** (2026-03)
+  - Unified `.card` class voor alle blokken (verwijderd: birth-form-card, birth-info-card, data-card)
+  - `.card--large` modifier voor grotere padding
+  - Tabel headers met border-radius (8px)
+  - Subtile hover effecten op tabelrijen
+  - Gereduceerd van 220 naar 200 regels (-9%)
+
+- [x] **Aspecten filter** (2026-03)
+  - NorthNode aspecten verwijderd uit weergave
+  - Chiron aspecten verwijderd uit weergave
+  - Ascendant-MC onderling aspect verwijderd
+  - Dominante aspect indicator (harde aspecten naar Asc/MC met orb < 2°)
+
+- [x] **Pars Fortuna toegevoegd** (2026-03)
+  - Berekening: Ascendant + Maan - Zon
+  - Weergave in planetenlijst (als laatste)
+  - Weergave in wheel met glyph (|)
+  - Uitgesloten van aspectenberekening
+
 ---
 
 ## Weergave & UI
@@ -83,7 +102,7 @@
     - [ ] Zuidknoop
     - [ ] Lilith
     - [ ] Vertex
-    - [ ] Arabische punten (behalve Pars Fortuna)
+    - [ ] Arabische punten (Pars Fortuna is toegevoegd)
   - [ ] Huistabel uitbreiden met huisheren
 
 - [ ] **Aspecten uitbreiden**

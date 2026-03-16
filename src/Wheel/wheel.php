@@ -575,8 +575,8 @@ function get_planet_glyph($planet_name) {
     $glyphs = [
         'Sun' => 33, 'Moon' => 34, 'Mercury' => 35, 'Venus' => 36,
         'Mars' => 37, 'Jupiter' => 38, 'Saturn' => 39, 'Uranus' => 40,
-        'Neptune' => 41, 'Pluto' => 42, 'Chiron' => 51, 'TNode' => 43, 
-        'NorthNode' => 43, 'POF' => 66
+        'Neptune' => 41, 'Pluto' => 42, 'Chiron' => 51, 'TNode' => 43,
+        'NorthNode' => 43, 'ParsFortuna' => 124
     ];
     return $glyphs[$planet_name] ?? 52;
 }
