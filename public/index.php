@@ -42,6 +42,14 @@ use Tijd\Glyph\SymbolGlyph;
 $result = null;
 $error = null;
 
+// Debug mode: populate form with test data
+if (isset($_GET['do']) && $_GET['do'] === 'debug') {
+    $_POST['name'] = 'Test Persoon';
+    $_POST['date'] = '1985-05-15';
+    $_POST['time'] = '14:30:00';
+    $_POST['location'] = 'Amsterdam, Nederland';
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
     $personName = trim($_POST['name'] ?? '');
     $location = trim($_POST['location']);
@@ -169,18 +177,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
         <div class="form-row half">
             <div class="form-group">
                 <label for="date">Datum</label>
-                <input type="date" id="date" name="date" value="<?= $_POST['date'] ?? '1963-07-19' ?>" required>
+                <input type="date" id="date" name="date" value="<?= htmlspecialchars($_POST['date'] ?? '') ?>" required>
             </div>
             <div class="form-group">
                 <label for="time">Tijd (lokaal)</label>
-                <input type="time" id="time" name="time" value="<?= $_POST['time'] ?? '16:51:21' ?>" step="1" required>
+                <input type="time" id="time" name="time" value="<?= htmlspecialchars($_POST['time'] ?? '') ?>" step="1" required>
             </div>
         </div>
 
         <div class="form-row full">
             <div class="form-group">
                 <label for="location">Geboorteplaats</label>
-                <input type="text" id="location" name="location" placeholder="Bijv. Utrecht" value="<?= htmlspecialchars($_POST['location'] ?? 'Ooltgensplaat') ?>" required>
+                <input type="text" id="location" name="location" placeholder="Bijv. Amsterdam, Nederland" value="<?= htmlspecialchars($_POST['location'] ?? '') ?>" required>
             </div>
         </div>
 
@@ -191,6 +199,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
 
     <?php if ($error): ?>
         <p class="form-error"><?= htmlspecialchars($error) ?></p>
+    <?php endif; ?>
+    
+    <?php if (isset($_GET['do']) && $_GET['do'] === 'debug'): ?>
+        <p style="margin-top: 16px; font-size: 0.85em; color: #4CAF50;">
+            ✓ Testdata geladen &nbsp;|&nbsp;
+            <a href="?" style="color: #2196F3; text-decoration: none;">Wis testdata</a>
+        </p>
+    <?php else: ?>
+        <p style="margin-top: 16px; font-size: 0.85em; color: #888;">
+            <a href="?do=debug" style="color: #2196F3; text-decoration: none;">🐛 Testdata laden</a>
+        </p>
     <?php endif; ?>
 </div>
 
