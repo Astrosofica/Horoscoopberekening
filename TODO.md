@@ -21,6 +21,24 @@
 - [x] **Weergave huizen**
   - Cusp 1 t/m Cusp 12 benaming
 
+- [x] **Wheel integratie** (2024-03)
+  - `src/Wheel/` map aangemaakt met wheel.php, configuration.php, functions.php
+  - `HousePlanetMatcher` class voor planeet-huis bepaling
+  - Session-based data doorgeven via session_id in URL
+  - Wheel toont nu dynamisch berekende planeten en huizen
+
+- [x] **Formulier uitgebreid** (2024-03)
+  - Naam veld toegevoegd (eerste veld, verplicht)
+  - Nieuwe indeling: Naam (100%), Datum+Tijd (50%/50%), Plaats (100%)
+  - Button tekst: "Horoscoop berekenen"
+  - Moderne card styling
+
+- [x] **Vormgeving herzien** (2024-03)
+  - CSS in apart bestand `public/css/astro.css`
+  - Alle blokken in moderne cards met subtiele tint en border
+  - Geboortegegevens: naam, moment, locatie, UTC referentie
+  - Nieuwe volgorde: Geboortegegevens → Huizen → Planeten → Radix → Aspecten
+
 ---
 
 ## Weergave & UI
@@ -31,24 +49,17 @@
   - [ ] Optioneel: Pars Fortuna en Chiron glyphs
 
 - [ ] **Formulier uitbreiden**
-  - [ ] Naam veld toevoegen
   - [ ] Huizensysteem selector (meerdere opties?)
   - [ ] Orb instellingen per aspect
   - [ ] Datum/tijd picker met kalender
   - [ ] Locatie autocomplete (Google Places)
 
-- [ ] **Vormgeving herzien**
-  - [ ] CSS naar apart bestand (nu deels inline in index.php)
+- [ ] **Vormgeving verfijnen**
   - [ ] Responsive design voor mobiel
   - [ ] Print-vriendelijke stylesheet (`@media print`)
   - [ ] No-print instellen voor bepaalde delen (formulier, knoppen)
   - [ ] Loading indicator tijdens API calls
   - [ ] Foutmeldingen styled als alerts
-
-- [ ] **Wheel integratie**
-  - [ ] Wheel sideproject afronden
-  - [ ] Invoer van data vanuit index.php naar wheel
-  - [ ] Weergave wheel in index.php
 
 ---
 
@@ -91,10 +102,6 @@
   - `composer init` voor PSR-4 autoloading
   - Verwijder handmatige `require_once` statements
   - Gebruik `use Tijd\...` statements overal
-
-- [ ] **Blokken herschikken**
-  - Tijdgerelateerde data vóór de blokken tonen
-  - Logische volgorde bepalen
 
 ---
 
@@ -144,15 +151,13 @@
 
 ### Hoog
 1. Glyphs uitbreiden (Asc, MC, Noordknoop)
-2. CSS herzien (apart bestand, print-friendly)
-3. Formulier: naam veld toevoegen
+2. Responsive design voor mobiel
 
 ### Medium
-4. Wheel integratie
-5. Blokken herschikken
-6. Composer autoloading
+3. Print-vriendelijke stylesheet
+4. Composer autoloading
 
 ### Laag
-7. Minor aspects
-8. Aspectpatronen
-9. Element/kwaliteiten balans
+5. Minor aspects
+6. Aspectpatronen
+7. Element/kwaliteiten balans

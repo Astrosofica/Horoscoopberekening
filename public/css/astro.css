@@ -18,3 +18,167 @@
     display: inline-block;
     font-family: 'Astro', sans-serif;
 }
+
+.birth-form-card {
+    background: #fafbfc;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+    border: 1px solid #e8e8e8;
+}
+
+.birth-form-card h2 {
+    margin: 0 0 24px 0;
+    color: #1a1a2e;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-row.full {
+    flex-direction: column;
+}
+
+.form-row.half .form-group {
+    flex: 1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #999;
+}
+
+.form-submit {
+    margin-top: 8px;
+}
+
+.form-submit button {
+    width: 100%;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.form-submit button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.form-submit button:active {
+    transform: translateY(0);
+}
+
+.birth-info-card {
+    background: #fafbfc;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+    border: 1px solid #e8e8e8;
+}
+
+.birth-info-card h2 {
+    margin: 0 0 20px 0;
+    color: #1a1a2e;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.birth-info-row {
+    display: flex;
+    margin-bottom: 12px;
+    align-items: baseline;
+}
+
+.birth-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.birth-info-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 160px;
+    flex-shrink: 0;
+}
+
+.birth-info-value {
+    color: #1a1a2e;
+}
+
+.birth-info-value .coordinates {
+    color: #666;
+    font-size: 0.95em;
+}
+
+.data-card {
+    background: #fafbfc;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin-bottom: 24px;
+    border: 1px solid #e8e8e8;
+}
+
+.data-card h4 {
+    margin: 0 0 16px 0;
+    color: #1a1a2e;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.data-card table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-card th {
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.data-card td {
+    padding: 10px 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.data-card tr:last-child td {
+    border-bottom: none;
+}

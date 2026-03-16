@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -21,6 +22,7 @@ require_once __DIR__ . '/../src/Calculation/PlanetCalculator.php';
 require_once __DIR__ . '/../src/Calculation/HouseCalculator.php';
 require_once __DIR__ . '/../src/Calculation/Aspect.php';
 require_once __DIR__ . '/../src/Calculation/AspectCalculator.php';
+require_once __DIR__ . '/../src/Calculation/HousePlanetMatcher.php';
 require_once __DIR__ . '/../src/Helpers/Formatter.php';
 require_once __DIR__ . '/../src/Glyph/SymbolGlyph.php';
 
@@ -31,6 +33,7 @@ use Tijd\Ephemeris\SwissEphemeris;
 use Tijd\Calculation\PlanetCalculator;
 use Tijd\Calculation\HouseCalculator;
 use Tijd\Calculation\AspectCalculator;
+use Tijd\Calculation\HousePlanetMatcher;
 use Tijd\Helpers\Formatter;
 use Tijd\Glyph\SymbolGlyph;
 
@@ -38,11 +41,16 @@ $result = null;
 $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
+    $personName = trim($_POST['name'] ?? '');
     $location = trim($_POST['location']);
     $date = $_POST['date'] ?? '';
     $time = $_POST['time'] ?? '';
 
-    if (!preg_match('/^[\p{L}\s\-\.,]+$/u', $location)) {
+    if (empty($personName)) {
+        $error = "Naam is verplicht";
+    } elseif (!preg_match('/^[\p{L}\s\-\.\']+$/u', $personName)) {
+        $error = "Ongeldige naam";
+    } elseif (!preg_match('/^[\p{L}\s\-\.,]+$/u', $location)) {
         $error = "Ongeldige locatie";
     } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !strtotime($date)) {
         $error = "Ongeldige datum";
@@ -93,6 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
                 $aspectResult = $aspectCalculator->calculate($planetsForAspects, $houseResult);
 
                 $result = [
+                    'name' => $personName,
                     'offset' => $timeResult['offset'],
                     'source' => $timeResult['source'],
                     'label' => $timeResult['label'],
@@ -105,6 +114,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
                     'aspects' => $aspectResult,
                     'local_timestamp' => $timestamp,
                     'utc_timestamp' => $utcTimestamp
+                ];
+
+                $housePlanetMatcher = new HousePlanetMatcher();
+                $planetsForWheel = $housePlanetMatcher->match(
+                    $result['planets'],
+                    $result['houses']['houses']
+                );
+                $houseCuspsForWheel = $housePlanetMatcher->extractHouseCusps($result['houses']['houses']);
+
+                $_SESSION['wheel_data'] = [
+                    'name' => $personName,
+                    'house_cusps' => $houseCuspsForWheel,
+                    'planets' => $planetsForWheel
                 ];
             }
         }
@@ -119,104 +141,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
     <title>Astrologische Tijd Calculator</title>
     <link rel="stylesheet" href="css/astro.css">
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; line-height: 1.6; }
-        .card { border: 1px solid #ccc; padding: 20px; border-radius: 8px; background: #f9f9f9; }
-        .result { margin-top: 20px; padding: 15px; background: #e7f3ff; border-left: 5px solid #2196F3; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100%; padding: 8px; margin-bottom: 15px; box-sizing: border-box; }
-        button { background: #2196F3; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 8px; border-bottom: 1px solid #ddd; }
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; line-height: 1.6; background: #f5f5f5; }
         .astro-glyph { font-family: 'Astro', sans-serif; font-size: 1.2em; }
     </style>
 </head>
 <body>
 
-<div class="card">
+<div class="birth-form-card">
     <h2>Geboortegegevens</h2>
     <form method="POST">
-        <label>Geboorteplaats:</label>
-        <input type="text" name="location" placeholder="Bijv. Utrecht" value="<?= htmlspecialchars($_POST['location'] ?? 'Ooltgensplaat') ?>" required>
+        <div class="form-row full">
+            <div class="form-group">
+                <label for="name">Naam</label>
+                <input type="text" id="name" name="name" placeholder="Volledige naam" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
+            </div>
+        </div>
 
-        <label>Datum:</label>
-        <input type="date" name="date" value="<?= $_POST['date'] ?? '1963-07-19' ?>" required>
+        <div class="form-row half">
+            <div class="form-group">
+                <label for="date">Datum</label>
+                <input type="date" id="date" name="date" value="<?= $_POST['date'] ?? '1963-07-19' ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="time">Tijd (lokaal)</label>
+                <input type="time" id="time" name="time" value="<?= $_POST['time'] ?? '16:51:21' ?>" step="1" required>
+            </div>
+        </div>
 
-        <label>Tijd (Lokaal):</label>
-        <input type="time" name="time" value="<?= $_POST['time'] ?? '16:51:21' ?>" step="1" required>
+        <div class="form-row full">
+            <div class="form-group">
+                <label for="location">Geboorteplaats</label>
+                <input type="text" id="location" name="location" placeholder="Bijv. Utrecht" value="<?= htmlspecialchars($_POST['location'] ?? 'Ooltgensplaat') ?>" required>
+            </div>
+        </div>
 
-        <button type="submit">Bereken Exacte Offset</button>
+        <div class="form-submit">
+            <button type="submit">Horoscoop berekenen</button>
+        </div>
     </form>
 
     <?php if ($error): ?>
-        <p style="color: red;"><?= htmlspecialchars($error) ?></p>
+        <p style="color: red; margin-top: 16px;"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
+</div>
 
     <?php if ($result): ?>
-        <div class="result">
-            <h3>Resultaat voor <?= htmlspecialchars($result['address']) ?></h3>
-            <p><small>Coördinaten: <?= Formatter::formatLat($result['coords']['lat']) ?>, <?= Formatter::formatLon($result['coords']['lng']) ?></small></p>
-            <p><strong>Timezone:</strong> <?= htmlspecialchars($result['timezone']) ?></p>
-            <p><strong>Offset met GMT/UTC:</strong> <?= Formatter::formatOffset($result['offset']) ?>
-               (<?= $result['offset'] ?> seconden)</p>
-            <p><strong>Bron:</strong> <?= $result['source'] ?> (<?= $result['label'] ?>)</p>
-            <p><strong>Juliaanse Dag:</strong> <?= number_format($result['julian_day'], 5) ?></p>
+        <?php
+        $months = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
+        
+        $localDate = getdate($result['local_timestamp']);
+        $utcDate = getdate($result['utc_timestamp']);
+        
+        $localDateStr = $localDate['mday'] . ' ' . $months[$localDate['mon'] - 1] . ' ' . $localDate['year'];
+        $localTimeStr = sprintf('%02d:%02d:%02d', $localDate['hours'], $localDate['minutes'], $localDate['seconds']);
+        
+        $utcDateStr = $utcDate['mday'] . ' ' . $months[$utcDate['mon'] - 1] . ' ' . $utcDate['year'];
+        $utcTimeStr = sprintf('%02d:%02d:%02d', $utcDate['hours'], $utcDate['minutes'], $utcDate['seconds']);
+        ?>
+        
+        <div class="birth-info-card">
+            <h2>Geboortegegevens</h2>
+            <div class="birth-info-row">
+                <span class="birth-info-label">Naam:</span>
+                <span class="birth-info-value"><?= htmlspecialchars($result['name']) ?></span>
+            </div>
+            <div class="birth-info-row">
+                <span class="birth-info-label">Geboortemoment:</span>
+                <span class="birth-info-value"><?= $localDateStr ?>, <?= $localTimeStr ?> (<?= $result['label'] ?>)</span>
+            </div>
+            <div class="birth-info-row">
+                <span class="birth-info-label">Locatie:</span>
+                <span class="birth-info-value"><?= htmlspecialchars($result['address']) ?> <span class="coordinates">(<?= Formatter::formatLat($result['coords']['lat']) ?>, <?= Formatter::formatLon($result['coords']['lng']) ?>)</span></span>
+            </div>
+            <div class="birth-info-row">
+                <span class="birth-info-label">Referentie (UTC):</span>
+                <span class="birth-info-value"><?= $utcDateStr ?>, <?= $utcTimeStr ?> GMT</span>
+            </div>
+        </div>
 
+        <div class="data-card">
             <h4>Huizensysteem: <?= htmlspecialchars($result['houses']['systemName']) ?></h4>
-            <table style="width:100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px;">
+            <table>
                 <tr style="background: #9C27B0; color: white;">
-                    <th style="padding: 8px; text-align: left;">Huis</th>
-                    <th style="padding: 8px;">Positie</th>
+                    <th style="text-align: left;">Huis</th>
+                    <th>Positie</th>
                 </tr>
                 <?php foreach ($result['houses']['houses'] as $houseNum => $house): ?>
-                    <tr style="border-bottom: 1px solid #ddd;">
-                        <td style="padding: 8px;"><?= htmlspecialchars($house['name']) ?></td>
-                        <td style="padding: 8px; text-align: center;"><?= Formatter::formatLongitudeWithGlyph($house['longitude']) ?></td>
+                    <tr>
+                        <td><?= htmlspecialchars($house['name']) ?></td>
+                        <td style="text-align: center;"><?= Formatter::formatLongitudeWithGlyph($house['longitude']) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </table>
+        </div>
 
-            <h4>Aspecten (<?= count($result['aspects']) ?> totaal)</h4>
-            <table style="width:100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px;">
-                <tr style="background: #FF9800; color: white;">
-                    <th style="padding: 8px;">Planeet 1</th>
-                    <th style="padding: 8px;"></th>
-                    <th style="padding: 8px;">Planeet 2</th>
-                    <th style="padding: 8px;">Orb</th>
-                    <th style="padding: 8px;">Positie 1</th>
-                    <th style="padding: 8px;">Positie 2</th>
-                </tr>
-                <?php foreach ($result['aspects'] as $aspect): ?>
-                    <tr style="border-bottom: 1px solid #ddd; <?= $aspect->isDominant ? 'background-color: #ffcccb;' : '' ?>">
-                        <td style="padding: 8px; text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($aspect->planet1Index) ?></span></td>
-                        <td style="padding: 8px; text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($aspect->aspectDegrees) ?></span></td>
-                        <td style="padding: 8px; text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($aspect->planet2Index) ?></span></td>
-                        <td style="padding: 8px; text-align: center;"><?= $aspectCalculator->formatOrb($aspect->orb) ?></td>
-                        <td style="padding: 8px; text-align: center;"><?= Formatter::formatLongitudeWithGlyph($aspect->planet1Longitude) ?></td>
-                        <td style="padding: 8px; text-align: center;"><?= Formatter::formatLongitudeWithGlyph($aspect->planet2Longitude) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-
+        <div class="data-card">
             <h4>Planeetposities</h4>
-            <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+            <table>
                 <tr style="background: #2196F3; color: white;">
-                    <th style="padding: 8px; text-align: center;">Planeet</th>
-                    <th style="padding: 8px;">Positie</th>
-                    <th style="padding: 8px;">Status</th>
+                    <th style="text-align: center;">Planeet</th>
+                    <th>Positie</th>
+                    <th>Status</th>
                 </tr>
                 <?php
                 $planetIndex = 0;
                 foreach ($result['planets'] as $name => $data): ?>
-                    <tr style="border-bottom: 1px solid #ddd;">
-                        <td style="padding: 8px; text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($planetIndex) ?></span></td>
-                        <td style="padding: 8px; text-align: center;">
+                    <tr>
+                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($planetIndex) ?></span></td>
+                        <td style="text-align: center;">
                             <?php if (isset($data['success']) && $data['success']): ?>
                                 <?= Formatter::formatLongitudeWithGlyph($data['longitude']) ?>
                             <?php else: ?>
                                 <span style="color: red;">Fout</span>
                             <?php endif; ?>
                         </td>
-                        <td style="padding: 8px; text-align: center;">
+                        <td style="text-align: center;">
                             <?php if (isset($data['success']) && $data['success']): ?>
                                 <?php if ($data['speed_longitude'] < 0): ?>
                                     <span class="astro-glyph"><?= SymbolGlyph::getRetrogradeGlyph() ?></span>
@@ -229,6 +268,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
                         </td>
                     </tr>
                 <?php $planetIndex++; endforeach; ?>
+            </table>
+        </div>
+
+        <div class="data-card">
+            <h4>Radix</h4>
+            <img src="../src/Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix" style="max-width: 100%; height: auto;">
+        </div>
+
+        <div class="data-card">
+            <h4>Aspecten (<?= count($result['aspects']) ?> totaal)</h4>
+            <table>
+                <tr style="background: #FF9800; color: white;">
+                    <th>Planeet 1</th>
+                    <th></th>
+                    <th>Planeet 2</th>
+                    <th>Orb</th>
+                    <th>Positie 1</th>
+                    <th>Positie 2</th>
+                </tr>
+                <?php foreach ($result['aspects'] as $aspect): ?>
+                    <tr style="<?= $aspect->isDominant ? 'background-color: #ffcccb;' : '' ?>">
+                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($aspect->planet1Index) ?></span></td>
+                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($aspect->aspectDegrees) ?></span></td>
+                        <td style="text-align: center;"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyph($aspect->planet2Index) ?></span></td>
+                        <td style="text-align: center;"><?= $aspectCalculator->formatOrb($aspect->orb) ?></td>
+                        <td style="text-align: center;"><?= Formatter::formatLongitudeWithGlyph($aspect->planet1Longitude) ?></td>
+                        <td style="text-align: center;"><?= Formatter::formatLongitudeWithGlyph($aspect->planet2Longitude) ?></td>
+                    </tr>
+                <?php endforeach; ?>
             </table>
         </div>
     <?php endif; ?>
