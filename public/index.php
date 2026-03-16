@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <title>Astrologische Tijd Calculator</title>
+    <title>Horoscoopberekening</title>
     <link rel="stylesheet" href="css/astro.css">
 </head>
 <body>
