@@ -25,6 +25,7 @@ body {
 .astro-glyph {
     display: inline-block;
     font-family: 'Astro', sans-serif;
+    font-size: 1.2em;
 }
 
 .card {
@@ -214,4 +215,40 @@ body {
     max-width: 100%;
     height: auto;
     border-radius: 50%;
+}
+
+.form-error {
+    color: #d32f2f;
+    margin-top: 16px;
+}
+
+.text-error {
+    color: #d32f2f;
+}
+
+.table-header--blue {
+    background: #2196F3;
+    color: white;
+}
+
+.table-header--purple {
+    background: #9C27B0;
+    color: white;
+}
+
+.table-header--orange {
+    background: #FF9800;
+    color: white;
+}
+
+.row--dominant {
+    background-color: #ffcccb;
+}
+
+.row--dominant:hover td {
+    background-color: #ffb3b3;
+}
+
+.text-center {
+    text-align: center;
 }

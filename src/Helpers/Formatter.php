@@ -275,4 +275,28 @@ class Formatter
             $sec
         );
     }
+    
+    /**
+     * Formatteer een timestamp naar Nederlandse datum en tijd
+     * 
+     * @param int $timestamp Unix timestamp
+     * @return array Array met date_string en time_string
+     */
+    public static function formatDutchDateTime(int $timestamp): array
+    {
+        $months = [
+            'januari', 'februari', 'maart', 'april', 'mei', 'juni',
+            'juli', 'augustus', 'september', 'oktober', 'november', 'december'
+        ];
+        
+        $date = getdate($timestamp);
+        
+        $dateString = $date['mday'] . ' ' . $months[$date['mon'] - 1] . ' ' . $date['year'];
+        $timeString = sprintf('%02d:%02d:%02d', $date['hours'], $date['minutes'], $date['seconds']);
+        
+        return [
+            'date' => $dateString,
+            'time' => $timeString
+        ];
+    }
 }
