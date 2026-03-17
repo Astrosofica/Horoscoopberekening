@@ -254,7 +254,7 @@ body {
 }
 
 @media print {
-    .birth-form-card,
+    .card--form,
     .form-submit,
     .form-error,
     p[style*="margin-top"] {
@@ -265,6 +265,7 @@ body {
         background: white;
         margin: 0;
         padding: 20px;
+        line-height: 1.3;
     }
 
     .card {
