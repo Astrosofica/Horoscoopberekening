@@ -295,6 +295,10 @@ body {
         page-break-after: always;
     }
 
+    .card h4 {
+        page-break-before: always;
+    }
+
     table {
         page-break-inside: auto;
     }
