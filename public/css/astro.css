@@ -187,7 +187,7 @@ body {
 }
 
 .card tr:hover td {
-    background-color: #f5f5f5;
+    background-color: #e8e8e8;
 }
 
 .card tr.row--dominant:hover td {
