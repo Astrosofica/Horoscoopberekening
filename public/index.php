@@ -330,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
     </div>
 
         <div class="wheel-container">
-            <img src="../src/Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix">
+            <img src="./Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix">
         </div>
 
         <div class="card">

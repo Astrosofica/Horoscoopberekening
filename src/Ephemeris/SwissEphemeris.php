@@ -80,8 +80,9 @@ class SwissEphemeris
         int $planet,
         int $iflag = self::SEFLG_SPEED
     ): array {
-        $xx = \FFI::new("double[6]");
-        $serr = \FFI::new("char[256]");
+        // Gebruik de instantie (self::$ffi) in plaats van de klasse (\FFI)
+        $xx = self::$ffi->new("double[6]");
+        $serr = self::$ffi->new("char[256]");
 
         $result = self::$ffi->swe_calc_ut($julianDay, $planet, $iflag, $xx, $serr);
 
@@ -99,7 +100,8 @@ class SwissEphemeris
 
         return [
             'success' => false,
-            'error' => \FFI::string($serr)
+            // Ook hier de instantie gebruiken voor de string conversie
+            'error' => self::$ffi->string($serr)
         ];
     }
 

@@ -198,7 +198,7 @@ class SymbolGlyph
         return self::$planets[$code]['code'];
     }
 
-    public static function getSignGlyph(int $longitude): string
+    public static function getSignGlyph(float $longitude): string
     {
         $signIndex = (int) floor($longitude / 30);
         $signIndex = max(0, min(11, $signIndex));

@@ -45,10 +45,15 @@ class HouseCalculator
         float $longitude,
         string $houseSystem = self::HSYS_KOCH
     ): array {
-        $cusps = \FFI::new("double[37]");
-        $ascmc = \FFI::new("double[20]");
+        // 1. Haal de FFI instantie op
+        $ffi = SwissEphemeris::getFfi();
 
-        $result = SwissEphemeris::getFfi()->swe_houses(
+        // 2. Gebruik de instantie voor de allocatie (geen \FFI:: meer)
+        $cusps = $ffi->new("double[37]");
+        $ascmc = $ffi->new("double[20]");
+
+        // 3. Gebruik de variabele voor de berekening
+        $result = $ffi->swe_houses(
             $julianDay,
             $latitude,
             $longitude,
