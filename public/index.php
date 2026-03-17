@@ -282,6 +282,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
             </div>
         </div>
 
+        <div class="wheel-container">
+            <img src="./Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix">
+        </div>
+
         <div class="houses-planets-container">
         <div class="card">
             <table>
@@ -328,10 +332,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
             </table>
         </div>
     </div>
-
-        <div class="wheel-container">
-            <img src="./Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix">
-        </div>
 
         <div class="card">
             <h4>Aspecten (<?= count($result['aspects']) ?> totaal)</h4>
