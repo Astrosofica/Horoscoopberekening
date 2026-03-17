@@ -207,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
 </head>
 <body>
 
-<div class="card card--large">
+<div class="card card--large card--form">
     <h2>Geboortegegevens</h2>
     <form method="POST">
         <div class="form-row full">
@@ -262,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
         $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
         ?>
         
-<div class="card card--large card--form">
+        <div class="card card--large">
             <h2>Geboortegegevens</h2>
             <div class="birth-info-row">
                 <span class="birth-info-label">Naam:</span>
