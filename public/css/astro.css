@@ -292,6 +292,7 @@ body {
 
     .wheel-container {
         page-break-inside: avoid;
+        page-break-after: always;
     }
 
     table {
