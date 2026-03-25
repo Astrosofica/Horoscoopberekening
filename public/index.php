@@ -107,13 +107,6 @@ $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
-if (isset($_GET['do']) && $_GET['do'] === 'debug') {
-    $_POST['name'] = 'Test Persoon';
-    $_POST['date'] = '1985-05-15';
-    $_POST['time'] = '14:30:00';
-    $_POST['location'] = 'Amsterdam, Nederland';
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isset($_POST['save_horoscope'])) {
     $personName = trim($_POST['name'] ?? '');
     $location = trim($_POST['location']);
@@ -340,17 +333,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
 
         <?php if ($error): ?>
             <p class="form-error"><?= htmlspecialchars($error) ?></p>
-        <?php endif; ?>
-        
-        <?php if (isset($_GET['do']) && $_GET['do'] === 'debug'): ?>
-            <p style="margin-top: 16px; font-size: 0.85em; color: #4CAF50;">
-                ✓ Testdata geladen &nbsp;|&nbsp;
-                <a href="?" style="color: #2196F3; text-decoration: none;">Wis testdata</a>
-            </p>
-        <?php else: ?>
-            <p style="margin-top: 16px; font-size: 0.85em; color: #888;">
-                <a href="?do=debug" style="color: #2196F3; text-decoration: none;">Testdata laden</a>
-            </p>
         <?php endif; ?>
     </div>
 
