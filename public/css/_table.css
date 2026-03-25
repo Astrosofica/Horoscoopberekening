@@ -1,0 +1,139 @@
+.card > table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 0;
+}
+
+.card th {
+    padding: 10px var(--spacing-sm);
+    text-align: center;
+    font-weight: 600;
+}
+
+.card th:first-child {
+    border-top-left-radius: var(--border-radius);
+}
+
+.card th:last-child {
+    border-top-right-radius: var(--border-radius);
+}
+
+.card td {
+    padding: 10px var(--spacing-sm) 0 var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.card tr:last-child td {
+    border-bottom: none;
+}
+
+.card tr:hover td {
+    background-color: var(--bg-hover);
+}
+
+.table-header--blue {
+    background: var(--color-primary);
+    color: white;
+}
+
+.table-header--purple {
+    background: var(--color-purple);
+    color: white;
+}
+
+.table-header--orange {
+    background: var(--color-warning);
+    color: white;
+}
+
+.row--dominant {
+    background-color: #ffcccb;
+}
+
+.row--dominant:hover td {
+    background-color: #ffb3b3;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.dashboard-table th {
+    background: var(--bg-table-header);
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.dashboard-table tr:hover td {
+    background: #fafafa;
+}
+
+.dashboard-table .actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.link--name {
+    font-weight: 500;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.link--name:hover {
+    color: var(--color-link);
+    text-decoration: underline;
+}
+
+.text-center {
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .dashboard-table {
+        font-size: var(--font-size-base);
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: var(--spacing-sm) 6px;
+    }
+
+    .dashboard-table .actions {
+        flex-direction: column;
+        gap: var(--spacing-xs);
+    }
+
+    table {
+        font-size: var(--font-size-base);
+    }
+
+    .card th,
+    .card td {
+        padding: var(--spacing-sm) var(--spacing-xs);
+    }
+}
+
+@media print {
+    a[href] {
+        color: #000;
+        text-decoration: none;
+    }
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+}

@@ -1,0 +1,43 @@
+.flash {
+    padding: 14px 18px;
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xl);
+    font-weight: 500;
+}
+
+.flash--success {
+    background: var(--color-success-light);
+    color: #2e7d32;
+    border: 1px solid var(--color-success-border);
+}
+
+.flash--error {
+    background: var(--bg-error);
+    color: #c62828;
+    border: 1px solid var(--border-error);
+}
+
+.edit-notice {
+    background: var(--bg-info);
+    border: 1px solid var(--border-info);
+    border-radius: 6px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    color: #1565c0;
+    font-size: var(--font-size-base);
+}
+
+.verified-badge {
+    background: var(--color-success);
+    color: white;
+    padding: 2px var(--spacing-sm);
+    border-radius: 4px;
+    font-size: var(--font-size-sm);
+    margin-left: var(--spacing-sm);
+}
+
+@media print {
+    .flash {
+        display: none !important;
+    }
+}

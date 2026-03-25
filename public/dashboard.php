@@ -43,7 +43,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Tijd</title>
-    <link rel="stylesheet" href="css/astro.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="container">

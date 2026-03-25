@@ -271,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
 <head>
     <meta charset="UTF-8">
     <title>Horoscoopberekening</title>
-    <link rel="stylesheet" href="css/astro.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="container">

@@ -1,0 +1,56 @@
+.btn {
+    display: inline-block;
+    padding: 10px var(--spacing-xl);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn--primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+}
+
+.btn--primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-button);
+}
+
+.btn--secondary {
+    background: var(--color-secondary);
+    color: white;
+}
+
+.btn--secondary:hover {
+    background: var(--color-secondary-dark);
+}
+
+.btn--danger {
+    background: var(--color-danger);
+    color: white;
+}
+
+.btn--danger:hover {
+    background: var(--color-danger-dark);
+}
+
+.btn--save {
+    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-xxl);
+    width: 100%;
+}
+
+.btn--save:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-success);
+}
+
+.btn--small {
+    padding: 6px var(--spacing-md);
+    font-size: var(--font-size-base);
+}

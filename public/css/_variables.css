@@ -1,0 +1,64 @@
+:root {
+    --color-primary: #2196F3;
+    --color-primary-dark: #1976D2;
+    --color-primary-light: rgba(33, 150, 243, 0.1);
+    
+    --color-secondary: #78909c;
+    --color-secondary-dark: #546e7a;
+    
+    --color-danger: #ef5350;
+    --color-danger-dark: #d32f2f;
+    
+    --color-success: #4CAF50;
+    --color-success-dark: #388E3C;
+    --color-success-light: #e8f5e9;
+    --color-success-border: #a5d6a7;
+    
+    --color-warning: #FF9800;
+    
+    --color-purple: #9C27B0;
+    
+    --color-text: #1a1a2e;
+    --color-text-muted: #555;
+    --color-text-light: #666;
+    --color-text-hint: #888;
+    
+    --color-link: #2196F3;
+    
+    --bg-body: #f0ede8;
+    --bg-card: #ffffff;
+    --bg-card-save: #f1f8e9;
+    --bg-error: #ffebee;
+    --bg-info: #e3f2fd;
+    --bg-hover: #e0e0e0;
+    --bg-table-header: #f5f5f5;
+    
+    --border-color: #e5e5e5;
+    --border-color-light: #eee;
+    --border-input: #e0e0e0;
+    --border-info: #90caf9;
+    --border-success: #c5e1a5;
+    --border-error: #ef9a9a;
+    
+    --border-radius: 8px;
+    --border-radius-lg: 16px;
+    
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-button: 0 4px 12px rgba(33, 150, 243, 0.3);
+    --shadow-success: 0 4px 12px rgba(76, 175, 80, 0.3);
+    
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-xxl: 24px;
+    
+    --font-size-sm: 0.75rem;
+    --font-size-base: 0.9rem;
+    --font-size-md: 0.95rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.1rem;
+    --font-size-xxl: 1.3rem;
+    --font-size-xxxl: 1.5rem;
+}
