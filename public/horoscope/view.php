@@ -78,20 +78,12 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($result['name']) ?> - Tijd</title>
+    <title><?= htmlspecialchars($result['name']) ?> - Horoscoopberekening</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 <div class="container">
-    <nav class="nav-header">
-        <a href="../index.php" class="nav-brand">Tijd</a>
-        <div class="nav-links">
-            <a href="../index.php">Horoscoop berekenen</a>
-            <a href="../dashboard.php">Dashboard</a>
-            <span class="nav-user"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
-            <a href="../logout.php" class="nav-logout">Uitloggen</a>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/../includes/header.php'; ?>
 
     <div class="card card--large">
         <h2>Geboortegegevens</h2>
@@ -189,6 +181,8 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
     </div>
 
     <p class="back-link"><a href="../dashboard.php">&larr; Terug naar dashboard</a></p>
+
+    <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 </div>
 </body>
 </html>

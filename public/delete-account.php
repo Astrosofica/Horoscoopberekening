@@ -59,22 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account verwijderen - Tijd</title>
+    <title>Account verwijderen - Horoscoopberekening</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="container">
-    <nav class="nav-header">
-        <a href="index.php" class="nav-brand">Tijd</a>
-        <div class="nav-links">
-            <a href="index.php">Horoscoop berekenen</a>
-            <a href="dashboard.php">Dashboard</a>
-            <span class="nav-user"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
-            <a href="logout.php" class="nav-logout">Uitloggen</a>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/includes/header.php'; ?>
 
-    <div class="card card--auth">
+<div class="card card--auth">
         <h2>Account verwijderen</h2>
 
         <div class="flash flash--error">
@@ -106,6 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="dashboard.php">&larr; Terug naar dashboard</a>
         </p>
     </div>
+
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </div>
 </body>
 </html>

@@ -42,20 +42,12 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Tijd</title>
+    <title>Dashboard - Horoscoopberekening</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="container">
-    <nav class="nav-header">
-        <a href="index.php" class="nav-brand">Tijd</a>
-        <div class="nav-links">
-            <a href="index.php">Horoscoop berekenen</a>
-            <a href="dashboard.php">Dashboard</a>
-            <span class="nav-user"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
-            <a href="logout.php" class="nav-logout">Uitloggen</a>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/includes/header.php'; ?>
 
     <?php if ($success): ?>
         <div class="flash flash--success"><?= htmlspecialchars($success) ?></div>
@@ -126,6 +118,8 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
             <a href="delete-account.php" class="btn btn--small btn--danger">Account verwijderen</a>
         </p>
     </div>
+
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </div>
 </body>
 </html>

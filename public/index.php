@@ -275,20 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
 </head>
 <body>
 <div class="container">
-    <nav class="nav-header">
-        <a href="index.php" class="nav-brand">Tijd</a>
-        <div class="nav-links">
-            <a href="index.php">Horoscoop berekenen</a>
-            <?php if ($isLoggedIn): ?>
-                <a href="dashboard.php">Dashboard</a>
-                <span class="nav-user"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
-                <a href="logout.php" class="nav-logout">Uitloggen</a>
-            <?php else: ?>
-                <a href="login.php">Inloggen</a>
-                <a href="register.php">Registreren</a>
-            <?php endif; ?>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/includes/header.php'; ?>
 
     <?php if ($flashSuccess): ?>
         <div class="flash flash--success"><?= htmlspecialchars($flashSuccess) ?></div>
@@ -489,6 +476,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
             </table>
         </div>
     <?php endif; ?>
+    
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </div>
 
 </body>

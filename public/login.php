@@ -58,19 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inloggen - Tijd</title>
+    <title>Inloggen - Horoscoopberekening</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="container">
-    <nav class="nav-header">
-        <a href="index.php" class="nav-brand">Tijd</a>
-        <div class="nav-links">
-            <a href="index.php">Horoscoop berekenen</a>
-            <a href="login.php">Inloggen</a>
-            <a href="register.php">Registreren</a>
-        </div>
-    </nav>
+    <?php require_once __DIR__ . '/includes/header.php'; ?>
 
     <div class="card card--auth">
         <h2>Inloggen</h2>
@@ -114,6 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Nog geen account? <a href="register.php">Registreren</a>
         </p>
     </div>
+
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </div>
 </body>
 </html>
