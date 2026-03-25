@@ -1,0 +1,111 @@
+<?php
+session_start();
+
+if (file_exists(__DIR__ . '/../.env')) {
+    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '#') === 0) continue;
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($value);
+        }
+    }
+}
+
+require_once __DIR__ . '/../src/Database/Connection.php';
+require_once __DIR__ . '/../src/Entity/User.php';
+require_once __DIR__ . '/../src/Database/UserRepository.php';
+require_once __DIR__ . '/../src/Auth/AuthService.php';
+
+use Tijd\Auth\AuthService;
+use Tijd\Database\UserRepository;
+
+$authService = new AuthService();
+
+if (!$authService->isLoggedIn()) {
+    header('Location: login.php');
+    exit;
+}
+
+$currentUser = $authService->getCurrentUser();
+
+$error = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $password = $_POST['password'] ?? '';
+    $confirmation = $_POST['confirmation'] ?? '';
+
+    if (empty($password)) {
+        $error = 'Vul je wachtwoord in.';
+    } elseif (!password_verify($password, $currentUser->getPasswordHash())) {
+        $error = 'Het wachtwoord is onjuist.';
+    } elseif ($confirmation !== 'VERWIJDEREN') {
+        $error = 'Type "VERWIJDEREN" om te bevestigen.';
+    } else {
+        $userRepository = new UserRepository();
+        $userRepository->delete($currentUser->getId());
+        
+        session_destroy();
+        
+        session_start();
+        $_SESSION['flash_success'] = 'Je account is verwijderd.';
+        header('Location: index.php');
+        exit;
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account verwijderen - Tijd</title>
+    <link rel="stylesheet" href="css/astro.css">
+</head>
+<body>
+<div class="container">
+    <nav class="nav-header">
+        <a href="index.php" class="nav-brand">Tijd</a>
+        <div class="nav-links">
+            <a href="index.php">Horoscoop berekenen</a>
+            <a href="dashboard.php">Dashboard</a>
+            <span class="nav-user"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
+            <a href="logout.php" class="nav-logout">Uitloggen</a>
+        </div>
+    </nav>
+
+    <div class="card card--auth">
+        <h2>Account verwijderen</h2>
+
+        <div class="flash flash--error">
+            <strong>Waarschuwing:</strong> Deze actie kan niet ongedaan worden gemaakt. 
+            Alle je horoscopen worden permanent verwijderd.
+        </div>
+
+        <?php if ($error): ?>
+            <div class="flash flash--error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <form method="POST" class="auth-form" onsubmit="return confirm('Weet je ABSOLUUT zeker dat je je account wilt verwijderen? Dit kan niet ongedaan worden gemaakt.');">
+            <div class="form-group">
+                <label for="password">Je wachtwoord</label>
+                <input type="password" id="password" name="password" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmation">Type "VERWIJDEREN" om te bevestigen</label>
+                <input type="text" id="confirmation" name="confirmation" placeholder="VERWIJDEREN" required pattern="^VERWIJDEREN$">
+            </div>
+
+            <div class="form-submit">
+                <button type="submit" class="btn btn--danger" style="width: 100%;">Account definitief verwijderen</button>
+            </div>
+        </form>
+
+        <p class="auth-link">
+            <a href="dashboard.php">&larr; Terug naar dashboard</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

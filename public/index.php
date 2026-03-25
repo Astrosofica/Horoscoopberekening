@@ -42,7 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['save_horoscope'])) {
 
 require_once __DIR__ . '/../src/Database/Connection.php';
 require_once __DIR__ . '/../src/Entity/User.php';
+require_once __DIR__ . '/../src/Entity/Horoscope.php';
 require_once __DIR__ . '/../src/Database/UserRepository.php';
+require_once __DIR__ . '/../src/Database/HoroscopeRepository.php';
 require_once __DIR__ . '/../src/Auth/AuthService.php';
 require_once __DIR__ . '/../src/Geo/GeocodingService.php';
 require_once __DIR__ . '/../src/Time/AstroTime.php';
@@ -58,6 +60,7 @@ require_once __DIR__ . '/../src/Helpers/Formatter.php';
 require_once __DIR__ . '/../src/Glyph/SymbolGlyph.php';
 
 use Tijd\Auth\AuthService;
+use Tijd\Database\HoroscopeRepository;
 use Tijd\Geo\GeocodingService;
 use Tijd\Time\AstroTime;
 use Tijd\Ephemeris\EphemerisConfig;
@@ -73,6 +76,22 @@ use Tijd\Glyph\SymbolGlyph;
 $authService = new AuthService();
 $isLoggedIn = $authService->isLoggedIn();
 $currentUser = $isLoggedIn ? $authService->getCurrentUser() : null;
+
+$editSlug = null;
+$editHoroscope = null;
+
+if ($isLoggedIn && isset($_GET['edit']) && !empty($_GET['edit'])) {
+    $editSlug = $_GET['edit'];
+    $horoscopeRepo = new HoroscopeRepository();
+    $editHoroscope = $horoscopeRepo->findBySlugAndUserId($editSlug, $currentUser->getId());
+    
+    if ($editHoroscope && !isset($_POST['name'])) {
+        $_POST['name'] = $editHoroscope->getName();
+        $_POST['date'] = $editHoroscope->getBirthDate();
+        $_POST['time'] = $editHoroscope->getBirthTime();
+        $_POST['location'] = $editHoroscope->getLocationName();
+    }
+}
 
 $result = null;
 $error = null;
@@ -236,7 +255,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
     <?php endif; ?>
 
     <div class="card card--large card--form">
-        <h2>Geboortegegevens</h2>
+        <h2><?= $editHoroscope ? 'Horoscoop bewerken' : 'Geboortegegevens' ?></h2>
+        <?php if ($editHoroscope): ?>
+            <p class="edit-notice">Je bewerkt de horoscoop van <strong><?= htmlspecialchars($editHoroscope->getName()) ?></strong>. Na opslaan wordt de oude versie vervangen.</p>
+        <?php endif; ?>
         <form method="POST">
             <div class="form-row full">
                 <div class="form-group">
@@ -292,7 +314,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
         
         <?php if ($isLoggedIn): ?>
             <div class="card card--save">
-                <form method="POST" action="horoscope/save.php">
+                <form method="POST" action="horoscope/save.php<?= $editSlug ? '?replace=' . htmlspecialchars($editSlug) : '' ?>">
                     <input type="hidden" name="name" value="<?= htmlspecialchars($result['name']) ?>">
                     <input type="hidden" name="birth_date" value="<?= htmlspecialchars(date('Y-m-d', $result['local_timestamp'])) ?>">
                     <input type="hidden" name="birth_time" value="<?= htmlspecialchars(date('H:i:s', $result['local_timestamp'])) ?>">
@@ -305,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                     <input type="hidden" name="offset_label" value="<?= htmlspecialchars($result['label'] ?? '') ?>">
                     <input type="hidden" name="formatted_address" value="<?= htmlspecialchars($result['address']) ?>">
                     <input type="hidden" name="house_system" value="K">
-                    <button type="submit" name="save_horoscope" class="btn btn--save">Opslaan in mijn horoscopen</button>
+                    <button type="submit" name="save_horoscope" class="btn btn--save"><?= $editSlug ? 'Wijzigingen opslaan' : 'Opslaan in mijn horoscopen' ?></button>
                 </form>
             </div>
         <?php endif; ?>

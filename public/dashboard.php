@@ -98,6 +98,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                             <td><?= $h->getCreatedAt()?->format('d-m-Y') ?></td>
                             <td class="actions">
                                 <a href="horoscope/view.php?s=<?= $h->getSlug() ?>" class="btn btn--small">Bekijk</a>
+                                <a href="index.php?edit=<?= $h->getSlug() ?>" class="btn btn--small btn--secondary">Bewerk</a>
                                 <form method="POST" action="horoscope/delete.php" class="form--inline" onsubmit="return confirm('Weet je zeker dat je deze horoscoop wilt verwijderen?');">
                                     <input type="hidden" name="slug" value="<?= $h->getSlug() ?>">
                                     <button type="submit" class="btn btn--small btn--danger">Verwijder</button>
@@ -108,6 +109,22 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                 </tbody>
             </table>
         <?php endif; ?>
+    </div>
+
+    <div class="card card--large">
+        <h2>Account instellingen</h2>
+        <p>
+            <strong>E-mail:</strong> <?= htmlspecialchars($currentUser->getEmail()) ?>
+            <?php if ($currentUser->isEmailVerified()): ?>
+                <span class="verified-badge">Geverifieerd</span>
+            <?php else: ?>
+                <a href="verify-email.php" class="btn btn--small btn--secondary">Verifiëren</a>
+            <?php endif; ?>
+        </p>
+        <p>
+            <a href="change-password.php" class="btn btn--small btn--secondary">Wachtwoord wijzigen</a>
+            <a href="delete-account.php" class="btn btn--small btn--danger">Account verwijderen</a>
+        </p>
     </div>
 </div>
 </body>

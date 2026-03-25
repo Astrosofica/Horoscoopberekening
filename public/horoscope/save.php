@@ -75,6 +75,13 @@ if (!empty($_POST['house_system'])) {
 $horoscopeRepo = new HoroscopeRepository();
 $horoscopeRepo->create($horoscope);
 
-$_SESSION['flash_success'] = 'Horoscoop opgeslagen.';
+$replaceSlug = $_GET['replace'] ?? null;
+if ($replaceSlug) {
+    $horoscopeRepo->deleteBySlug($replaceSlug, $userId);
+    $_SESSION['flash_success'] = 'Horoscoop bijgewerkt.';
+} else {
+    $_SESSION['flash_success'] = 'Horoscoop opgeslagen.';
+}
+
 header('Location: ../dashboard.php');
 exit;
