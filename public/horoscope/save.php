@@ -38,13 +38,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $currentUser = $authService->getCurrentUser();
 $userId = $currentUser->getId();
 
-$requiredFields = ['name', 'birth_date', 'birth_time', 'location_name', 'latitude', 'longitude', 'timezone_id', 'utc_offset'];
+$requiredFields = ['name', 'birth_date', 'birth_time', 'location_name', 'latitude', 'longitude'];
 foreach ($requiredFields as $field) {
-    if (empty($_POST[$field])) {
+    if (!isset($_POST[$field]) || $_POST[$field] === '') {
         $_SESSION['flash_error'] = 'Ontbrekende gegevens.';
         header('Location: ../index.php');
         exit;
     }
+}
+
+if (!isset($_POST['utc_offset'])) {
+    $_SESSION['flash_error'] = 'Ontbrekende gegevens.';
+    header('Location: ../index.php');
+    exit;
 }
 
 $horoscope = new Horoscope(
@@ -55,7 +61,7 @@ $horoscope = new Horoscope(
     $_POST['location_name'],
     (float) $_POST['latitude'],
     (float) $_POST['longitude'],
-    $_POST['timezone_id'],
+    $_POST['timezone_id'] ?? '',
     (int) $_POST['utc_offset']
 );
 
