@@ -89,7 +89,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                     <?php foreach ($horoscopes as $h): ?>
                         <tr>
                             <td>
-                                <a href="horoscope/view.php?id=<?= $h->getId() ?>" class="link--name">
+                                <a href="horoscope/view.php?s=<?= $h->getSlug() ?>" class="link--name">
                                     <?= htmlspecialchars($h->getName()) ?>
                                 </a>
                             </td>
@@ -97,9 +97,9 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                             <td><?= htmlspecialchars($h->getLocationName()) ?></td>
                             <td><?= $h->getCreatedAt()?->format('d-m-Y') ?></td>
                             <td class="actions">
-                                <a href="horoscope/view.php?id=<?= $h->getId() ?>" class="btn btn--small">Bekijk</a>
+                                <a href="horoscope/view.php?s=<?= $h->getSlug() ?>" class="btn btn--small">Bekijk</a>
                                 <form method="POST" action="horoscope/delete.php" class="form--inline" onsubmit="return confirm('Weet je zeker dat je deze horoscoop wilt verwijderen?');">
-                                    <input type="hidden" name="id" value="<?= $h->getId() ?>">
+                                    <input type="hidden" name="slug" value="<?= $h->getSlug() ?>">
                                     <button type="submit" class="btn btn--small btn--danger">Verwijder</button>
                                 </form>
                             </td>

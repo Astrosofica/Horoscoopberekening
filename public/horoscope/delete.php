@@ -35,16 +35,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $currentUser = $authService->getCurrentUser();
-$id = (int) ($_POST['id'] ?? 0);
+$slug = $_POST['slug'] ?? '';
 
-if ($id <= 0) {
+if (empty($slug)) {
     $_SESSION['flash_error'] = 'Ongeldige horoscoop.';
     header('Location: ../dashboard.php');
     exit;
 }
 
 $horoscopeRepo = new HoroscopeRepository();
-$deleted = $horoscopeRepo->delete($id, $currentUser->getId());
+$deleted = $horoscopeRepo->deleteBySlug($slug, $currentUser->getId());
 
 if ($deleted) {
     $_SESSION['flash_success'] = 'Horoscoop verwijderd.';

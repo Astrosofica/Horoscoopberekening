@@ -23,12 +23,32 @@ class HoroscopeRepository
         return $data ? Horoscope::fromArray($data) : null;
     }
 
+    public function findBySlug(string $slug): ?Horoscope
+    {
+        $stmt = $this->db->prepare('SELECT * FROM horoscopes WHERE slug = ?');
+        $stmt->execute([$slug]);
+        $data = $stmt->fetch();
+
+        return $data ? Horoscope::fromArray($data) : null;
+    }
+
     public function findByIdAndUserId(int $id, int $userId): ?Horoscope
     {
         $stmt = $this->db->prepare(
             'SELECT * FROM horoscopes WHERE id = ? AND user_id = ?'
         );
         $stmt->execute([$id, $userId]);
+        $data = $stmt->fetch();
+
+        return $data ? Horoscope::fromArray($data) : null;
+    }
+
+    public function findBySlugAndUserId(string $slug, int $userId): ?Horoscope
+    {
+        $stmt = $this->db->prepare(
+            'SELECT * FROM horoscopes WHERE slug = ? AND user_id = ?'
+        );
+        $stmt->execute([$slug, $userId]);
         $data = $stmt->fetch();
 
         return $data ? Horoscope::fromArray($data) : null;
@@ -52,15 +72,18 @@ class HoroscopeRepository
 
     public function create(Horoscope $horoscope): int
     {
+        $slug = $this->generateUniqueSlug();
+
         $stmt = $this->db->prepare(
             'INSERT INTO horoscopes (
-                user_id, name, birth_date, birth_time, location_name,
+                slug, user_id, name, birth_date, birth_time, location_name,
                 latitude, longitude, timezone_id, utc_offset,
                 offset_source, offset_label, formatted_address, house_system
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
+            $slug,
             $horoscope->getUserId(),
             $horoscope->getName(),
             $horoscope->getBirthDate(),
@@ -78,8 +101,20 @@ class HoroscopeRepository
 
         $id = (int) $this->db->lastInsertId();
         $horoscope->setId($id);
+        $horoscope->setSlug($slug);
 
         return $id;
+    }
+
+    private function generateUniqueSlug(): string
+    {
+        do {
+            $slug = substr(bin2hex(random_bytes(8)), 0, 12);
+            $stmt = $this->db->prepare('SELECT id FROM horoscopes WHERE slug = ?');
+            $stmt->execute([$slug]);
+        } while ($stmt->fetch());
+
+        return $slug;
     }
 
     public function update(Horoscope $horoscope): bool
@@ -110,10 +145,10 @@ class HoroscopeRepository
         ]);
     }
 
-    public function delete(int $id, int $userId): bool
+    public function deleteBySlug(string $slug, int $userId): bool
     {
-        $stmt = $this->db->prepare('DELETE FROM horoscopes WHERE id = ? AND user_id = ?');
-        return $stmt->execute([$id, $userId]);
+        $stmt = $this->db->prepare('DELETE FROM horoscopes WHERE slug = ? AND user_id = ?');
+        return $stmt->execute([$slug, $userId]);
     }
 
     public function countByUserId(int $userId): int

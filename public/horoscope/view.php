@@ -49,14 +49,14 @@ if (!$authService->isLoggedIn()) {
 
 $currentUser = $authService->getCurrentUser();
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+if (!isset($_GET['s']) || empty($_GET['s'])) {
     $_SESSION['flash_error'] = 'Horoscoop niet gevonden.';
     header('Location: ../dashboard.php');
     exit;
 }
 
 $horoscopeRepo = new HoroscopeRepository();
-$horoscope = $horoscopeRepo->findByIdAndUserId((int) $_GET['id'], $currentUser->getId());
+$horoscope = $horoscopeRepo->findBySlugAndUserId($_GET['s'], $currentUser->getId());
 
 if (!$horoscope) {
     $_SESSION['flash_error'] = 'Horoscoop niet gevonden.';

@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- Horoscopes tabel
 CREATE TABLE IF NOT EXISTS horoscopes (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(16) NOT NULL,
     user_id INT NOT NULL,
     name VARCHAR(255) NOT NULL,
     birth_date DATE NOT NULL,
@@ -39,3 +40,4 @@ CREATE TABLE IF NOT EXISTS horoscopes (
 CREATE INDEX IF NOT EXISTS idx_horoscopes_user_id ON horoscopes(user_id);
 CREATE INDEX IF NOT EXISTS idx_horoscopes_created_at ON horoscopes(created_at);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_horoscopes_slug ON horoscopes(slug);
