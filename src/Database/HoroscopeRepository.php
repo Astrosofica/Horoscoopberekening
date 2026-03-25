@@ -77,9 +77,9 @@ class HoroscopeRepository
         $stmt = $this->db->prepare(
             'INSERT INTO horoscopes (
                 slug, user_id, name, birth_date, birth_time, location_name,
-                latitude, longitude, timezone_id, utc_offset,
+                latitude, longitude, timezone_id, utc_offset, time_correction,
                 offset_source, offset_label, formatted_address, house_system
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
@@ -93,6 +93,7 @@ class HoroscopeRepository
             $horoscope->getLongitude(),
             $horoscope->getTimezoneId(),
             $horoscope->getUtcOffset(),
+            $horoscope->getTimeCorrection(),
             $horoscope->getOffsetSource(),
             $horoscope->getOffsetLabel(),
             $horoscope->getFormattedAddress(),

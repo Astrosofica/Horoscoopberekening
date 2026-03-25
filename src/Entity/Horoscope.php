@@ -15,6 +15,7 @@ class Horoscope
     private float $longitude;
     private string $timezoneId;
     private int $utcOffset;
+    private ?string $timeCorrection = null;
     private ?string $offsetSource = null;
     private ?string $offsetLabel = null;
     private ?string $formattedAddress = null;
@@ -165,6 +166,17 @@ class Horoscope
         return $this;
     }
 
+    public function getTimeCorrection(): ?string
+    {
+        return $this->timeCorrection;
+    }
+
+    public function setTimeCorrection(?string $timeCorrection): self
+    {
+        $this->timeCorrection = $timeCorrection;
+        return $this;
+    }
+
     public function getOffsetSource(): ?string
     {
         return $this->offsetSource;
@@ -261,6 +273,10 @@ class Horoscope
             $horoscope->setSlug($data['slug']);
         }
 
+        if (!empty($data['time_correction'])) {
+            $horoscope->setTimeCorrection($data['time_correction']);
+        }
+
         if (!empty($data['offset_source'])) {
             $horoscope->setOffsetSource($data['offset_source']);
         }
@@ -302,6 +318,7 @@ class Horoscope
             'longitude' => $this->longitude,
             'timezone_id' => $this->timezoneId,
             'utc_offset' => $this->utcOffset,
+            'time_correction' => $this->timeCorrection,
             'offset_source' => $this->offsetSource,
             'offset_label' => $this->offsetLabel,
             'formatted_address' => $this->formattedAddress,

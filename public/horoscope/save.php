@@ -65,6 +65,9 @@ if (!empty($_POST['offset_source'])) {
 if (!empty($_POST['offset_label'])) {
     $horoscope->setOffsetLabel($_POST['offset_label']);
 }
+if (!empty($_POST['time_correction'])) {
+    $horoscope->setTimeCorrection($_POST['time_correction']);
+}
 if (!empty($_POST['formatted_address'])) {
     $horoscope->setFormattedAddress($_POST['formatted_address']);
 }

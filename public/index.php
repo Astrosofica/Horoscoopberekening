@@ -90,6 +90,13 @@ if ($isLoggedIn && isset($_GET['edit']) && !empty($_GET['edit'])) {
         $_POST['date'] = $editHoroscope->getBirthDate();
         $_POST['time'] = $editHoroscope->getBirthTime();
         $_POST['location'] = $editHoroscope->getLocationName();
+        
+        $tc = $editHoroscope->getTimeCorrection();
+        if ($tc === 'utc') {
+            $_POST['time_correction_utc'] = '1';
+        } elseif ($tc === 'lmt') {
+            $_POST['time_correction_lmt'] = '1';
+        }
     }
 }
 
@@ -128,6 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
     if (!isset($error)) {
         error_log("[Tijd] Starting calculation for: {$personName} at {$location}");
         $timestamp = strtotime("$date $time");
+        
+        $isUtc = isset($_POST['time_correction_utc']);
+        $isLmt = isset($_POST['time_correction_lmt']);
+        $timeCorrection = null;
+        if ($isUtc) $timeCorrection = 'utc';
+        if ($isLmt) $timeCorrection = 'lmt';
 
         $geoService = new GeocodingService(GOOGLE_API_KEY);
         $geoResult = $geoService->geocode($location);
@@ -136,18 +149,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
             $error = $geoResult['error'];
             error_log("[Tijd] Geocoding error: {$error} for location: {$location}");
         } else {
-            $tzResult = $geoService->getTimezoneId($geoResult['lat'], $geoResult['lng'], $timestamp);
-
-            if (isset($tzResult['error'])) {
-                $error = $tzResult['error'];
-                error_log("[Tijd] Timezone error: {$error} for coords: {$geoResult['lat']},{$geoResult['lng']}");
+            $lat = $geoResult['lat'];
+            $lng = $geoResult['lng'];
+            
+            if ($isUtc) {
+                $utcTimestamp = $timestamp;
+                $utcOffset = 0;
+                $offsetSource = 'manual';
+                $offsetLabel = 'UTC';
+                $timezoneId = '';
+                $timeResult = [
+                    'offset' => 0,
+                    'source' => 'manual',
+                    'label' => 'UTC'
+                ];
+            } elseif ($isLmt) {
+                $lmtOffset = (int) round($lng * 240);
+                $utcTimestamp = $timestamp - $lmtOffset;
+                $utcOffset = $lmtOffset;
+                $offsetSource = 'lmt';
+                $offsetLabel = 'LMT';
+                $timezoneId = '';
+                $timeResult = [
+                    'offset' => $lmtOffset,
+                    'source' => 'lmt',
+                    'label' => 'LMT'
+                ];
             } else {
-                $astroTime = new AstroTime($tzResult['timezoneId'], $geoResult['lng']);
-                $timeResult = $astroTime->getOffset($timestamp);
+                $tzResult = $geoService->getTimezoneId($lat, $lng, $timestamp);
 
-                $utcTimestamp = $timestamp - $timeResult['offset'];
-                
-                error_log("[Tijd] Timezone offset: {$timeResult['offset']} ({$timeResult['label']}) for {$tzResult['timezoneId']}");
+                if (isset($tzResult['error'])) {
+                    $error = $tzResult['error'];
+                    error_log("[Tijd] Timezone error: {$error} for coords: {$lat},{$lng}");
+                } else {
+                    $astroTime = new AstroTime($tzResult['timezoneId'], $lng);
+                    $timeResult = $astroTime->getOffset($timestamp);
+                    $utcTimestamp = $timestamp - $timeResult['offset'];
+                    $timezoneId = $tzResult['timezoneId'];
+                }
+            }
+
+            if (!isset($error)) {
+                error_log("[Tijd] Timezone offset: {$timeResult['offset']} ({$timeResult['label']}) for {$timezoneId}");
 
                 try {
                     $calculator = new PlanetCalculator();
@@ -156,8 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                     $houseCalculator = new HouseCalculator();
                     $houseResult = $houseCalculator->calculateByTimestamp(
                         $utcTimestamp,
-                        $geoResult['lat'],
-                        $geoResult['lng'],
+                        $lat,
+                        $lng,
                         HouseCalculator::HSYS_KOCH
                     );
 
@@ -190,9 +233,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                         'offset' => $timeResult['offset'],
                         'source' => $timeResult['source'],
                         'label' => $timeResult['label'],
-                        'coords' => ['lat' => $geoResult['lat'], 'lng' => $geoResult['lng']],
+                        'time_correction' => $timeCorrection,
+                        'coords' => ['lat' => $lat, 'lng' => $lng],
                         'address' => $geoResult['address'],
-                        'timezone' => $tzResult['timezoneId'],
+                        'timezone' => $timezoneId,
                         'planets' => $planetResult['planets'],
                         'julian_day' => $planetResult['julian_day'],
                         'houses' => $houseResult,
@@ -285,6 +329,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                 </div>
             </div>
 
+            <div class="form-row full">
+                <div class="form-group">
+                    <label>Tijdcorrectie</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="time_correction_utc" value="1" <?= isset($_POST['time_correction_utc']) ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_lmt]').checked = false;">
+                            Ingevoerde tijd is UTC
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="time_correction_lmt" value="1" <?= isset($_POST['time_correction_lmt']) ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_utc]').checked = false;">
+                            Ingevoerde tijd is LMT/WPT
+                        </label>
+                    </div>
+                    <small class="form-hint">Vink aan als de ingevoerde tijd al UTC of Lokale Mean Time is.</small>
+                </div>
+            </div>
+
             <div class="form-submit">
                 <button type="submit">Horoscoop berekenen</button>
             </div>
@@ -323,6 +384,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                     <input type="hidden" name="longitude" value="<?= $result['coords']['lng'] ?>">
                     <input type="hidden" name="timezone_id" value="<?= htmlspecialchars($result['timezone']) ?>">
                     <input type="hidden" name="utc_offset" value="<?= $result['offset'] ?>">
+                    <input type="hidden" name="time_correction" value="<?= htmlspecialchars($result['time_correction'] ?? '') ?>">
                     <input type="hidden" name="offset_source" value="<?= htmlspecialchars($result['source'] ?? '') ?>">
                     <input type="hidden" name="offset_label" value="<?= htmlspecialchars($result['label'] ?? '') ?>">
                     <input type="hidden" name="formatted_address" value="<?= htmlspecialchars($result['address']) ?>">

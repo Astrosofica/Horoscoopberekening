@@ -104,6 +104,34 @@ body {
     color: #999;
 }
 
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 400 !important;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+}
+
+.form-hint {
+    color: #888;
+    font-size: 0.8rem;
+    margin-top: 6px;
+}
+
 .form-submit {
     margin-top: 8px;
 }
