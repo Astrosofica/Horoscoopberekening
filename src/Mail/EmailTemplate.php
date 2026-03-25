@@ -6,7 +6,7 @@ class EmailTemplate
 {
     public static function verifyEmail(string $token, string $baseUrl): string
     {
-        $verifyUrl = rtrim($baseUrl, '/') . "/verify-email.php?token={$token}";
+        $verifyUrl = rtrim($baseUrl, '/') . "/verify.php?token={$token}";
         
         return self::wrapHtml(
             'Verifieer je e-mailadres',
