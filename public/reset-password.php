@@ -21,34 +21,34 @@ use Tijd\Auth\AuthService;
 
 $authService = new AuthService();
 
-if ($authService->isLoggedIn()) {
-    header('Location: dashboard.php');
+$token = $_GET['token'] ?? '';
+
+if (empty($token)) {
+    $_SESSION['flash_error'] = 'Ongeldige reset link.';
+    header('Location: forgot-password.php');
     exit;
 }
 
 $error = null;
-$success = $_SESSION['flash_success'] ?? null;
-unset($_SESSION['flash_success']);
+$success = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    $remember = isset($_POST['remember']);
+    $passwordConfirm = $_POST['password_confirm'] ?? '';
 
-    if (empty($email) || empty($password)) {
+    if (empty($password) || empty($passwordConfirm)) {
         $error = 'Vul alle velden in.';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error = 'Ongeldig e-mailadres.';
+    } elseif (strlen($password) < 8) {
+        $error = 'Wachtwoord moet minimaal 8 karakters bevatten.';
+    } elseif ($password !== $passwordConfirm) {
+        $error = 'Wachtwoorden komen niet overeen.';
     } else {
-        try {
-            if ($authService->login($email, $password, $remember)) {
-                header('Location: dashboard.php');
-                exit;
-            } else {
-                $error = 'E-mailadres of wachtwoord is onjuist.';
-            }
-        } catch (\Exception $e) {
-            $error = 'Er is een fout opgetreden. Probeer het opnieuw.';
+        if ($authService->resetPassword($token, $password)) {
+            $_SESSION['flash_success'] = 'Je wachtwoord is gewijzigd. Je kunt nu inloggen.';
+            header('Location: login.php');
+            exit;
+        } else {
+            $error = 'Deze reset link is ongeldig of verlopen.';
         }
     }
 }
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inloggen - Tijd</title>
+    <title>Wachtwoord resetten - Tijd</title>
     <link rel="stylesheet" href="css/astro.css">
 </head>
 <body>
@@ -73,45 +73,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </nav>
 
     <div class="card card--auth">
-        <h2>Inloggen</h2>
+        <h2>Nieuw wachtwoord instellen</h2>
 
         <?php if ($error): ?>
             <div class="flash flash--error"><?= htmlspecialchars($error) ?></div>
         <?php endif; ?>
 
-        <?php if ($success): ?>
-            <div class="flash flash--success"><?= htmlspecialchars($success) ?></div>
-        <?php endif; ?>
-
         <form method="POST" class="auth-form">
             <div class="form-group">
-                <label for="email">E-mailadres</label>
-                <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required autofocus>
+                <label for="password">Nieuw wachtwoord</label>
+                <input type="password" id="password" name="password" required minlength="8">
+                <small>Minimaal 8 karakters</small>
             </div>
 
             <div class="form-group">
-                <label for="password">Wachtwoord</label>
-                <input type="password" id="password" name="password" required>
+                <label for="password_confirm">Bevestig wachtwoord</label>
+                <input type="password" id="password_confirm" name="password_confirm" required minlength="8">
             </div>
 
-            <div class="form-group form-group--checkbox">
-                <label>
-                    <input type="checkbox" name="remember">
-                    Onthoud mij
-                </label>
-            </div>
+            <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 
             <div class="form-submit">
-                <button type="submit">Inloggen</button>
+                <button type="submit">Wachtwoord wijzigen</button>
             </div>
         </form>
 
         <p class="auth-link">
-            <a href="forgot-password.php">Wachtwoord vergeten?</a>
-        </p>
-
-        <p class="auth-link">
-            Nog geen account? <a href="register.php">Registreren</a>
+            <a href="login.php">Terug naar inloggen</a>
         </p>
     </div>
 </div>

@@ -15,11 +15,18 @@ if (file_exists(__DIR__ . '/../.env')) {
 require_once __DIR__ . '/../src/Database/Connection.php';
 require_once __DIR__ . '/../src/Entity/User.php';
 require_once __DIR__ . '/../src/Database/UserRepository.php';
+require_once __DIR__ . '/../src/Mail/Mailer.php';
+require_once __DIR__ . '/../src/Mail/EmailTemplate.php';
 require_once __DIR__ . '/../src/Auth/AuthService.php';
 
 use Tijd\Auth\AuthService;
+use Tijd\Mail\Mailer;
 
-$authService = new AuthService();
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$baseUrl = $protocol . '://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']);
+
+$mailer = new Mailer();
+$authService = new AuthService(null, $mailer, $baseUrl);
 
 if ($authService->isLoggedIn()) {
     header('Location: dashboard.php');
@@ -43,8 +50,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Wachtwoorden komen niet overeen.';
     } else {
         try {
-            $authService->register($email, $password);
-            header('Location: dashboard.php');
+            $authService->register($email, $password, true);
+            $_SESSION['flash_success'] = 'Account aangemaakt! Controleer je e-mail om je adres te verifiëren.';
+            header('Location: verify-email.php');
             exit;
         } catch (\InvalidArgumentException $e) {
             $error = $e->getMessage();
