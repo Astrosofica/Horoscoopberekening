@@ -314,7 +314,282 @@ body {
     }
 }
 
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.nav-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-links a {
+    color: #2196F3;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+.nav-user {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.nav-logout {
+    color: #d32f2f !important;
+}
+
+.flash {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.flash--success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.flash--error {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+.card--auth {
+    max-width: 420px;
+    margin: 40px auto;
+}
+
+.auth-form .form-group {
+    margin-bottom: 18px;
+}
+
+.auth-form .form-group small {
+    color: #888;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+
+.form-group--checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group--checkbox input {
+    width: auto;
+}
+
+.form-group--checkbox label {
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.auth-link {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+}
+
+.auth-link a {
+    color: #2196F3;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-header h2 {
+    margin: 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn--primary {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+}
+
+.btn--primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.btn--small {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.btn--danger {
+    background: #ef5350;
+    color: white;
+}
+
+.btn--danger:hover {
+    background: #d32f2f;
+}
+
+.btn--save {
+    background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+    color: white;
+    padding: 12px 24px;
+    width: 100%;
+}
+
+.btn--save:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.card--save {
+    text-align: center;
+    background: #f1f8e9;
+    border-color: #c5e1a5;
+}
+
+.card--save form {
+    margin: 0;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-table th {
+    background: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+}
+
+.dashboard-table tr:hover td {
+    background: #fafafa;
+}
+
+.dashboard-table .actions {
+    display: flex;
+    gap: 8px;
+}
+
+.link--name {
+    font-weight: 500;
+    color: #1a1a2e;
+    text-decoration: none;
+}
+
+.link--name:hover {
+    color: #2196F3;
+    text-decoration: underline;
+}
+
+.form--inline {
+    display: inline;
+}
+
+.empty-message {
+    color: #888;
+    font-style: italic;
+    margin: 20px 0;
+}
+
+.back-link {
+    margin-top: 24px;
+}
+
+.back-link a {
+    color: #2196F3;
+    text-decoration: none;
+}
+
+.back-link a:hover {
+    text-decoration: underline;
+}
+
+@media print {
+    .nav-header,
+    .flash,
+    .card--save,
+    .back-link {
+        display: none !important;
+    }
+}
+
 @media (max-width: 600px) {
+    .nav-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .card-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .dashboard-table {
+        font-size: 0.85rem;
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 8px 6px;
+    }
+
+    .dashboard-table .actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+
     body {
         margin: 20px auto;
         padding: 0 16px;

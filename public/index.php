@@ -15,36 +15,35 @@ if (file_exists(__DIR__ . '/../.env')) {
 define('GOOGLE_API_KEY', $_ENV['GOOGLE_API_KEY'] ?? '');
 define('ERROR_LOG_PATH', __DIR__ . '/../var/log/error.log');
 
-// Error logging setup
 ini_set('log_errors', true);
 ini_set('error_log', ERROR_LOG_PATH);
 
-// Rate limiting: max 10 requests per minute per IP
 $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 $rateLimit = 10;
-$ratePeriod = 60; // seconds
+$ratePeriod = 60;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['save_horoscope'])) {
     if (!isset($_SESSION['requests'])) {
         $_SESSION['requests'] = [];
     }
     
-    // Clean old requests
     $_SESSION['requests'][$ip] = array_filter(
         $_SESSION['requests'][$ip] ?? [],
         fn($time) => $time > time() - $ratePeriod
     );
     
-    // Check rate limit
     if (count($_SESSION['requests'][$ip] ?? []) >= $rateLimit) {
         $error = "Te veel verzoeken. Wacht " . $ratePeriod . " seconden.";
         error_log("[Tijd] Rate limit exceeded for IP: $ip");
     } else {
-        // Record this request
         $_SESSION['requests'][$ip][] = time();
     }
 }
 
+require_once __DIR__ . '/../src/Database/Connection.php';
+require_once __DIR__ . '/../src/Entity/User.php';
+require_once __DIR__ . '/../src/Database/UserRepository.php';
+require_once __DIR__ . '/../src/Auth/AuthService.php';
 require_once __DIR__ . '/../src/Geo/GeocodingService.php';
 require_once __DIR__ . '/../src/Time/AstroTime.php';
 require_once __DIR__ . '/../src/Ephemeris/EphemerisConfig.php';
@@ -58,6 +57,7 @@ require_once __DIR__ . '/../src/Calculation/ParsFortuna.php';
 require_once __DIR__ . '/../src/Helpers/Formatter.php';
 require_once __DIR__ . '/../src/Glyph/SymbolGlyph.php';
 
+use Tijd\Auth\AuthService;
 use Tijd\Geo\GeocodingService;
 use Tijd\Time\AstroTime;
 use Tijd\Ephemeris\EphemerisConfig;
@@ -70,10 +70,17 @@ use Tijd\Calculation\ParsFortuna;
 use Tijd\Helpers\Formatter;
 use Tijd\Glyph\SymbolGlyph;
 
+$authService = new AuthService();
+$isLoggedIn = $authService->isLoggedIn();
+$currentUser = $isLoggedIn ? $authService->getCurrentUser() : null;
+
 $result = null;
 $error = null;
 
-// Debug mode: populate form with test data
+$flashSuccess = $_SESSION['flash_success'] ?? null;
+$flashError = $_SESSION['flash_error'] ?? null;
+unset($_SESSION['flash_success'], $_SESSION['flash_error']);
+
 if (isset($_GET['do']) && $_GET['do'] === 'debug') {
     $_POST['name'] = 'Test Persoon';
     $_POST['date'] = '1985-05-15';
@@ -81,7 +88,7 @@ if (isset($_GET['do']) && $_GET['do'] === 'debug') {
     $_POST['location'] = 'Amsterdam, Nederland';
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isset($_POST['save_horoscope'])) {
     $personName = trim($_POST['name'] ?? '');
     $location = trim($_POST['location']);
     $date = $_POST['date'] ?? '';
@@ -135,7 +142,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
                         HouseCalculator::HSYS_KOCH
                     );
 
-                    // Calculate Pars Fortuna
                     $ascendant = $houseResult['ascmc']['ascendant']['longitude'];
                     $moon = $planetResult['planets']['Moon']['longitude'] ?? 0;
                     $sun = $planetResult['planets']['Sun']['longitude'] ?? 0;
@@ -197,7 +203,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -206,55 +211,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
     <link rel="stylesheet" href="css/astro.css">
 </head>
 <body>
-
-<div class="card card--large card--form">
-    <h2>Geboortegegevens</h2>
-    <form method="POST">
-        <div class="form-row full">
-            <div class="form-group">
-                <label for="name">Naam</label>
-                <input type="text" id="name" name="name" placeholder="Volledige naam" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
-            </div>
+<div class="container">
+    <nav class="nav-header">
+        <a href="index.php" class="nav-brand">Tijd</a>
+        <div class="nav-links">
+            <a href="index.php">Horoscoop berekenen</a>
+            <?php if ($isLoggedIn): ?>
+                <a href="dashboard.php">Dashboard</a>
+                <span class="nav-user"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
+                <a href="logout.php" class="nav-logout">Uitloggen</a>
+            <?php else: ?>
+                <a href="login.php">Inloggen</a>
+                <a href="register.php">Registreren</a>
+            <?php endif; ?>
         </div>
+    </nav>
 
-        <div class="form-row half">
-            <div class="form-group">
-                <label for="date">Datum</label>
-                <input type="date" id="date" name="date" value="<?= htmlspecialchars($_POST['date'] ?? '') ?>" required>
-            </div>
-            <div class="form-group">
-                <label for="time">Tijd (lokaal)</label>
-                <input type="time" id="time" name="time" value="<?= htmlspecialchars($_POST['time'] ?? '') ?>" step="1" required>
-            </div>
-        </div>
-
-        <div class="form-row full">
-            <div class="form-group">
-                <label for="location">Geboorteplaats</label>
-                <input type="text" id="location" name="location" placeholder="Bijv. Amsterdam, Nederland" value="<?= htmlspecialchars($_POST['location'] ?? '') ?>" required>
-            </div>
-        </div>
-
-        <div class="form-submit">
-            <button type="submit">Horoscoop berekenen</button>
-        </div>
-    </form>
-
-    <?php if ($error): ?>
-        <p class="form-error"><?= htmlspecialchars($error) ?></p>
+    <?php if ($flashSuccess): ?>
+        <div class="flash flash--success"><?= htmlspecialchars($flashSuccess) ?></div>
     <?php endif; ?>
-    
-    <?php if (isset($_GET['do']) && $_GET['do'] === 'debug'): ?>
-        <p style="margin-top: 16px; font-size: 0.85em; color: #4CAF50;">
-            ✓ Testdata geladen &nbsp;|&nbsp;
-            <a href="?" style="color: #2196F3; text-decoration: none;">Wis testdata</a>
-        </p>
-    <?php else: ?>
-        <p style="margin-top: 16px; font-size: 0.85em; color: #888;">
-            <a href="?do=debug" style="color: #2196F3; text-decoration: none;">🐛 Testdata laden</a>
-        </p>
+
+    <?php if ($flashError): ?>
+        <div class="flash flash--error"><?= htmlspecialchars($flashError) ?></div>
     <?php endif; ?>
-</div>
+
+    <div class="card card--large card--form">
+        <h2>Geboortegegevens</h2>
+        <form method="POST">
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="name">Naam</label>
+                    <input type="text" id="name" name="name" placeholder="Volledige naam" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required>
+                </div>
+            </div>
+
+            <div class="form-row half">
+                <div class="form-group">
+                    <label for="date">Datum</label>
+                    <input type="date" id="date" name="date" value="<?= htmlspecialchars($_POST['date'] ?? '') ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="time">Tijd (lokaal)</label>
+                    <input type="time" id="time" name="time" value="<?= htmlspecialchars($_POST['time'] ?? '') ?>" step="1" required>
+                </div>
+            </div>
+
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="location">Geboorteplaats</label>
+                    <input type="text" id="location" name="location" placeholder="Bijv. Amsterdam, Nederland" value="<?= htmlspecialchars($_POST['location'] ?? '') ?>" required>
+                </div>
+            </div>
+
+            <div class="form-submit">
+                <button type="submit">Horoscoop berekenen</button>
+            </div>
+        </form>
+
+        <?php if ($error): ?>
+            <p class="form-error"><?= htmlspecialchars($error) ?></p>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['do']) && $_GET['do'] === 'debug'): ?>
+            <p style="margin-top: 16px; font-size: 0.85em; color: #4CAF50;">
+                ✓ Testdata geladen &nbsp;|&nbsp;
+                <a href="?" style="color: #2196F3; text-decoration: none;">Wis testdata</a>
+            </p>
+        <?php else: ?>
+            <p style="margin-top: 16px; font-size: 0.85em; color: #888;">
+                <a href="?do=debug" style="color: #2196F3; text-decoration: none;">Testdata laden</a>
+            </p>
+        <?php endif; ?>
+    </div>
 
     <?php if ($result): ?>
         <?php
@@ -262,6 +290,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location'])) {
         $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
         ?>
         
+        <?php if ($isLoggedIn): ?>
+            <div class="card card--save">
+                <form method="POST" action="horoscope/save.php">
+                    <input type="hidden" name="name" value="<?= htmlspecialchars($result['name']) ?>">
+                    <input type="hidden" name="birth_date" value="<?= htmlspecialchars(date('Y-m-d', $result['local_timestamp'])) ?>">
+                    <input type="hidden" name="birth_time" value="<?= htmlspecialchars(date('H:i:s', $result['local_timestamp'])) ?>">
+                    <input type="hidden" name="location_name" value="<?= htmlspecialchars($_POST['location'] ?? '') ?>">
+                    <input type="hidden" name="latitude" value="<?= $result['coords']['lat'] ?>">
+                    <input type="hidden" name="longitude" value="<?= $result['coords']['lng'] ?>">
+                    <input type="hidden" name="timezone_id" value="<?= htmlspecialchars($result['timezone']) ?>">
+                    <input type="hidden" name="utc_offset" value="<?= $result['offset'] ?>">
+                    <input type="hidden" name="offset_source" value="<?= htmlspecialchars($result['source'] ?? '') ?>">
+                    <input type="hidden" name="offset_label" value="<?= htmlspecialchars($result['label'] ?? '') ?>">
+                    <input type="hidden" name="formatted_address" value="<?= htmlspecialchars($result['address']) ?>">
+                    <input type="hidden" name="house_system" value="K">
+                    <button type="submit" name="save_horoscope" class="btn btn--save">Opslaan in mijn horoscopen</button>
+                </form>
+            </div>
+        <?php endif; ?>
+
         <div class="card card--large">
             <h2>Geboortegegevens</h2>
             <div class="birth-info-row">

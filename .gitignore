@@ -1,2 +1,3 @@
-.envvar/
+.env
+var/
 *.Zone.Identifier
