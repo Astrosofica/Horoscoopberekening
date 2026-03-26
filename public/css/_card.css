@@ -1,7 +1,7 @@
 .card {
     background: var(--bg-card);
     border-radius: var(--border-radius-lg);
-    padding: 28px;
+    padding: 1.25rem;
     box-shadow: var(--shadow-card);
     margin-bottom: var(--spacing-xxl);
     border: 1px solid var(--border-color);
@@ -22,7 +22,7 @@
 }
 
 .card--large {
-    padding: 32px;
+    padding: 2rem;
 }
 
 .card--large h2 {
@@ -43,6 +43,18 @@
 
 .card--save form {
     margin: 0;
+}
+
+.card--planets {
+    border-top: 3px solid var(--color-primary);
+}
+
+.card--houses {
+    border-top: 3px solid var(--color-accent);
+}
+
+.card--aspects {
+    border-top: 3px solid var(--color-text-hint);
 }
 
 .card-header {
@@ -96,13 +108,13 @@
 }
 
 .header-logout {
-    color: var(--color-danger-dark) !important;
+    color: var(--color-danger) !important;
 }
 
 .card--footer {
     padding: var(--spacing-md) var(--spacing-xl);
-    background: #fafafa;
-    border-color: var(--border-color-light);
+    background: var(--bg-subtle);
+    border-color: var(--border-light);
     box-shadow: none;
     text-align: center;
     margin-top: var(--spacing-xxl);
@@ -115,7 +127,8 @@
 }
 
 .footer-version {
-    color: #aaa;
+    color: var(--color-text-hint);
+    opacity: 0.7;
 }
 
 @media (max-width: 600px) {

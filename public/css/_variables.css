@@ -1,51 +1,47 @@
 :root {
-    --color-primary: #2196F3;
-    --color-primary-dark: #1976D2;
-    --color-primary-light: rgba(33, 150, 243, 0.1);
+    --color-primary: #5c7a8a;
+    --color-primary-dark: #465f6c;
+    --color-primary-light: rgba(92, 122, 138, 0.12);
     
-    --color-secondary: #78909c;
-    --color-secondary-dark: #546e7a;
+    --color-accent: #8c6f9c;
     
-    --color-danger: #ef5350;
-    --color-danger-dark: #d32f2f;
+    --color-success: #6f9a7f;
+    --color-success-light: #f0f7f2;
+    --color-success-border: #c5daca;
     
-    --color-success: #4CAF50;
-    --color-success-dark: #388E3C;
-    --color-success-light: #e8f5e9;
-    --color-success-border: #a5d6a7;
+    --color-warning: #c59a63;
     
-    --color-warning: #FF9800;
+    --color-danger: #c46b6b;
+    --color-danger-light: #faf0f0;
     
-    --color-purple: #9C27B0;
+    --color-text: #2a2f33;
+    --color-text-muted: #6b737a;
+    --color-text-light: #7a8289;
+    --color-text-hint: #8a9096;
     
-    --color-text: #1a1a2e;
-    --color-text-muted: #555;
-    --color-text-light: #666;
-    --color-text-hint: #888;
+    --color-link: #5c7a8a;
     
-    --color-link: #2196F3;
-    
-    --bg-body: #f0ede8;
+    --bg-body: #f4f2ee;
     --bg-card: #ffffff;
-    --bg-card-save: #f1f8e9;
-    --bg-error: #ffebee;
-    --bg-info: #e3f2fd;
-    --bg-hover: #e0e0e0;
-    --bg-table-header: #f5f5f5;
+    --bg-subtle: #f7f6f3;
+    --bg-card-save: #f0f7f2;
+    --bg-error: #faf0f0;
+    --bg-info: #f5f3f7;
+    --bg-hover: #eceae6;
+    --bg-table-header: #f7f6f3;
     
-    --border-color: #e5e5e5;
-    --border-color-light: #eee;
-    --border-input: #e0e0e0;
-    --border-info: #90caf9;
-    --border-success: #c5e1a5;
-    --border-error: #ef9a9a;
+    --border-color: #e2e0dc;
+    --border-light: #eceae6;
+    --border-input: #dcd9d5;
+    --border-info: #d4cddb;
+    --border-success: #c5daca;
+    --border-error: #dbb8b8;
     
     --border-radius: 8px;
-    --border-radius-lg: 16px;
+    --border-radius-lg: 12px;
     
-    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --shadow-button: 0 4px 12px rgba(33, 150, 243, 0.3);
-    --shadow-success: 0 4px 12px rgba(76, 175, 80, 0.3);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
     
     --spacing-xs: 4px;
     --spacing-sm: 8px;

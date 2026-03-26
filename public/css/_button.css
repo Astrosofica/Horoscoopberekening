@@ -7,47 +7,46 @@
     text-decoration: none;
     cursor: pointer;
     border: none;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .btn--primary {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    background: var(--color-primary);
     color: white;
 }
 
 .btn--primary:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-button);
+    background: var(--color-primary-dark);
 }
 
 .btn--secondary {
-    background: var(--color-secondary);
-    color: white;
+    background: #e6e3de;
+    color: var(--color-text);
 }
 
 .btn--secondary:hover {
-    background: var(--color-secondary-dark);
+    background: #dcd8d3;
 }
 
 .btn--danger {
+    background: transparent;
+    color: var(--color-danger);
+}
+
+.btn--danger:hover {
     background: var(--color-danger);
     color: white;
 }
 
-.btn--danger:hover {
-    background: var(--color-danger-dark);
-}
-
 .btn--save {
-    background: linear-gradient(135deg, var(--color-success) 0%, var(--color-success-dark) 100%);
+    background: var(--color-success);
     color: white;
     padding: var(--spacing-md) var(--spacing-xxl);
     width: 100%;
 }
 
 .btn--save:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-success);
+    background: #5d8a6d;
 }
 
 .btn--small {

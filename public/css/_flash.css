@@ -7,13 +7,13 @@
 
 .flash--success {
     background: var(--color-success-light);
-    color: #2e7d32;
+    color: #4a6b54;
     border: 1px solid var(--color-success-border);
 }
 
 .flash--error {
     background: var(--bg-error);
-    color: #c62828;
+    color: #8b5a5a;
     border: 1px solid var(--border-error);
 }
 
@@ -23,7 +23,7 @@
     border-radius: 6px;
     padding: var(--spacing-md) var(--spacing-lg);
     margin-bottom: var(--spacing-lg);
-    color: #1565c0;
+    color: #6a5a7a;
     font-size: var(--font-size-base);
 }
 

@@ -38,7 +38,7 @@
 }
 
 .table-header--purple {
-    background: var(--color-purple);
+    background: var(--color-accent);
     color: white;
 }
 
@@ -48,11 +48,11 @@
 }
 
 .row--dominant {
-    background-color: #ffcccb;
+    background-color: var(--bg-info);
 }
 
 .row--dominant:hover td {
-    background-color: #ffb3b3;
+    background-color: #ebe8f0;
 }
 
 .dashboard-table {
@@ -74,7 +74,7 @@
 }
 
 .dashboard-table tr:hover td {
-    background: #fafafa;
+    background: var(--bg-subtle);
 }
 
 .dashboard-table .actions {
