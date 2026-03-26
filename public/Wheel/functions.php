@@ -133,7 +133,7 @@ Function display_house_number($num, $angle, $radii, &$xy)
   }
   elseif ($num == 2)
   {
-    $x_adj = -cos(deg2rad($angle));// * $char_width;
+    $x_adj = -cos(deg2rad($angle));
     $y_adj = sin(deg2rad($angle)) * $char_height;
   }
   elseif ($num == 3)
@@ -159,8 +159,7 @@ Function display_house_number($num, $angle, $radii, &$xy)
   elseif ($num == 6)
   {
     $xpos0 = $half_char_width;
-    $x_adj = -cos(deg2rad($angle));	// * $half_char_width;
-    //$ypos0 = -$half_char_height;
+    $x_adj = -cos(deg2rad($angle));
     $y_adj = sin(deg2rad($angle)) * $char_height;
   }
   elseif ($num == 7)
@@ -173,14 +172,14 @@ Function display_house_number($num, $angle, $radii, &$xy)
   {
     $x_adj = -cos(deg2rad($angle)) * $half_char_width;
     $ypos0 = -$half_char_height;
-    $y_adj = sin(deg2rad($angle));		// * $half_char_height;
+    $y_adj = sin(deg2rad($angle));
   }
   elseif ($num == 9)
   {
     $xpos0 = -$char_width;
     $x_adj = -cos(deg2rad($angle)) * $char_width;
     $ypos0 = -$half_char_height;
-    $y_adj = sin(deg2rad($angle));	// * $half_char_height;
+    $y_adj = sin(deg2rad($angle));
   }
   elseif ($num == 10)
   {
