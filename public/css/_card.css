@@ -128,6 +128,14 @@
     margin-top: var(--spacing-xxl);
 }
 
+.app-wrapper .card--footer {
+    margin-top: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+}
+
 .footer-text {
     margin: 0;
     color: var(--color-text-hint);

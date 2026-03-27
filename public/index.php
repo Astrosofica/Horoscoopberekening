@@ -106,7 +106,7 @@ if ($horoscopeSlug) {
     }
 }
 
-if ($isEdit && $viewHoroscope && !isset($_POST['name'])) {
+if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['name'])) {
     $_POST['name'] = $viewHoroscope->getName();
     $_POST['date'] = $viewHoroscope->getBirthDate();
     $_POST['time'] = $viewHoroscope->getBirthTime();
@@ -531,6 +531,8 @@ if ($hasResult && $mode !== 'edit') {
             <?php endif; ?>
         </main>
     </div>
+    
+    <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </div>
 
 <script src="js/app.js"></script>
