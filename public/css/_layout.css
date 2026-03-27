@@ -1,0 +1,29 @@
+.app-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+}
+
+.app-layout--fullscreen {
+    grid-template-columns: 1fr;
+}
+
+.app-content {
+    padding: var(--spacing-xxl);
+    overflow-x: hidden;
+}
+
+.app-content--centered {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .app-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .app-content {
+        padding: var(--spacing-lg);
+    }
+}

@@ -71,7 +71,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                 <?php foreach ($horoscopes as $h): ?>
                     <div class="horoscope-card">
                         <div class="horoscope-card__info">
-                            <a href="horoscope/view.php?s=<?= $h->getSlug() ?>" class="horoscope-card__name">
+                            <a href="index.php?h=<?= $h->getSlug() ?>" class="horoscope-card__name">
                                 <?= htmlspecialchars($h->getName()) ?>
                             </a>
                             <div class="horoscope-card__details">
@@ -87,8 +87,8 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                             </div>
                         </div>
                         <div class="horoscope-card__actions">
-                            <a href="horoscope/view.php?s=<?= $h->getSlug() ?>">Bekijk</a>
-                            <a href="index.php?edit=<?= $h->getSlug() ?>">Bewerk</a>
+                            <a href="index.php?h=<?= $h->getSlug() ?>">Bekijk</a>
+                            <a href="index.php?h=<?= $h->getSlug() ?>&edit">Bewerk</a>
                             <form method="POST" action="horoscope/delete.php" class="form--inline" onsubmit="return confirm('Weet je zeker dat je deze horoscoop wilt verwijderen?');">
                                 <input type="hidden" name="slug" value="<?= $h->getSlug() ?>">
                                 <button type="submit" class="link--danger">Verwijder</button>

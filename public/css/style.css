@@ -6,6 +6,8 @@
 @import url('_variables.css');
 @import url('_fonts.css');
 @import url('_base.css');
+@import url('_layout.css');
+@import url('_sidebar.css');
 @import url('_card.css');
 @import url('_form.css');
 @import url('_button.css');
@@ -14,3 +16,7 @@
 @import url('_birth-info.css');
 @import url('_wheel.css');
 @import url('_utilities.css');
+
+.tab-content--hidden {
+    display: none !important;
+}
