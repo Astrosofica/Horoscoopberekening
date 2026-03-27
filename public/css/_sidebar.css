@@ -2,7 +2,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    margin: var(--spacing-xxl);
+    margin: var(--spacing-xxl) 0;
     padding: var(--spacing-lg) var(--spacing-md);
     display: flex;
     flex-direction: column;
@@ -42,8 +42,8 @@
 
 .sidebar__item:hover {
     color: var(--color-text);
-    border-top-color: var(--border-color);
-    border-bottom-color: var(--border-color);
+    border-top-color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
 }
 
 .sidebar__item--active {
