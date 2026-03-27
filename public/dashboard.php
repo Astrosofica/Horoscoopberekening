@@ -67,39 +67,36 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
             <p class="empty-message">Je hebt nog geen horoscopen opgeslagen.</p>
             <p><a href="index.php">Bereken je eerste horoscoop</a></p>
         <?php else: ?>
-            <table class="dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Naam</th>
-                        <th>Geboortedatum</th>
-                        <th>Geboorteplaats</th>
-                        <th>Aangemaakt</th>
-                        <th>Acties</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($horoscopes as $h): ?>
-                        <tr>
-                            <td>
-                                <a href="horoscope/view.php?s=<?= $h->getSlug() ?>" class="link--name">
-                                    <?= htmlspecialchars($h->getName()) ?>
-                                </a>
-                            </td>
-                            <td><?= htmlspecialchars($h->getBirthDate()) ?> <?= htmlspecialchars(substr($h->getBirthTime(), 0, 5)) ?></td>
-                            <td><?= htmlspecialchars($h->getLocationName()) ?></td>
-                            <td><?= $h->getCreatedAt()?->format('d-m-Y') ?></td>
-                            <td class="actions">
-                                <a href="horoscope/view.php?s=<?= $h->getSlug() ?>" class="btn btn--small">Bekijk</a>
-                                <a href="index.php?edit=<?= $h->getSlug() ?>" class="btn btn--small btn--secondary">Bewerk</a>
-                                <form method="POST" action="horoscope/delete.php" class="form--inline" onsubmit="return confirm('Weet je zeker dat je deze horoscoop wilt verwijderen?');">
-                                    <input type="hidden" name="slug" value="<?= $h->getSlug() ?>">
-                                    <button type="submit" class="btn btn--small btn--danger">Verwijder</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <div class="horoscope-list">
+                <?php foreach ($horoscopes as $h): ?>
+                    <div class="horoscope-card">
+                        <div class="horoscope-card__info">
+                            <a href="horoscope/view.php?s=<?= $h->getSlug() ?>" class="horoscope-card__name">
+                                <?= htmlspecialchars($h->getName()) ?>
+                            </a>
+                            <div class="horoscope-card__details">
+                                <span class="horoscope-card__detail">
+                                    <strong>Geboorte:</strong>
+                                    <?= htmlspecialchars($h->getBirthDate()) ?>, 
+                                    <?= htmlspecialchars(substr($h->getBirthTime(), 0, 5)) ?>
+                                </span>
+                                <span class="horoscope-card__detail">
+                                    <strong>Plaats:</strong>
+                                    <?= htmlspecialchars($h->getLocationName()) ?>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="horoscope-card__actions">
+                            <a href="horoscope/view.php?s=<?= $h->getSlug() ?>">Bekijk</a>
+                            <a href="index.php?edit=<?= $h->getSlug() ?>">Bewerk</a>
+                            <form method="POST" action="horoscope/delete.php" class="form--inline" onsubmit="return confirm('Weet je zeker dat je deze horoscoop wilt verwijderen?');">
+                                <input type="hidden" name="slug" value="<?= $h->getSlug() ?>">
+                                <button type="submit" class="link--danger">Verwijder</button>
+                            </form>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         <?php endif; ?>
     </div>
 

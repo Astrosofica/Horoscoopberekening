@@ -110,9 +110,9 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
     </div>
 
     <div class="houses-planets-container">
-        <div class="card">
+        <div class="card card--planets">
             <table>
-                <tr class="table-header--blue">
+                <tr>
                     <th colspan="3">Planeetposities</th>
                 </tr>
                 <?php foreach ($result['planets'] as $name => $data): ?>
@@ -141,9 +141,9 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
             </table>
         </div>
 
-        <div class="card">
+        <div class="card card--houses">
             <table>
-                <tr class="table-header--purple">
+                <tr>
                     <th colspan="2">Huizensysteem: <?= htmlspecialchars($result['houses']['systemName']) ?></th>
                 </tr>
                 <?php foreach ($result['houses']['houses'] as $houseNum => $house): ?>
@@ -156,10 +156,10 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
         </div>
     </div>
 
-    <div class="card">
+    <div class="card card--aspects">
         <h4>Aspecten (<?= count($result['aspects']) ?> totaal)</h4>
         <table>
-            <tr class="table-header--orange">
+            <tr>
                 <th>Planeet 1</th>
                 <th></th>
                 <th>Planeet 2</th>

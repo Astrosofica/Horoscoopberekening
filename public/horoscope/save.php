@@ -75,7 +75,8 @@ if (!empty($_POST['time_correction'])) {
     $horoscope->setTimeCorrection($_POST['time_correction']);
 }
 if (!empty($_POST['formatted_address'])) {
-    $horoscope->setFormattedAddress($_POST['formatted_address']);
+    $cleanAddress = trim(preg_replace('/\s+/', ' ', preg_replace('/\d{4}\s?[A-Z]{2}/', '', $_POST['formatted_address'])));
+    $horoscope->setFormattedAddress($cleanAddress);
 }
 if (!empty($_POST['house_system'])) {
     $horoscope->setHouseSystem($_POST['house_system']);

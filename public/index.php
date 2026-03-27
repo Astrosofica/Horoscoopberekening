@@ -278,6 +278,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
         <div class="flash flash--error"><?= htmlspecialchars($flashError) ?></div>
     <?php endif; ?>
 
+    <?php if (!$editHoroscope): ?>
+        <p class="intro-text">Een horoscoop is een symbolische kaart van mogelijkheden, geen voorspelling.</p>
+    <?php endif; ?>
+
     <div class="card card--large card--form">
         <h2><?= $editHoroscope ? 'Horoscoop bewerken' : 'Geboortegegevens' ?></h2>
         <?php if ($editHoroscope): ?>
@@ -388,9 +392,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
         </div>
 
         <div class="houses-planets-container">
-        <div class="card">
+        <div class="card card--planets">
             <table>
-                <tr class="table-header--blue">
+                <tr>
                     <th colspan="3">Planeetposities</th>
                 </tr>
                 <?php foreach ($result['planets'] as $name => $data): ?>
@@ -419,9 +423,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
             </table>
         </div>
 
-        <div class="card">
+        <div class="card card--houses">
             <table>
-                <tr class="table-header--purple">
+                <tr>
                     <th colspan="2">Huizensysteem: <?= htmlspecialchars($result['houses']['systemName']) ?></th>
                 </tr>
                 <?php foreach ($result['houses']['houses'] as $houseNum => $house): ?>
@@ -434,10 +438,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
         </div>
     </div>
 
-        <div class="card">
+        <div class="card card--aspects">
             <h4>Aspecten (<?= count($result['aspects']) ?> totaal)</h4>
             <table>
-                <tr class="table-header--orange">
+                <tr>
                     <th>Planeet 1</th>
                     <th></th>
                     <th>Planeet 2</th>

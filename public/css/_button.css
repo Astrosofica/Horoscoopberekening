@@ -29,7 +29,7 @@
 }
 
 .btn--danger {
-    background: transparent;
+    background: var(--bg-error);
     color: var(--color-danger);
 }
 

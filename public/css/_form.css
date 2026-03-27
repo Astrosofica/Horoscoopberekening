@@ -18,8 +18,8 @@
 }
 
 .form-group label {
-    font-weight: 500;
-    color: var(--color-text-muted);
+    font-weight: 600;
+    color: var(--color-text);
     margin-bottom: 6px;
     font-size: var(--font-size-base);
 }
@@ -98,19 +98,18 @@
 .form-submit button {
     width: 100%;
     padding: 14px var(--spacing-xl);
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    background: var(--color-primary);
     color: white;
     border: none;
     border-radius: var(--border-radius);
     font-size: var(--font-size-lg);
     font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: background-color 0.2s;
 }
 
 .form-submit button:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-button);
+    background: var(--color-primary-dark);
 }
 
 .form-submit button:active {
@@ -118,8 +117,17 @@
 }
 
 .form-error {
-    color: var(--color-danger-dark);
+    color: var(--color-danger);
     margin-top: var(--spacing-lg);
+}
+
+.intro-text {
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-xxl);
+    font-style: italic;
+    line-height: 1.6;
 }
 
 .form--inline {
