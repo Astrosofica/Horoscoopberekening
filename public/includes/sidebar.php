@@ -1,7 +1,5 @@
 <?php
 $hasResult = $hasResult ?? false;
-$isLoggedIn = $isLoggedIn ?? false;
-$userEmail = $userEmail ?? null;
 $currentTab = $currentTab ?? 'calculate';
 
 $menuItems = [
@@ -10,8 +8,7 @@ $menuItems = [
 
 $resultItems = [
     'horoscope' => 'Horoscoop',
-    'planets' => 'Planeten',
-    'houses' => 'Huizen',
+    'planetshouses' => 'Planeten & Huizen',
     'aspects' => 'Aspecten',
 ];
 
@@ -26,8 +23,6 @@ $futureItems = [
 <div class="sidebar__overlay"></div>
 
 <aside class="sidebar">
-    <a href="index.php" class="sidebar__logo">Horoscoopberekening</a>
-    
     <nav class="sidebar__nav">
         <div class="sidebar__section">
             <?php foreach ($menuItems as $id => $label): ?>
@@ -61,15 +56,4 @@ $futureItems = [
             <?php endforeach; ?>
         </div>
     </nav>
-    
-    <div class="sidebar__footer">
-        <?php if ($isLoggedIn && $userEmail): ?>
-            <div class="sidebar__user"><?= htmlspecialchars($userEmail) ?></div>
-            <a href="dashboard.php" class="sidebar__footer-item">Dashboard</a>
-            <a href="logout.php" class="sidebar__footer-item sidebar__footer-item--danger">Uitloggen</a>
-        <?php else: ?>
-            <a href="login.php" class="sidebar__footer-item">Inloggen</a>
-            <a href="register.php" class="sidebar__footer-item">Registreren</a>
-        <?php endif; ?>
-    </div>
 </aside>

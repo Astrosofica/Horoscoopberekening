@@ -1,7 +1,13 @@
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 .app-layout {
     display: grid;
-    grid-template-columns: 220px 1fr;
-    min-height: 100vh;
+    grid-template-columns: 160px 1fr;
+    flex: 1;
 }
 
 .app-layout--fullscreen {
@@ -9,7 +15,7 @@
 }
 
 .app-content {
-    padding: var(--spacing-xxl);
+    padding: var(--spacing-lg) var(--spacing-xxl);
     overflow-x: hidden;
 }
 
@@ -18,7 +24,7 @@
     margin: 0 auto;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .app-layout {
         grid-template-columns: 1fr;
     }

@@ -73,6 +73,14 @@
     margin-bottom: var(--spacing-xxl);
 }
 
+.card--header--app {
+    margin-bottom: 0;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+}
+
 .header-content {
     display: flex;
     justify-content: space-between;

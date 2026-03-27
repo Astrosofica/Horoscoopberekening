@@ -1,24 +1,10 @@
 .sidebar {
     background: var(--bg-card);
     border-right: 1px solid var(--border-color);
-    padding: var(--spacing-lg);
+    padding: var(--spacing-md);
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    position: sticky;
-    top: 0;
-    height: 100vh;
     overflow-y: auto;
-}
-
-.sidebar__logo {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
-    color: var(--color-text);
-    text-decoration: none;
-    padding: var(--spacing-md) 0;
-    margin-bottom: var(--spacing-lg);
-    border-bottom: 1px solid var(--border-light);
 }
 
 .sidebar__nav {
@@ -26,7 +12,7 @@
 }
 
 .sidebar__section {
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
 }
 
 .sidebar__section-title {
@@ -84,53 +70,19 @@
     margin: var(--spacing-md) 0;
 }
 
-.sidebar__footer {
-    padding-top: var(--spacing-lg);
-    border-top: 1px solid var(--border-light);
-    margin-top: auto;
-}
-
-.sidebar__footer-item {
-    display: block;
-    padding: var(--spacing-sm) var(--spacing-md);
-    color: var(--color-text-muted);
-    text-decoration: none;
-    font-size: var(--font-size-base);
-    border-radius: var(--border-radius);
-    transition: background-color 0.15s;
-}
-
-.sidebar__footer-item:hover {
-    background: var(--bg-subtle);
-}
-
-.sidebar__footer-item--danger {
-    color: var(--color-danger);
-}
-
-.sidebar__footer-item--danger:hover {
-    background: var(--bg-error);
-}
-
-.sidebar__user {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-hint);
-    padding: var(--spacing-sm) var(--spacing-md);
-    margin-bottom: var(--spacing-xs);
-}
-
 .mobile-menu-toggle {
     display: none;
     position: fixed;
-    top: var(--spacing-md);
+    top: 12px;
     left: var(--spacing-md);
     z-index: 1001;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: 6px 10px;
     cursor: pointer;
-    font-size: var(--font-size-lg);
+    font-size: 1.1rem;
+    line-height: 1;
 }
 
 .sidebar__overlay {
@@ -144,17 +96,18 @@
     z-index: 999;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .mobile-menu-toggle {
         display: block;
     }
     
     .sidebar {
         position: fixed;
-        left: -260px;
+        left: -200px;
         top: 0;
         z-index: 1000;
-        width: 260px;
+        width: 200px;
+        height: 100vh;
         transition: left 0.3s ease;
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     }
