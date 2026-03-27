@@ -45,16 +45,10 @@
     margin: 0;
 }
 
-.card--planets {
-    border-top: 3px solid var(--color-primary);
-}
-
-.card--houses {
-    border-top: 3px solid var(--color-accent);
-}
-
+.card--planets,
+.card--houses,
 .card--aspects {
-    border-top: 3px solid var(--color-text-hint);
+    border-color: #d4d2cd;
 }
 
 .card-header {
