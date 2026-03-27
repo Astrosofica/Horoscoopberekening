@@ -31,11 +31,13 @@
 .btn--danger {
     background: var(--bg-error);
     color: var(--color-danger);
+    border: 1px solid var(--color-danger);
 }
 
 .btn--danger:hover {
     background: var(--color-danger);
     color: white;
+    border-color: var(--color-danger);
 }
 
 .btn--save {
