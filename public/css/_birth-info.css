@@ -1,6 +1,6 @@
 .birth-info-row {
     display: flex;
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
     align-items: baseline;
 }
 
@@ -22,6 +22,7 @@
 .birth-info-value .coordinates {
     color: var(--color-text-light);
     font-size: 0.95em;
+    display: block;
 }
 
 @media (max-width: 600px) {
