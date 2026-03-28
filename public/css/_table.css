@@ -150,13 +150,25 @@
 
 .dashboard-controls {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
     margin-bottom: var(--spacing-lg);
     padding-bottom: var(--spacing-md);
     border-bottom: 1px solid var(--border-light);
     flex-wrap: wrap;
-    gap: var(--spacing-sm);
+    gap: var(--spacing-lg);
+}
+
+.horoscope-count {
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+}
+
+.sort-buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
 }
 
 .sort-label {
@@ -165,43 +177,30 @@
     margin-right: var(--spacing-sm);
 }
 
-.sort-buttons {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-}
-
 .sort-btn {
-    padding: 6px 12px;
+    padding: 5px 14px;
     font-size: var(--font-size-base);
     color: var(--color-text-muted);
     text-decoration: none;
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius);
+    border: none;
+    background: transparent;
     transition: all 0.15s;
 }
 
 .sort-btn:hover {
-    background: var(--bg-subtle);
-    color: var(--color-text);
-    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-light);
 }
 
 .sort-btn--active {
-    background: var(--color-primary);
     color: white;
-    border-color: var(--color-primary);
+    background: var(--color-primary);
+    font-weight: 500;
 }
 
 .sort-btn--active:hover {
     background: var(--color-primary-dark);
     color: white;
-    border-color: var(--color-primary-dark);
-}
-
-.horoscope-count {
-    color: var(--color-text-hint);
-    font-size: var(--font-size-base);
 }
 
 .pagination {

@@ -88,14 +88,12 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
             <p><a href="index.php">Bereken je eerste horoscoop</a></p>
         <?php else: ?>
             <div class="dashboard-controls">
+                <span class="horoscope-count"><?= $totalHoroscopes ?> horoscoop<?= $totalHoroscopes !== 1 ? 'pen' : '' ?></span>
                 <div class="sort-buttons">
                     <span class="sort-label">Sorteren:</span>
                     <a href="?sort=name&page=<?= $page ?>" class="sort-btn<?= $sort === 'name' ? ' sort-btn--active' : '' ?>">Naam A-Z</a>
                     <a href="?sort=newest&page=<?= $page ?>" class="sort-btn<?= $sort === 'newest' ? ' sort-btn--active' : '' ?>">Nieuwste</a>
                     <a href="?sort=oldest&page=<?= $page ?>" class="sort-btn<?= $sort === 'oldest' ? ' sort-btn--active' : '' ?>">Oudste</a>
-                </div>
-                <div class="horoscope-count">
-                    <?= $totalHoroscopes ?> horoscoop<?= $totalHoroscopes !== 1 ? 'pen' : '' ?>
                 </div>
             </div>
 
