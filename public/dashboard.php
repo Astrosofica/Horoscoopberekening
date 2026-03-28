@@ -31,7 +31,27 @@ if (!$authService->isLoggedIn()) {
 
 $currentUser = $authService->getCurrentUser();
 $horoscopeRepo = new HoroscopeRepository();
-$horoscopes = $horoscopeRepo->findByUserId($currentUser->getId());
+
+$validSorts = ['newest', 'oldest', 'name'];
+$sort = $_GET['sort'] ?? 'newest';
+if (!in_array($sort, $validSorts)) {
+    $sort = 'newest';
+}
+
+$totalHoroscopes = $horoscopeRepo->countByUserId($currentUser->getId());
+$perPage = 10;
+$totalPages = max(1, ceil($totalHoroscopes / $perPage));
+
+$page = (int)($_GET['page'] ?? 1);
+if ($page < 1) $page = 1;
+if ($page > $totalPages) $page = $totalPages;
+
+$horoscopes = $horoscopeRepo->findByUserIdPaginated(
+    $currentUser->getId(),
+    $sort,
+    $page,
+    $perPage
+);
 
 $success = $_SESSION['flash_success'] ?? null;
 $error = $_SESSION['flash_error'] ?? null;
@@ -67,6 +87,18 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
             <p class="empty-message">Je hebt nog geen horoscopen opgeslagen.</p>
             <p><a href="index.php">Bereken je eerste horoscoop</a></p>
         <?php else: ?>
+            <div class="dashboard-controls">
+                <div class="sort-buttons">
+                    <span class="sort-label">Sorteren:</span>
+                    <a href="?sort=name&page=<?= $page ?>" class="sort-btn<?= $sort === 'name' ? ' sort-btn--active' : '' ?>">Naam A-Z</a>
+                    <a href="?sort=newest&page=<?= $page ?>" class="sort-btn<?= $sort === 'newest' ? ' sort-btn--active' : '' ?>">Nieuwste</a>
+                    <a href="?sort=oldest&page=<?= $page ?>" class="sort-btn<?= $sort === 'oldest' ? ' sort-btn--active' : '' ?>">Oudste</a>
+                </div>
+                <div class="horoscope-count">
+                    <?= $totalHoroscopes ?> horoscoop<?= $totalHoroscopes !== 1 ? 'pen' : '' ?>
+                </div>
+            </div>
+
             <div class="horoscope-list">
                 <?php foreach ($horoscopes as $h): ?>
                     <div class="horoscope-card">
@@ -97,6 +129,36 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                     </div>
                 <?php endforeach; ?>
             </div>
+
+            <?php if ($totalPages > 1): ?>
+                <div class="pagination">
+                    <?php if ($page > 1): ?>
+                        <a href="?sort=<?= $sort ?>&page=<?= $page - 1 ?>" class="pagination__link pagination__link--nav">← Vorige</a>
+                    <?php else: ?>
+                        <span class="pagination__link pagination__link--disabled">← Vorige</span>
+                    <?php endif; ?>
+
+                    <div class="pagination__numbers">
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <?php if ($i == $page): ?>
+                                <span class="pagination__link pagination__link--current"><?= $i ?></span>
+                            <?php else: ?>
+                                <a href="?sort=<?= $sort ?>&page=<?= $i ?>" class="pagination__link"><?= $i ?></a>
+                            <?php endif; ?>
+                        <?php endfor; ?>
+                    </div>
+
+                    <?php if ($page < $totalPages): ?>
+                        <a href="?sort=<?= $sort ?>&page=<?= $page + 1 ?>" class="pagination__link pagination__link--nav">Volgende →</a>
+                    <?php else: ?>
+                        <span class="pagination__link pagination__link--disabled">Volgende →</span>
+                    <?php endif; ?>
+                </div>
+                
+                <div class="pagination__info">
+                    Toon <?= ($page - 1) * $perPage + 1 ?>-<?= min($page * $perPage, $totalHoroscopes) ?> van <?= $totalHoroscopes ?>
+                </div>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 

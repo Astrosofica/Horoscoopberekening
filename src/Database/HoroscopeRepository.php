@@ -70,6 +70,37 @@ class HoroscopeRepository
         return $horoscopes;
     }
 
+    public function findByUserIdPaginated(
+        int $userId,
+        string $sort = 'newest',
+        int $page = 1,
+        int $perPage = 10
+    ): array {
+        $offset = max(0, ($page - 1) * $perPage);
+        
+        $orderBy = match($sort) {
+            'name' => 'name ASC',
+            'oldest' => 'created_at ASC',
+            default => 'created_at DESC',
+        };
+        
+        $stmt = $this->db->prepare(
+            "SELECT * FROM horoscopes 
+             WHERE user_id = ? 
+             ORDER BY {$orderBy} 
+             LIMIT ? OFFSET ?"
+        );
+        $stmt->execute([$userId, $perPage, $offset]);
+        $rows = $stmt->fetchAll();
+
+        $horoscopes = [];
+        foreach ($rows as $row) {
+            $horoscopes[] = Horoscope::fromArray($row);
+        }
+
+        return $horoscopes;
+    }
+
     public function create(Horoscope $horoscope): int
     {
         $slug = $this->generateUniqueSlug();
