@@ -46,7 +46,7 @@ header('Expires: '.gmdate('D, d M Y H:i:s', $expire_time).' GMT');
 $im = @imagecreatetruecolor((int)$overall_size, (int)$overall_size) or die("Cannot initialize new GD image stream");
 
 // Define colors
-
+/*
 $colors = [
     'white' => imagecolorallocate($im, 255, 255, 255),
     'whitesmoke' => imagecolorallocate($im, 240, 241, 238),
@@ -68,6 +68,35 @@ $colors = [
     'lavender' => imagecolorallocate($im, 158, 150, 180),    // stoffig lavendel
     'orange' => imagecolorallocate($im, 176, 124, 92),
     'light_blue' => imagecolorallocate($im, 226, 235, 242),
+];
+*/
+$colors = [
+    // Achtergronden en lijnen
+    'white'         => imagecolorallocate($im, 255, 255, 255),
+    'whitesmoke'    => imagecolorallocate($im, 255, 255, 255),
+    'magenta'       => imagecolorallocate($im, 120, 100, 115), // Gedempt purper/taupe (mystiek maar geaard)
+
+    // Ringen en grote vlakken
+    'yellow'        => imagecolorallocate($im, 226, 226, 214), // Saliegroen uit foto (#BAC8B1) - Buitenste ring
+    'cyan'          => imagecolorallocate($im, 205, 215, 210), // Zeer licht 'seafoam' voor zachte vlakken
+
+    // Groentinten (de basis van je palet)
+    'green'         => imagecolorallocate($im, 123, 150, 105), // Mosgroen uit foto (#7B9669)
+    'light_green'   => imagecolorallocate($im, 186, 200, 177),
+
+    // Neutrale tinten en tekst
+    'grey'          => imagecolorallocate($im, 140, 145, 135), // Warm grijs met groene ondertoon
+    'black'         => imagecolorallocate($im, 45, 49, 44),    // Bijna zwart, maar zachter voor de ogen
+
+    // De Elementen (Glyphes op de ring)
+    'red'           => imagecolorallocate($im, 166, 91, 82), // Vuur: Terracotta
+    'another_green' => imagecolorallocate($im, 64, 78, 59),  // Aarde: Woudgroen (hoog contrast!)
+    'orange'        => imagecolorallocate($im, 184, 134, 77), // Lucht: Oker/Goud
+    'blue'          => imagecolorallocate($im, 108, 132, 128), // Water: Leigrijs/Blauw
+
+    // Extra accenten voor differentiatie
+    'lavender'      => imagecolorallocate($im, 165, 165, 175), // Stoffig grijs-blauw
+    'light_blue'    => imagecolorallocate($im, 235, 240, 238), // Zeer lichte 'morning mist'
 ];
 
 // Specific colors

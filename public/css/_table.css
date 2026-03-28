@@ -20,7 +20,7 @@
 }
 
 .card td {
-    padding: 10px var(--spacing-sm) 0 var(--spacing-sm);
+    padding: 0 var(--spacing-sm);
     border-bottom: 1px solid var(--border-color-light);
 }
 

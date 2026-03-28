@@ -331,9 +331,6 @@ if ($hasResult && $mode !== 'edit') {
             <?php endif; ?>
 
             <section id="tab-calculate" class="tab-content<?= $currentTab !== 'calculate' ? ' tab-content--hidden' : '' ?>">
-                <?php if ($mode === 'new' || $mode === 'calculate'): ?>
-                    <p class="intro-text">Een horoscoop is een symbolische kaart van mogelijkheden, geen voorspelling.</p>
-                <?php endif; ?>
                 
                 <?php if ($mode === 'edit'): ?>
                     <p class="intro-text">Je bewerkt de horoscoop van <strong><?= htmlspecialchars($viewHoroscope->getName()) ?></strong>.</p>
