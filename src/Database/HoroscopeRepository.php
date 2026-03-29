@@ -80,6 +80,7 @@ class HoroscopeRepository
         
         $orderBy = match($sort) {
             'name' => 'name ASC',
+            'name_desc' => 'name DESC',
             'oldest' => 'created_at ASC',
             default => 'created_at DESC',
         };

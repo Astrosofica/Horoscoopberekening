@@ -32,14 +32,14 @@ if (!$authService->isLoggedIn()) {
 $currentUser = $authService->getCurrentUser();
 $horoscopeRepo = new HoroscopeRepository();
 
-$validSorts = ['newest', 'oldest', 'name'];
+$validSorts = ['newest', 'oldest', 'name', 'name_desc'];
 $sort = $_GET['sort'] ?? 'newest';
 if (!in_array($sort, $validSorts)) {
     $sort = 'newest';
 }
 
 $totalHoroscopes = $horoscopeRepo->countByUserId($currentUser->getId());
-$perPage = 10;
+$perPage = 2; // aantal horoscopen per pagina
 $totalPages = max(1, ceil($totalHoroscopes / $perPage));
 
 $page = (int)($_GET['page'] ?? 1);
@@ -91,7 +91,8 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                 <span class="horoscope-count"><?= $totalHoroscopes ?> horoscopen</span>
                 <div class="sort-buttons">
                     <span class="sort-label">Sorteren:</span>
-                    <a href="?sort=name&page=<?= $page ?>" class="sort-btn<?= $sort === 'name' ? ' sort-btn--active' : '' ?>">Naam A-Z</a>
+                    <a href="?sort=name&page=<?= $page ?>" class="sort-btn<?= $sort === 'name' ? ' sort-btn--active' : '' ?>">A-Z</a>
+                    <a href="?sort=name_desc&page=<?= $page ?>" class="sort-btn<?= $sort === 'name_desc' ? ' sort-btn--active' : '' ?>">Z-A</a>
                     <a href="?sort=newest&page=<?= $page ?>" class="sort-btn<?= $sort === 'newest' ? ' sort-btn--active' : '' ?>">Nieuwste</a>
                     <a href="?sort=oldest&page=<?= $page ?>" class="sort-btn<?= $sort === 'oldest' ? ' sort-btn--active' : '' ?>">Oudste</a>
                 </div>
