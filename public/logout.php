@@ -1,22 +1,6 @@
 <?php
-session_start();
-require_once __DIR__ . '/../config/security.php';
-
-if (file_exists(__DIR__ . '/../.env')) {
-    $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos($line, '#') === 0) continue;
-        if (strpos($line, '=') !== false) {
-            list($key, $value) = explode('=', $line, 2);
-            $_ENV[trim($key)] = trim($value);
-        }
-    }
-}
-
-require_once __DIR__ . '/../src/Database/Connection.php';
-require_once __DIR__ . '/../src/Entity/User.php';
-require_once __DIR__ . '/../src/Database/UserRepository.php';
-require_once __DIR__ . '/../src/Auth/AuthService.php';
+require_once __DIR__ . '/../config/bootstrap.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Tijd\Auth\AuthService;
 

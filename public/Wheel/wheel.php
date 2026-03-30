@@ -1,6 +1,5 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../config/security.php';
+require_once __DIR__ . '/../../config/bootstrap.php';
 
 // Try to get data from session, otherwise use hardcoded test data
 if (isset($_SESSION['wheel_data'])) {

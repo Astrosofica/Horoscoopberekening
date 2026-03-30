@@ -1,33 +1,54 @@
 <?php
 
-// Security headers - must be called before any output
-header('X-Frame-Options: DENY');
-header('X-Content-Type-Options: nosniff');
-header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: strict-origin-when-cross-origin');
-
-// HTTPS enforcement (only if HTTPS is active)
-if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-}
-
-// Prevent PHP errors from leaking to users
-ini_set('display_errors', '0');
-ini_set('display_startup_errors', '0');
-ini_set('log_errors', '1');
-
-// Session security settings (call before session_start)
+// Session security settings (before session_start)
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');
 if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
     ini_set('session.cookie_secure', '1');
 }
 
-// Generate CSRF token if not exists
-if (session_status() === PHP_SESSION_ACTIVE && empty($_SESSION['csrf_token'])) {
+// Start session
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Security headers
+header('X-Frame-Options: DENY');
+header('X-Content-Type-Options: nosniff');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
+if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+
+// Error handling
+ini_set('display_errors', '0');
+ini_set('display_startup_errors', '0');
+ini_set('log_errors', '1');
+
+// Load environment variables
+$envFile = __DIR__ . '/../.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '#') === 0) continue;
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($value);
+        }
+    }
+}
+
+// Load app config
+require_once __DIR__ . '/app.php';
+
+// Generate CSRF token
+if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
+// CSRF validation helper
 function validateCsrfToken(): void {
     if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token'])) {
         http_response_code(403);
@@ -39,10 +60,12 @@ function validateCsrfToken(): void {
     }
 }
 
+// CSRF field helper
 function csrfField(): string {
     return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token'] ?? '') . '">';
 }
 
+// Rate limiting helper
 function checkRateLimit(string $identifier, int $maxAttempts = 5, int $period = 300): bool {
     if (!isset($_SESSION['rate_limits'])) {
         $_SESSION['rate_limits'] = [];

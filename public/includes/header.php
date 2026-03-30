@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../../config/app.php';
-
 $isLoggedIn = isset($_SESSION['user_id']);
 $userEmail = $_SESSION['user_email'] ?? null;
 

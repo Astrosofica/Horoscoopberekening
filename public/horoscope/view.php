@@ -1,39 +1,6 @@
 <?php
-session_start();
-require_once __DIR__ . '/../../config/security.php';
-
-if (file_exists(__DIR__ . '/../../.env')) {
-    $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos($line, '#') === 0) continue;
-        if (strpos($line, '=') !== false) {
-            list($key, $value) = explode('=', $line, 2);
-            $_ENV[trim($key)] = trim($value);
-        }
-    }
-}
-
-define('ERROR_LOG_PATH', __DIR__ . '/../../var/log/error.log');
-ini_set('log_errors', true);
-ini_set('error_log', ERROR_LOG_PATH);
-
-require_once __DIR__ . '/../../src/Database/Connection.php';
-require_once __DIR__ . '/../../src/Entity/User.php';
-require_once __DIR__ . '/../../src/Entity/Horoscope.php';
-require_once __DIR__ . '/../../src/Database/UserRepository.php';
-require_once __DIR__ . '/../../src/Database/HoroscopeRepository.php';
-require_once __DIR__ . '/../../src/Auth/AuthService.php';
-require_once __DIR__ . '/../../src/Ephemeris/EphemerisConfig.php';
-require_once __DIR__ . '/../../src/Ephemeris/SwissEphemeris.php';
-require_once __DIR__ . '/../../src/Calculation/PlanetCalculator.php';
-require_once __DIR__ . '/../../src/Calculation/HouseCalculator.php';
-require_once __DIR__ . '/../../src/Calculation/Aspect.php';
-require_once __DIR__ . '/../../src/Calculation/AspectCalculator.php';
-require_once __DIR__ . '/../../src/Calculation/HousePlanetMatcher.php';
-require_once __DIR__ . '/../../src/Calculation/ParsFortuna.php';
-require_once __DIR__ . '/../../src/Calculation/HoroscopeCalculator.php';
-require_once __DIR__ . '/../../src/Helpers/Formatter.php';
-require_once __DIR__ . '/../../src/Glyph/SymbolGlyph.php';
+require_once __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use Tijd\Auth\AuthService;
 use Tijd\Database\HoroscopeRepository;

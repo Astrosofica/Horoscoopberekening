@@ -1,0 +1,13 @@
+{
+    "name": "tijd/astrologie",
+    "description": "Astrologische tijd calculator",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Tijd\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.0"
+    }
+}
