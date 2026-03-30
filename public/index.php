@@ -122,257 +122,58 @@ if ($mode === 'view' && $viewHoroscope) {
     ];
 }
 
-$flashSuccess = $_SESSION['flash_success'] ?? null;
-$flashError = $_SESSION['flash_error'] ?? null;
-unset($_SESSION['flash_success'], $_SESSION['flash_error']);
-
-// ============================================================================
-// TAB LAZY LOADING CONFIG
-// ============================================================================
-// Eager tabs (direct berekend): calculate, horoscope, planetshouses (core data)
-// Lazy tabs (on-demand): aspects
-// ----------------------------------------------------------------------------
-// Session structuur:
-//   $_SESSION['horoscope']['input']    → Geboortegegevens
-//   $_SESSION['horoscope']['core']     → Planeten, huizen, ascmc
-//   $_SESSION['horoscope']['aspects']  → NULL | array (lazy loaded)
-// ============================================================================
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isset($_POST['save_horoscope'])) {
-    // Reset lazy tabs bij nieuwe berekening
-    unset($_SESSION['horoscope']['aspects']);
-    
-    $firstname = trim($_POST['firstname'] ?? '');
-    $infix = trim($_POST['infix'] ?? '');
-    $lastname = trim($_POST['lastname'] ?? '');
-    $location = trim($_POST['location']);
-    $date = $_POST['date'] ?? '';
-    $time = $_POST['time'] ?? '';
-
-    if (empty($lastname)) {
-        $error = "Achternaam is verplicht";
-    } elseif (!empty($firstname) && !preg_match('/^[\p{L}\s\-\.\']+$/u', $firstname)) {
-        $error = "Ongeldige voornaam";
-    } elseif (!empty($infix) && !preg_match('/^[\p{L}\s\-\.\']+$/u', $infix)) {
-        $error = "Ongeldig tussenvoegsel";
-    } elseif (!preg_match('/^[\p{L}\s\-\.\']+$/u', $lastname)) {
-        $error = "Ongeldige achternaam";
-    } elseif (!preg_match('/^[\p{L}\s\-\.,]+$/u', $location)) {
-        $error = "Ongeldige locatie";
-    } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !strtotime($date)) {
-        $error = "Ongeldige datum";
-    } elseif (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $time)) {
-        $error = "Ongeldige tijd";
-    }
-
-    if (!isset($error)) {
-        $fullName = trim(implode(' ', array_filter([$firstname, $infix, $lastname])));
-        error_log("[Tijd] Starting calculation for: {$fullName} at {$location}");
-        $timestamp = strtotime("$date $time");
-        
-        $isUtc = isset($_POST['time_correction_utc']);
-        $isLmt = isset($_POST['time_correction_lmt']);
-        $timeCorrection = null;
-        if ($isUtc) $timeCorrection = 'utc';
-        if ($isLmt) $timeCorrection = 'lmt';
-
-        $geoService = new GeocodingService(GOOGLE_API_KEY);
-        $geoResult = $geoService->geocode($location);
-
-        if (isset($geoResult['error'])) {
-            $error = $geoResult['error'];
-            error_log("[Tijd] Geocoding error: {$error} for location: {$location}");
-        } else {
-            $lat = $geoResult['lat'];
-            $lng = $geoResult['lng'];
-            
-            if ($isUtc) {
-                $utcTimestamp = $timestamp;
-                $utcOffset = 0;
-                $offsetSource = 'manual';
-                $offsetLabel = 'UTC';
-                $timezoneId = '';
-                $timeResult = [
-                    'offset' => 0,
-                    'source' => 'manual',
-                    'label' => 'UTC'
-                ];
-            } elseif ($isLmt) {
-                $lmtOffset = (int) round($lng * 240);
-                $utcTimestamp = $timestamp - $lmtOffset;
-                $utcOffset = $lmtOffset;
-                $offsetSource = 'lmt';
-                $offsetLabel = 'LMT';
-                $timezoneId = '';
-                $timeResult = [
-                    'offset' => $lmtOffset,
-                    'source' => 'lmt',
-                    'label' => 'LMT'
-                ];
-            } else {
-                $tzResult = $geoService->getTimezoneId($lat, $lng, $timestamp);
-
-                if (isset($tzResult['error'])) {
-                    $error = $tzResult['error'];
-                    error_log("[Tijd] Timezone error: {$error} for coords: {$lat},{$lng}");
-                } else {
-                    $astroTime = new AstroTime($tzResult['timezoneId'], $lng);
-                    $timeResult = $astroTime->getOffset($timestamp);
-                    $utcTimestamp = $timestamp - $timeResult['offset'];
-                    $timezoneId = $tzResult['timezoneId'];
-                    $utcOffset = $timeResult['offset'];
-                }
-            }
-
-            if (!isset($error)) {
-                error_log("[Tijd] Timezone offset: {$timeResult['offset']} ({$timeResult['label']}) for {$timezoneId}");
-
-                try {
-                    $calculator = new PlanetCalculator();
-                    $planetResult = $calculator->calculateForTimestamp($utcTimestamp);
-                    
-                    $houseCalculator = new HouseCalculator();
-                    $houseResult = $houseCalculator->calculateByTimestamp(
-                        $utcTimestamp,
-                        $lat,
-                        $lng,
-                        HouseCalculator::HSYS_KOCH
-                    );
-
-                    $ascendant = $houseResult['ascmc']['ascendant']['longitude'];
-                    $moon = $planetResult['planets']['Moon']['longitude'] ?? 0;
-                    $sun = $planetResult['planets']['Sun']['longitude'] ?? 0;
-                    
-                    $planetResult['planets']['ParsFortuna'] = ParsFortuna::calculateWithSpeed(
-                        $ascendant,
-                        $moon,
-                        $sun
-                    );
-
-                    error_log("[Tijd] Calculation successful: " . count($planetResult['planets']) . " planets");
-                    
-                    // =========================================================================
-                    // SESSION STRUCTUUR - Lazy Loading Basis
-                    // =========================================================================
-                    $_SESSION['horoscope'] = [
-                        'input' => [
-                            'firstname' => $firstname,
-                            'infix' => $infix,
-                            'lastname' => $lastname,
-                            'birth_date' => $date,
-                            'birth_time' => $time,
-                            'location_name' => $location,
-                            'latitude' => $lat,
-                            'longitude' => $lng,
-                            'timezone_id' => $timezoneId,
-                            'utc_offset' => $utcOffset,
-                            'time_correction' => $timeCorrection,
-                            'offset_source' => $timeResult['source'],
-                            'offset_label' => $timeResult['label'],
-                            'formatted_address' => $geoResult['address'],
-                        ],
-                        'core' => [
-                            'planets' => $planetResult['planets'],
-                            'houses' => $houseResult['houses'],
-                            'ascmc' => $houseResult['ascmc'],
-                            'julian_day' => $planetResult['julian_day'],
-                        ],
-                        'aspects' => null, // Lazy loaded wanneer tab actief wordt
-                    ];
-                    // =========================================================================
-                    
-                    $result = [
-                        'name' => $fullName,
-                        'firstname' => $firstname,
-                        'infix' => $infix,
-                        'lastname' => $lastname,
-                        'offset' => $timeResult['offset'],
-                        'source' => $timeResult['source'],
-                        'label' => $timeResult['label'],
-                        'time_correction' => $timeCorrection,
-                        'coords' => ['lat' => $lat, 'lng' => $lng],
-                        'address' => $geoResult['address'],
-                        'timezone' => $timezoneId,
-                        'planets' => $planetResult['planets'],
-                        'julian_day' => $planetResult['julian_day'],
-                        'houses' => $houseResult,
-                        'aspects' => [], // Leeg tot lazy loaded
-                        'local_timestamp' => $timestamp,
-                        'utc_timestamp' => $utcTimestamp
-                    ];
-
-                    $housePlanetMatcher = new HousePlanetMatcher();
-                    $planetsForWheel = $housePlanetMatcher->match(
-                        $result['planets'],
-                        $result['houses']['houses']
-                    );
-                    $houseCuspsForWheel = $housePlanetMatcher->extractHouseCusps($result['houses']['houses']);
-
-                    $_SESSION['wheel_data'] = [
-                        'name' => $fullName,
-                        'house_cusps' => $houseCuspsForWheel,
-                        'planets' => $planetsForWheel
-                    ];
-                    
-                    $mode = 'calculate';
-                } catch (\Exception $e) {
-                    $error = "Berekening mislukt: " . $e->getMessage();
-                    error_log("[Tijd] Calculation error: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
-                }
-            }
-        }
-    }
-}
-
 $hasResult = $result !== null;
 $formDisabled = ($mode === 'view');
-$currentTab = 'calculate';
-if ($hasResult && $mode !== 'edit') {
-    $currentTab = 'horoscope';
-}
 
 // ===========================================================================
 // TAB SWITCH LOGIC - Lazy Loading
 // ===========================================================================
 // Check of user een specifieke tab wil bekijken (?tab=aspects)
 $requestedTab = $_GET['tab'] ?? null;
+$currentTab = 'calculate';
 
-if ($requestedTab) {
-    switch ($requestedTab) {
-        case 'aspects':
-            // LAZY: Aspecten tab - alleen berekenen als core data bestaat
-            if (isset($_SESSION['horoscope']['core'])) {
-                // Al berekend? Gebruik cached result
-                if (!isset($_SESSION['horoscope']['aspects'])) {
-                    // Bereken aspecten
-                    $aspectCalculator = new AspectCalculator();
-                    
-                    // Planets filteren voor aspecten (zonder ParsFortuna)
-                    $planetsForAspects = [];
-                    foreach ($_SESSION['horoscope']['core']['planets'] as $name => $data) {
-                        if ($name === 'ParsFortuna') continue;
-                        if (isset($data['success']) && $data['success']) {
-                            $planetsForAspects[$name] = ['longitude' => $data['longitude']];
+if ($hasResult && $mode !== 'edit') {
+    // Default tab bij resultaat is horoscope, tenzij andere tab gevraagd
+    $currentTab = 'horoscope';
+    
+    // Lazy tabs worden hieronder verwerkt
+    if ($requestedTab) {
+        switch ($requestedTab) {
+            case 'aspects':
+                // LAZY: Aspecten tab - alleen berekenen als core data bestaat
+                if (isset($_SESSION['horoscope']['core'])) {
+                    // Al berekend? Gebruik cached result
+                    if (!isset($_SESSION['horoscope']['aspects']) || empty($_SESSION['horoscope']['aspects'])) {
+                        // Bereken aspecten
+                        $aspectCalculator = new AspectCalculator();
+                        
+                        // Planets filteren voor aspecten (zonder ParsFortuna)
+                        $planetsForAspects = [];
+                        foreach ($_SESSION['horoscope']['core']['planets'] as $name => $data) {
+                            if ($name === 'ParsFortuna') continue;
+                            if (isset($data['success']) && $data['success']) {
+                                $planetsForAspects[$name] = ['longitude' => $data['longitude']];
+                            }
                         }
+                        
+                        $_SESSION['horoscope']['aspects'] = $aspectCalculator->calculate(
+                            $planetsForAspects,
+                            $_SESSION['horoscope']['core']['houses']
+                        );
                     }
                     
-                    $_SESSION['horoscope']['aspects'] = $aspectCalculator->calculate(
-                        $planetsForAspects,
-                        $_SESSION['horoscope']['core']['houses']
-                    );
+                    // Gebruik session data voor result
+                    $aspectResult = $_SESSION['horoscope']['aspects'];
+                    
+                    // Update result array voor template compatibility
+                    if ($result !== null) {
+                        $result['aspects'] = $aspectResult;
+                    }
+                    
+                    $currentTab = 'aspects';
                 }
-                
-                // Gebruik session data voor result
-                $aspectResult = $_SESSION['horoscope']['aspects'];
-                
-                // Update result array voor template compatibility
-                if ($result !== null) {
-                    $result['aspects'] = $aspectResult;
-                }
-                
-                $currentTab = 'aspects';
-            }
-            break;
+                break;
+        }
     }
 }
 // ===========================================================================
