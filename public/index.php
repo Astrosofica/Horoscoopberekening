@@ -248,19 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                         $sun
                     );
 
-                    $aspectCalculator = new AspectCalculator();
-                    $planetsForAspects = [];
-                    foreach ($planetResult['planets'] as $name => $data) {
-                        if ($name === 'ParsFortuna') continue;
-                        if (isset($data['success']) && $data['success']) {
-                            $planetsForAspects[$name] = [
-                                'longitude' => $data['longitude']
-                            ];
-                        }
-                    }
-                    $aspectResult = $aspectCalculator->calculate($planetsForAspects, $houseResult);
-                    
-                    error_log("[Tijd] Calculation successful: " . count($planetResult['planets']) . " planets, " . count($aspectResult) . " aspects");
+                    error_log("[Tijd] Calculation successful: " . count($planetResult['planets']) . " planets");
                     
                     // =========================================================================
                     // SESSION STRUCTUUR - Lazy Loading Basis
@@ -307,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                         'planets' => $planetResult['planets'],
                         'julian_day' => $planetResult['julian_day'],
                         'houses' => $houseResult,
-                        'aspects' => $aspectResult,
+                        'aspects' => [], // Leeg tot lazy loaded
                         'local_timestamp' => $timestamp,
                         'utc_timestamp' => $utcTimestamp
                     ];

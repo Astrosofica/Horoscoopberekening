@@ -48,6 +48,15 @@ class TijdApp {
             return;
         }
         
+        // Lazy loading: reload bij eerste bezoek aan aspecten tab
+        // zodat server de data kan berekenen
+        if (tabId === 'aspects' && pushState) {
+            const url = new URL(window.location);
+            url.hash = tabId;
+            window.location.href = url.toString();
+            return;
+        }
+        
         document.querySelectorAll('.tab-content').forEach(el => {
             el.classList.add('tab-content--hidden');
         });
@@ -67,7 +76,6 @@ class TijdApp {
         this.currentTab = tabId;
         
         if (pushState) {
-            // Voeg tab parameter toe aan URL voor server-side lazy loading
             const url = new URL(window.location);
             url.hash = tabId;
             history.pushState(null, '', url.toString());
