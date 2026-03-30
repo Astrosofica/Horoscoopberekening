@@ -25,7 +25,9 @@ CREATE TABLE IF NOT EXISTS horoscopes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     slug VARCHAR(16) NOT NULL,
     user_id INT NOT NULL,
-    name VARCHAR(255) NOT NULL,
+    firstname VARCHAR(255) DEFAULT NULL,
+    infix VARCHAR(50) DEFAULT NULL,
+    lastname VARCHAR(255) NOT NULL,
     birth_date DATE NOT NULL,
     birth_time TIME NOT NULL,
     location_name VARCHAR(255) NOT NULL,
@@ -46,6 +48,7 @@ CREATE TABLE IF NOT EXISTS horoscopes (
 -- Indexen voor performance
 CREATE INDEX IF NOT EXISTS idx_horoscopes_user_id ON horoscopes(user_id);
 CREATE INDEX IF NOT EXISTS idx_horoscopes_created_at ON horoscopes(created_at);
+CREATE INDEX IF NOT EXISTS idx_horoscopes_name ON horoscopes(lastname, firstname);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_horoscopes_slug ON horoscopes(slug);
 CREATE INDEX IF NOT EXISTS idx_users_verification_token ON users(verification_token);

@@ -73,8 +73,10 @@ if ($horoscopeSlug) {
     }
 }
 
-if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['name'])) {
-    $_POST['name'] = $viewHoroscope->getName();
+if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname'])) {
+    $_POST['firstname'] = $viewHoroscope->getFirstname();
+    $_POST['infix'] = $viewHoroscope->getInfix();
+    $_POST['lastname'] = $viewHoroscope->getLastname();
     $_POST['date'] = $viewHoroscope->getBirthDate();
     $_POST['time'] = $viewHoroscope->getBirthTime();
     $_POST['location'] = $viewHoroscope->getLocationName();
@@ -99,15 +101,21 @@ $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isset($_POST['save_horoscope'])) {
-    $personName = trim($_POST['name'] ?? '');
+    $firstname = trim($_POST['firstname'] ?? '');
+    $infix = trim($_POST['infix'] ?? '');
+    $lastname = trim($_POST['lastname'] ?? '');
     $location = trim($_POST['location']);
     $date = $_POST['date'] ?? '';
     $time = $_POST['time'] ?? '';
 
-    if (empty($personName)) {
-        $error = "Naam is verplicht";
-    } elseif (!preg_match('/^[\p{L}\s\-\.\']+$/u', $personName)) {
-        $error = "Ongeldige naam";
+    if (empty($lastname)) {
+        $error = "Achternaam is verplicht";
+    } elseif (!empty($firstname) && !preg_match('/^[\p{L}\s\-\.\']+$/u', $firstname)) {
+        $error = "Ongeldige voornaam";
+    } elseif (!empty($infix) && !preg_match('/^[\p{L}\s\-\.\']+$/u', $infix)) {
+        $error = "Ongeldig tussenvoegsel";
+    } elseif (!preg_match('/^[\p{L}\s\-\.\']+$/u', $lastname)) {
+        $error = "Ongeldige achternaam";
     } elseif (!preg_match('/^[\p{L}\s\-\.,]+$/u', $location)) {
         $error = "Ongeldige locatie";
     } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !strtotime($date)) {
@@ -117,7 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
     }
 
     if (!isset($error)) {
-        error_log("[Tijd] Starting calculation for: {$personName} at {$location}");
+        $fullName = trim(implode(' ', array_filter([$firstname, $infix, $lastname])));
+        error_log("[Tijd] Starting calculation for: {$fullName} at {$location}");
         $timestamp = strtotime("$date $time");
         
         $isUtc = isset($_POST['time_correction_utc']);
@@ -213,7 +222,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                     error_log("[Tijd] Calculation successful: " . count($planetResult['planets']) . " planets, " . count($aspectResult) . " aspects");
                     
                     $result = [
-                        'name' => $personName,
+                        'name' => $fullName,
+                        'firstname' => $firstname,
+                        'infix' => $infix,
+                        'lastname' => $lastname,
                         'offset' => $timeResult['offset'],
                         'source' => $timeResult['source'],
                         'label' => $timeResult['label'],
@@ -237,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                     $houseCuspsForWheel = $housePlanetMatcher->extractHouseCusps($result['houses']['houses']);
 
                     $_SESSION['wheel_data'] = [
-                        'name' => $personName,
+                        'name' => $fullName,
                         'house_cusps' => $houseCuspsForWheel,
                         'planets' => $planetsForWheel
                     ];
@@ -306,10 +318,18 @@ if ($hasResult && $mode !== 'edit') {
                 <div class="card card--large card--form">
                     <h2>Geboortegegevens</h2>
                     <form method="POST">
-                        <div class="form-row full">
-                            <div class="form-group">
-                                <label for="name">Naam</label>
-                                <input type="text" id="name" name="name" placeholder="Volledige naam" value="<?= htmlspecialchars($_POST['name'] ?? '') ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
+                        <div class="form-row name-row">
+                            <div class="form-group form-group--firstname">
+                                <label for="firstname">Voornaam</label>
+                                <input type="text" id="firstname" name="firstname" placeholder="Jan" value="<?= htmlspecialchars($_POST['firstname'] ?? '') ?>"<?= $formDisabled ? ' disabled' : '' ?>>
+                            </div>
+                            <div class="form-group form-group--infix">
+                                <label for="infix">Tussenv.</label>
+                                <input type="text" id="infix" name="infix" placeholder="van" value="<?= htmlspecialchars($_POST['infix'] ?? '') ?>"<?= $formDisabled ? ' disabled' : '' ?>>
+                            </div>
+                            <div class="form-group form-group--lastname">
+                                <label for="lastname">Achternaam <span class="required">*</span></label>
+                                <input type="text" id="lastname" name="lastname" placeholder="Berg" value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                         </div>
 
@@ -376,7 +396,9 @@ if ($hasResult && $mode !== 'edit') {
                         <div class="card card--save">
                             <form method="POST" action="horoscope/save.php<?= $editSlug ? '?replace=' . htmlspecialchars($editSlug) : '' ?>">
                                 <?= csrfField() ?>
-                                <input type="hidden" name="name" value="<?= htmlspecialchars($result['name']) ?>">
+                                <input type="hidden" name="firstname" value="<?= htmlspecialchars($result['firstname'] ?? '') ?>">
+                                <input type="hidden" name="infix" value="<?= htmlspecialchars($result['infix'] ?? '') ?>">
+                                <input type="hidden" name="lastname" value="<?= htmlspecialchars($result['lastname'] ?? '') ?>">
                                 <input type="hidden" name="birth_date" value="<?= htmlspecialchars(date('Y-m-d', $result['local_timestamp'])) ?>">
                                 <input type="hidden" name="birth_time" value="<?= htmlspecialchars(date('H:i:s', $result['local_timestamp'])) ?>">
                                 <input type="hidden" name="location_name" value="<?= htmlspecialchars($_POST['location'] ?? '') ?>">

@@ -7,7 +7,9 @@ class Horoscope
     private ?int $id = null;
     private ?string $slug = null;
     private int $userId;
-    private string $name;
+    private ?string $firstname = null;
+    private ?string $infix = null;
+    private string $lastname;
     private string $birthDate;
     private string $birthTime;
     private string $locationName;
@@ -25,17 +27,19 @@ class Horoscope
 
     public function __construct(
         int $userId,
-        string $name,
+        string $lastname,
         string $birthDate,
         string $birthTime,
         string $locationName,
         float $latitude,
         float $longitude,
         string $timezoneId,
-        int $utcOffset
+        int $utcOffset,
+        ?string $firstname = null,
+        ?string $infix = null
     ) {
         $this->userId = $userId;
-        $this->name = $name;
+        $this->lastname = $lastname;
         $this->birthDate = $birthDate;
         $this->birthTime = $birthTime;
         $this->locationName = $locationName;
@@ -43,6 +47,8 @@ class Horoscope
         $this->longitude = $longitude;
         $this->timezoneId = $timezoneId;
         $this->utcOffset = $utcOffset;
+        $this->firstname = $firstname;
+        $this->infix = $infix;
     }
 
     public function getId(): ?int
@@ -78,15 +84,48 @@ class Horoscope
         return $this;
     }
 
-    public function getName(): string
+    public function getFirstname(): ?string
     {
-        return $this->name;
+        return $this->firstname;
     }
 
-    public function setName(string $name): self
+    public function setFirstname(?string $firstname): self
     {
-        $this->name = $name;
+        $this->firstname = $firstname;
         return $this;
+    }
+
+    public function getInfix(): ?string
+    {
+        return $this->infix;
+    }
+
+    public function setInfix(?string $infix): self
+    {
+        $this->infix = $infix;
+        return $this;
+    }
+
+    public function getLastname(): string
+    {
+        return $this->lastname;
+    }
+
+    public function setLastname(string $lastname): self
+    {
+        $this->lastname = $lastname;
+        return $this;
+    }
+
+    public function getName(): string
+    {
+        return $this->getFullName();
+    }
+
+    public function getFullName(): string
+    {
+        $parts = array_filter([$this->firstname, $this->infix, $this->lastname]);
+        return implode(' ', $parts);
     }
 
     public function getBirthDate(): string
@@ -257,14 +296,16 @@ class Horoscope
     {
         $horoscope = new self(
             (int) $data['user_id'],
-            $data['name'],
+            $data['lastname'],
             $data['birth_date'],
             $data['birth_time'],
             $data['location_name'],
             (float) $data['latitude'],
             (float) $data['longitude'],
             $data['timezone_id'],
-            (int) $data['utc_offset']
+            (int) $data['utc_offset'],
+            $data['firstname'] ?? null,
+            $data['infix'] ?? null
         );
 
         $horoscope->setId((int) $data['id']);
@@ -310,7 +351,10 @@ class Horoscope
             'id' => $this->id,
             'slug' => $this->slug,
             'user_id' => $this->userId,
-            'name' => $this->name,
+            'firstname' => $this->firstname,
+            'infix' => $this->infix,
+            'lastname' => $this->lastname,
+            'name' => $this->getFullName(),
             'birth_date' => $this->birthDate,
             'birth_time' => $this->birthTime,
             'location_name' => $this->locationName,

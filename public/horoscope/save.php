@@ -23,7 +23,7 @@ validateCsrfToken();
 $currentUser = $authService->getCurrentUser();
 $userId = $currentUser->getId();
 
-$requiredFields = ['name', 'birth_date', 'birth_time', 'location_name', 'latitude', 'longitude'];
+$requiredFields = ['lastname', 'birth_date', 'birth_time', 'location_name', 'latitude', 'longitude'];
 foreach ($requiredFields as $field) {
     if (!isset($_POST[$field]) || $_POST[$field] === '') {
         $_SESSION['flash_error'] = 'Ontbrekende gegevens.';
@@ -40,14 +40,16 @@ if (!isset($_POST['utc_offset'])) {
 
 $horoscope = new Horoscope(
     $userId,
-    $_POST['name'],
+    $_POST['lastname'],
     $_POST['birth_date'],
     $_POST['birth_time'],
     $_POST['location_name'],
     (float) $_POST['latitude'],
     (float) $_POST['longitude'],
     $_POST['timezone_id'] ?? '',
-    (int) $_POST['utc_offset']
+    (int) $_POST['utc_offset'],
+    $_POST['firstname'] ?? null,
+    $_POST['infix'] ?? null
 );
 
 if (!empty($_POST['offset_source'])) {

@@ -79,8 +79,8 @@ class HoroscopeRepository
         $offset = max(0, ($page - 1) * $perPage);
         
         $orderBy = match($sort) {
-            'name' => 'name ASC',
-            'name_desc' => 'name DESC',
+            'name' => 'lastname ASC, firstname ASC',
+            'name_desc' => 'lastname DESC, firstname DESC',
             'oldest' => 'created_at ASC',
             default => 'created_at DESC',
         };
@@ -108,16 +108,18 @@ class HoroscopeRepository
 
         $stmt = $this->db->prepare(
             'INSERT INTO horoscopes (
-                slug, user_id, name, birth_date, birth_time, location_name,
+                slug, user_id, firstname, infix, lastname, birth_date, birth_time, location_name,
                 latitude, longitude, timezone_id, utc_offset, time_correction,
                 offset_source, offset_label, formatted_address, house_system
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
             $slug,
             $horoscope->getUserId(),
-            $horoscope->getName(),
+            $horoscope->getFirstname(),
+            $horoscope->getInfix(),
+            $horoscope->getLastname(),
             $horoscope->getBirthDate(),
             $horoscope->getBirthTime(),
             $horoscope->getLocationName(),
@@ -154,14 +156,16 @@ class HoroscopeRepository
     {
         $stmt = $this->db->prepare(
             'UPDATE horoscopes SET 
-                name = ?, birth_date = ?, birth_time = ?, location_name = ?,
+                firstname = ?, infix = ?, lastname = ?, birth_date = ?, birth_time = ?, location_name = ?,
                 latitude = ?, longitude = ?, timezone_id = ?, utc_offset = ?,
                 offset_source = ?, offset_label = ?, formatted_address = ?, house_system = ?
             WHERE id = ? AND user_id = ?'
         );
 
         return $stmt->execute([
-            $horoscope->getName(),
+            $horoscope->getFirstname(),
+            $horoscope->getInfix(),
+            $horoscope->getLastname(),
             $horoscope->getBirthDate(),
             $horoscope->getBirthTime(),
             $horoscope->getLocationName(),

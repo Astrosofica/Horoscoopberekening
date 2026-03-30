@@ -152,6 +152,41 @@
     .form-row.half {
         flex-direction: column;
     }
+    
+    .form-row.name-row {
+        flex-direction: column;
+    }
+    
+    .form-row.name-row .form-group {
+        flex: none;
+    }
+}
+
+.form-row.name-row {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-row.name-row .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group--firstname {
+    flex: 0 0 25%;
+}
+
+.form-group--infix {
+    flex: 0 0 15%;
+}
+
+.form-group--lastname {
+    flex: 1;
+}
+
+.required {
+    color: var(--color-danger);
 }
 
 @media print {

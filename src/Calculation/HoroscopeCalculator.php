@@ -62,7 +62,10 @@ class HoroscopeCalculator
         $aspectResult = $this->aspectCalculator->calculate($planetsForAspects, $houseResult);
 
         $result = [
-            'name' => $horoscope->getName(),
+            'name' => $horoscope->getFullName(),
+            'firstname' => $horoscope->getFirstname(),
+            'infix' => $horoscope->getInfix(),
+            'lastname' => $horoscope->getLastname(),
             'offset' => $horoscope->getUtcOffset(),
             'source' => $horoscope->getOffsetSource(),
             'label' => $horoscope->getOffsetLabel(),
