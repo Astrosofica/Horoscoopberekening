@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/security.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -121,6 +122,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                             <a href="index.php?h=<?= $h->getSlug() ?>">Bekijk</a>
                             <a href="index.php?h=<?= $h->getSlug() ?>&edit">Bewerk</a>
                             <form method="POST" action="horoscope/delete.php" class="form--inline" onsubmit="return confirm('Weet je zeker dat je deze horoscoop wilt verwijderen?');">
+                                <?= csrfField() ?>
                                 <input type="hidden" name="slug" value="<?= $h->getSlug() ?>">
                                 <button type="submit" class="link--danger">Verwijder</button>
                             </form>

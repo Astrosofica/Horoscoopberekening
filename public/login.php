@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/security.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -31,17 +32,20 @@ $success = $_SESSION['flash_success'] ?? null;
 unset($_SESSION['flash_success']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validateCsrfToken();
+    
     $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $remember = isset($_POST['remember']);
-
-    if (empty($email) || empty($password)) {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    
+    if (!checkRateLimit('login:' . $ip . ':' . $email, 5, 300)) {
+        $error = 'Te veel pogingen. Probeer het later opnieuw.';
+    } elseif (empty($email) || empty($_POST['password'])) {
         $error = 'Vul alle velden in.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Ongeldig e-mailadres.';
     } else {
         try {
-            if ($authService->login($email, $password, $remember)) {
+            if ($authService->login($email, $_POST['password'], isset($_POST['remember']))) {
                 header('Location: dashboard.php');
                 exit;
             } else {
@@ -77,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" class="auth-form">
+            <?= csrfField() ?>
             <div class="form-group">
                 <label for="email">E-mailadres</label>
                 <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required autofocus>

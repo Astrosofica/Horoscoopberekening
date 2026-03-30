@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/security.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -37,9 +38,14 @@ $error = null;
 $success = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validateCsrfToken();
+    
     $email = trim($_POST['email'] ?? '');
-
-    if (empty($email)) {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    
+    if (!checkRateLimit('forgot:' . $ip, 3, 300)) {
+        $error = 'Te veel pogingen. Probeer het later opnieuw.';
+    } elseif (empty($email)) {
         $error = 'Vul je e-mailadres in.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Ongeldig e-mailadres.';
@@ -74,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>Vul je e-mailadres in om je wachtwoord te resetten.</p>
 
             <form method="POST" class="auth-form">
+                <?= csrfField() ?>
                 <div class="form-group">
                     <label for="email">E-mailadres</label>
                     <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required autofocus>

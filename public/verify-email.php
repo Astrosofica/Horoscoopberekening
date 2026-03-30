@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/security.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -39,6 +40,8 @@ if (!$authService->isLoggedIn()) {
 $currentUser = $authService->getCurrentUser();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validateCsrfToken();
+    
     if (isset($_POST['resend'])) {
         if ($authService->sendVerificationEmail($currentUser)) {
             $success = 'Verificatie e-mail verzonden! Controleer je inbox.';
@@ -86,6 +89,7 @@ $isVerified = $currentUser->isEmailVerified();
                 Controleer je inbox voor de verificatie e-mail.
             </p>
             <form method="POST">
+                <?= csrfField() ?>
                 <div class="form-submit">
                     <button type="submit" name="resend">Verificatie e-mail opnieuw versturen</button>
                 </div>

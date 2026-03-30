@@ -18,26 +18,7 @@ Function Reduce_below_30($longitude)
 }
 
 
-Function safeEscapeString($string)
-{
-// replace HTML tags '<>' with '[]'
-  $temp1 = str_replace("<", "[", $string);
-  $temp2 = str_replace(">", "]", $temp1);
 
-// but keep <br> or <br />
-// turn <br> into <br /> so later it will be turned into ""
-// using just <br> will add extra blank lines
-  $temp1 = str_replace("[br]", "<br />", $temp2);
-  $temp2 = str_replace("[br /]", "<br />", $temp1);
-
-// Use mysqli_real_escape_string if a connection exists, otherwise use addslashes
-  if (function_exists('mysqli_real_escape_string') && ini_get('mysqli.allow_persistent') != '') {
-    $temp2 = mysqli_real_escape_string($temp2);
-  } else {
-    $temp2 = addslashes($temp2);
-  }
-  return $temp2;
-}
 
 
 Function Sort_planets_by_descending_longitude($num_planets, $longitude, &$sort, &$sort_pos)

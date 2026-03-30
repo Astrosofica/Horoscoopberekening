@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/security.php';
 
 if (file_exists(__DIR__ . '/../../.env')) {
     $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -106,7 +107,7 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
     </div>
 
     <div class="wheel-container">
-        <img src="../Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix">
+        <img src="../Wheel/wheel.php" alt="Astrologisch Radix">
     </div>
 
     <div class="houses-planets-container">

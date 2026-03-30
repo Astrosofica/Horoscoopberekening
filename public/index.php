@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/security.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -304,7 +305,7 @@ if ($hasResult && $mode !== 'edit') {
 <div class="app-wrapper">
     <header class="card card--header card--header--app">
         <div class="header-content">
-            <h1><a href="index.php" class="header-brand"><?= APP_NAME ?></a><h1>
+            <h1><a href="index.php" class="header-brand"><?= APP_NAME ?></a></h1>
             <nav class="header-nav">
                 <?php if ($isLoggedIn): ?>
                     <a href="dashboard.php">Dashboard</a>
@@ -408,6 +409,7 @@ if ($hasResult && $mode !== 'edit') {
                     <?php if ($isLoggedIn && $mode !== 'view'): ?>
                         <div class="card card--save">
                             <form method="POST" action="horoscope/save.php<?= $editSlug ? '?replace=' . htmlspecialchars($editSlug) : '' ?>">
+                                <?= csrfField() ?>
                                 <input type="hidden" name="name" value="<?= htmlspecialchars($result['name']) ?>">
                                 <input type="hidden" name="birth_date" value="<?= htmlspecialchars(date('Y-m-d', $result['local_timestamp'])) ?>">
                                 <input type="hidden" name="birth_time" value="<?= htmlspecialchars(date('H:i:s', $result['local_timestamp'])) ?>">
@@ -447,7 +449,7 @@ if ($hasResult && $mode !== 'edit') {
                     </div>
 
                     <div class="wheel-container">
-                        <img src="./Wheel/wheel.php?sid=<?= session_id() ?>" alt="Astrologisch Radix">
+                        <img src="./Wheel/wheel.php" alt="Astrologisch Radix">
                     </div>
                 </section>
 

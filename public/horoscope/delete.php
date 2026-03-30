@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../../config/security.php';
 
 if (file_exists(__DIR__ . '/../../.env')) {
     $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -33,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../dashboard.php');
     exit;
 }
+
+validateCsrfToken();
 
 $currentUser = $authService->getCurrentUser();
 $slug = $_POST['slug'] ?? '';

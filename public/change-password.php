@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/security.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -32,6 +33,8 @@ $error = null;
 $success = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validateCsrfToken();
+    
     $currentPassword = $_POST['current_password'] ?? '';
     $newPassword = $_POST['new_password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
@@ -80,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="flash flash--success"><?= htmlspecialchars($success) ?></div>
         <?php else: ?>
             <form method="POST" class="auth-form">
+                <?= csrfField() ?>
                 <div class="form-group">
                     <label for="current_password">Huidig wachtwoord</label>
                     <input type="password" id="current_password" name="current_password" required autofocus>

@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/security.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -33,10 +34,15 @@ $error = null;
 $success = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validateCsrfToken();
+    
     $password = $_POST['password'] ?? '';
     $passwordConfirm = $_POST['password_confirm'] ?? '';
-
-    if (empty($password) || empty($passwordConfirm)) {
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    
+    if (!checkRateLimit('reset:' . $ip, 3, 300)) {
+        $error = 'Te veel pogingen. Probeer het later opnieuw.';
+    } elseif (empty($password) || empty($passwordConfirm)) {
         $error = 'Vul alle velden in.';
     } elseif (strlen($password) < 8) {
         $error = 'Wachtwoord moet minimaal 8 karakters bevatten.';
@@ -73,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" class="auth-form">
+            <?= csrfField() ?>
             <div class="form-group">
                 <label for="password">Nieuw wachtwoord</label>
                 <input type="password" id="password" name="password" required minlength="8">

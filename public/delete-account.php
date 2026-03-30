@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/security.php';
 
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -32,6 +33,8 @@ $currentUser = $authService->getCurrentUser();
 $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validateCsrfToken();
+    
     $password = $_POST['password'] ?? '';
     $confirmation = $_POST['confirmation'] ?? '';
 
@@ -79,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" class="auth-form" onsubmit="return confirm('Weet je ABSOLUUT zeker dat je je account wilt verwijderen? Dit kan niet ongedaan worden gemaakt.');">
+            <?= csrfField() ?>
             <div class="form-group">
                 <label for="password">Je wachtwoord</label>
                 <input type="password" id="password" name="password" required autofocus>

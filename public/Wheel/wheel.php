@@ -1,8 +1,6 @@
 <?php
-if (isset($_GET['sid'])) {
-    session_id($_GET['sid']);
-}
 session_start();
+require_once __DIR__ . '/../../config/security.php';
 
 // Try to get data from session, otherwise use hardcoded test data
 if (isset($_SESSION['wheel_data'])) {
