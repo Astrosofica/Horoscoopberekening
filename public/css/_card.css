@@ -82,8 +82,8 @@
 }
 
 .header-brand {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
+    /*font-size: var(--font-size-lg);
+    font-weight: 700;*/
     color: var(--color-text);
     text-decoration: none;
 }

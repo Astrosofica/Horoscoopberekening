@@ -304,7 +304,7 @@ if ($hasResult && $mode !== 'edit') {
 <div class="app-wrapper">
     <header class="card card--header card--header--app">
         <div class="header-content">
-            <a href="index.php" class="header-brand"><?= APP_NAME ?></a>
+            <h1><a href="index.php" class="header-brand"><?= APP_NAME ?></a><h1>
             <nav class="header-nav">
                 <?php if ($isLoggedIn): ?>
                     <a href="dashboard.php">Dashboard</a>

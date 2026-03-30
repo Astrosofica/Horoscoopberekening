@@ -3,12 +3,12 @@ $hasResult = $hasResult ?? false;
 $currentTab = $currentTab ?? 'calculate';
 
 $menuItems = [
-    'calculate' => 'Berekenen',
+    'calculate' => 'Invoer',
 ];
 
 $resultItems = [
     'horoscope' => 'Horoscoop',
-    'planetshouses' => 'Planeten & Huizen',
+    'planetshouses' => 'Astrodata',
     'aspects' => 'Aspecten',
 ];
 
