@@ -220,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                     $timeResult = $astroTime->getOffset($timestamp);
                     $utcTimestamp = $timestamp - $timeResult['offset'];
                     $timezoneId = $tzResult['timezoneId'];
+                    $utcOffset = $timeResult['offset'];
                 }
             }
 
@@ -333,17 +334,8 @@ if ($hasResult && $mode !== 'edit') {
 // ===========================================================================
 // TAB SWITCH LOGIC - Lazy Loading
 // ===========================================================================
-// Check of user een specifieke tab wil bekijken (via hash in URL)
-// JavaScript zet hash om naar query parameter voor server-side rendering
+// Check of user een specifieke tab wil bekijken (?tab=aspects)
 $requestedTab = $_GET['tab'] ?? null;
-
-// Fallback: check ook hash via JavaScript redirect
-if (!$requestedTab && isset($_SERVER['HTTP_REFERER'])) {
-    $hash = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_FRAGMENT);
-    if ($hash) {
-        $requestedTab = $hash;
-    }
-}
 
 if ($requestedTab) {
     switch ($requestedTab) {

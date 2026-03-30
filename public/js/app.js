@@ -37,6 +37,15 @@ class TijdApp {
     }
     
     initFromUrl() {
+        // Check query parameter voor tab (server-side lazy loading)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab && document.getElementById('tab-' + tab)) {
+            this.switchTab(tab, false);
+            return;
+        }
+        
+        // Fallback: check hash voor backwards compatibility
         const hash = window.location.hash.replace('#', '');
         if (hash && document.getElementById('tab-' + hash)) {
             this.switchTab(hash, false);
@@ -51,8 +60,9 @@ class TijdApp {
         // Lazy loading: reload bij eerste bezoek aan aspecten tab
         // zodat server de data kan berekenen
         if (tabId === 'aspects' && pushState) {
+            // Gebruik query parameter i.p.v. hash (PHP kan hash niet lezen)
             const url = new URL(window.location);
-            url.hash = tabId;
+            url.searchParams.set('tab', tabId);
             window.location.href = url.toString();
             return;
         }
@@ -77,7 +87,7 @@ class TijdApp {
         
         if (pushState) {
             const url = new URL(window.location);
-            url.hash = tabId;
+            url.searchParams.set('tab', tabId);
             history.pushState(null, '', url.toString());
         }
         
