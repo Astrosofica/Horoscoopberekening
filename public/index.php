@@ -435,7 +435,8 @@ if ($hasResult && $mode !== 'edit') {
 document.addEventListener('DOMContentLoaded', function() {
     if (window.tijdApp) {
         window.tijdApp.enableResultTabs();
-        window.tijdApp.switchTab('horoscope', false);
+        // Gebruik de tab die PHP al heeft bepaald
+        window.tijdApp.switchTab('<?= $currentTab ?>', false);
     }
 });
 </script>
