@@ -63,13 +63,13 @@
 }
 
 .card--header {
-    padding: var(--spacing-lg) var(--spacing-xl);
+    padding: var(--spacing-md) var(--spacing-xl);
     margin-bottom: var(--spacing-xxl);
+    border-radius: var(--border-radius-lg);
 }
 
 .card--header--app {
     margin-bottom: 0;
-    border-radius: 0;
     border-left: none;
     border-right: none;
     border-top: none;
@@ -116,7 +116,8 @@
 .card--footer {
     padding: var(--spacing-md) var(--spacing-xl);
     background: var(--bg-subtle);
-    border-color: var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
     box-shadow: none;
     text-align: center;
     margin-top: var(--spacing-xxl);
@@ -124,7 +125,6 @@
 
 .app-wrapper .card--footer {
     margin-top: 0;
-    border-radius: 0;
     border-left: none;
     border-right: none;
     border-bottom: none;

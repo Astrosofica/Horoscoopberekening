@@ -2,7 +2,7 @@
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius-lg);
-    margin: var(--spacing-xxl) 0;
+    margin: var(--spacing-lg) 0;
     padding: var(--spacing-lg) var(--spacing-md);
     display: flex;
     flex-direction: column;

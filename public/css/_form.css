@@ -171,18 +171,24 @@
 .form-row.name-row .form-group {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
 }
 
-.form-group--firstname {
+.form-row.name-row .form-group--firstname {
     flex: 0 0 25%;
 }
 
-.form-group--infix {
+.form-row.name-row .form-group--infix {
     flex: 0 0 15%;
 }
 
-.form-group--lastname {
+.form-row.name-row .form-group--lastname {
     flex: 1;
+}
+
+.form-row.name-row .form-group input {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .required {

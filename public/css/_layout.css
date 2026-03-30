@@ -15,7 +15,7 @@
 }
 
 .app-content {
-    padding: var(--spacing-lg) var(--spacing-xxl);
+    padding: var(--spacing-lg) 0 var(--spacing-lg) var(--spacing-lg);
     overflow-x: hidden;
 }
 
