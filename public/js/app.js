@@ -67,7 +67,10 @@ class TijdApp {
         this.currentTab = tabId;
         
         if (pushState) {
-            history.pushState(null, '', '#' + tabId);
+            // Voeg tab parameter toe aan URL voor server-side lazy loading
+            const url = new URL(window.location);
+            url.hash = tabId;
+            history.pushState(null, '', url.toString());
         }
         
         this.closeSidebar();

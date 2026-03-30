@@ -90,17 +90,58 @@ if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']
 }
 
 if ($mode === 'view' && $viewHoroscope) {
+    // Reset lazy tabs bij laden opgeslagen horoscoop
+    unset($_SESSION['horoscope']['aspects']);
+    
     $calculator = new HoroscopeCalculator();
     $result = $calculator->calculate($viewHoroscope);
     $wheelData = $calculator->prepareWheelData($result);
     $_SESSION['wheel_data'] = $wheelData;
+    
+    // Session structuur voor lazy loading
+    $_SESSION['horoscope'] = [
+        'input' => [
+            'firstname' => $viewHoroscope->getFirstname(),
+            'infix' => $viewHoroscope->getInfix(),
+            'lastname' => $viewHoroscope->getLastname(),
+            'birth_date' => $viewHoroscope->getBirthDate(),
+            'birth_time' => $viewHoroscope->getBirthTime(),
+            'location_name' => $viewHoroscope->getLocationName(),
+            'latitude' => $viewHoroscope->getLatitude(),
+            'longitude' => $viewHoroscope->getLongitude(),
+            'timezone_id' => $viewHoroscope->getTimezoneId(),
+            'utc_offset' => $viewHoroscope->getUtcOffset(),
+        ],
+        'core' => [
+            'planets' => $result['planets'],
+            'houses' => $result['houses']['houses'],
+            'ascmc' => $result['houses']['ascmc'],
+            'julian_day' => $result['julian_day'],
+        ],
+        'aspects' => null, // Lazy loaded
+    ];
 }
 
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
+// ============================================================================
+// TAB LAZY LOADING CONFIG
+// ============================================================================
+// Eager tabs (direct berekend): calculate, horoscope, planetshouses (core data)
+// Lazy tabs (on-demand): aspects
+// ----------------------------------------------------------------------------
+// Session structuur:
+//   $_SESSION['horoscope']['input']    → Geboortegegevens
+//   $_SESSION['horoscope']['core']     → Planeten, huizen, ascmc
+//   $_SESSION['horoscope']['aspects']  → NULL | array (lazy loaded)
+// ============================================================================
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isset($_POST['save_horoscope'])) {
+    // Reset lazy tabs bij nieuwe berekening
+    unset($_SESSION['horoscope']['aspects']);
+    
     $firstname = trim($_POST['firstname'] ?? '');
     $infix = trim($_POST['infix'] ?? '');
     $lastname = trim($_POST['lastname'] ?? '');
@@ -221,6 +262,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['location']) && !isse
                     
                     error_log("[Tijd] Calculation successful: " . count($planetResult['planets']) . " planets, " . count($aspectResult) . " aspects");
                     
+                    // =========================================================================
+                    // SESSION STRUCTUUR - Lazy Loading Basis
+                    // =========================================================================
+                    $_SESSION['horoscope'] = [
+                        'input' => [
+                            'firstname' => $firstname,
+                            'infix' => $infix,
+                            'lastname' => $lastname,
+                            'birth_date' => $date,
+                            'birth_time' => $time,
+                            'location_name' => $location,
+                            'latitude' => $lat,
+                            'longitude' => $lng,
+                            'timezone_id' => $timezoneId,
+                            'utc_offset' => $utcOffset,
+                            'time_correction' => $timeCorrection,
+                            'offset_source' => $timeResult['source'],
+                            'offset_label' => $timeResult['label'],
+                            'formatted_address' => $geoResult['address'],
+                        ],
+                        'core' => [
+                            'planets' => $planetResult['planets'],
+                            'houses' => $houseResult['houses'],
+                            'ascmc' => $houseResult['ascmc'],
+                            'julian_day' => $planetResult['julian_day'],
+                        ],
+                        'aspects' => null, // Lazy loaded wanneer tab actief wordt
+                    ];
+                    // =========================================================================
+                    
                     $result = [
                         'name' => $fullName,
                         'firstname' => $firstname,
@@ -270,6 +341,61 @@ $currentTab = 'calculate';
 if ($hasResult && $mode !== 'edit') {
     $currentTab = 'horoscope';
 }
+
+// ===========================================================================
+// TAB SWITCH LOGIC - Lazy Loading
+// ===========================================================================
+// Check of user een specifieke tab wil bekijken (via hash in URL)
+// JavaScript zet hash om naar query parameter voor server-side rendering
+$requestedTab = $_GET['tab'] ?? null;
+
+// Fallback: check ook hash via JavaScript redirect
+if (!$requestedTab && isset($_SERVER['HTTP_REFERER'])) {
+    $hash = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_FRAGMENT);
+    if ($hash) {
+        $requestedTab = $hash;
+    }
+}
+
+if ($requestedTab) {
+    switch ($requestedTab) {
+        case 'aspects':
+            // LAZY: Aspecten tab - alleen berekenen als core data bestaat
+            if (isset($_SESSION['horoscope']['core'])) {
+                // Al berekend? Gebruik cached result
+                if (!isset($_SESSION['horoscope']['aspects'])) {
+                    // Bereken aspecten
+                    $aspectCalculator = new AspectCalculator();
+                    
+                    // Planets filteren voor aspecten (zonder ParsFortuna)
+                    $planetsForAspects = [];
+                    foreach ($_SESSION['horoscope']['core']['planets'] as $name => $data) {
+                        if ($name === 'ParsFortuna') continue;
+                        if (isset($data['success']) && $data['success']) {
+                            $planetsForAspects[$name] = ['longitude' => $data['longitude']];
+                        }
+                    }
+                    
+                    $_SESSION['horoscope']['aspects'] = $aspectCalculator->calculate(
+                        $planetsForAspects,
+                        $_SESSION['horoscope']['core']['houses']
+                    );
+                }
+                
+                // Gebruik session data voor result
+                $aspectResult = $_SESSION['horoscope']['aspects'];
+                
+                // Update result array voor template compatibility
+                if ($result !== null) {
+                    $result['aspects'] = $aspectResult;
+                }
+                
+                $currentTab = 'aspects';
+            }
+            break;
+    }
+}
+// ===========================================================================
 ?>
 <!DOCTYPE html>
 <html lang="nl">
