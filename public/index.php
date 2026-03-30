@@ -156,9 +156,15 @@ if ($hasResult && $mode !== 'edit') {
                             }
                         }
                         
+                        // Ascendant en MC toevoegen voor aspectenberekening
+                        $housesForAspects = $_SESSION['horoscope']['core']['houses'];
+                        if (isset($_SESSION['horoscope']['core']['ascmc'])) {
+                            $housesForAspects['ascmc'] = $_SESSION['horoscope']['core']['ascmc'];
+                        }
+                        
                         $_SESSION['horoscope']['aspects'] = $aspectCalculator->calculate(
                             $planetsForAspects,
-                            $_SESSION['horoscope']['core']['houses']
+                            $housesForAspects
                         );
                     }
                     
