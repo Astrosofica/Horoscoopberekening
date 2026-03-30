@@ -192,3 +192,46 @@
 5. Minor aspects
 6. Aspectpatronen
 7. Element/kwaliteiten balans
+
+---
+
+## Code Quality (Security Audit)
+
+De volgende items zijn overgebleven van de security audit. Ze zijn **niet urgent** - geen direct security risico, maar quality improvements.
+
+- [ ] **H3: Output escaping helpers** (Quality)
+  - Helper functies h(), hAttr(), hJs(), hUrl() maken
+  - ~54 htmlspecialchars() calls migreren
+  - Huidige code werkt, dit is consistency improvement
+
+- [ ] **M1: Slug validation** (Optional)
+  - Regex validatie voor horoscope slug format
+  - Extra defensie layer, maar ownership check bestaat al
+  - Prepared statements gebruiken
+
+- [ ] **L2: Version footer** (Nihil)
+  - BUILD_VERSION/BUILD_DATE conditioneel tonen
+  - Information disclosure, minimal impact
+
+- [ ] **L4: Bootstrap consolidation** (Refactoring)
+  - config/bootstrap.php maken met env loading
+  - Elimineert duplicated code in 14+ files
+  - Kan samengevoegd met config/security.php
+
+- [ ] **L5: Input validation** (Quality)
+  - Comprehensive validation: name length, date/time format
+  - Data quality improvement
+
+### Voltooid (Security Audit 2026-03)
+
+- [x] **C1: Session fixation** - wheel.php sid parameter verwijderd
+- [x] **C2: debug_session.php** - verwijderd
+- [x] **C3: CSRF protection** - alle forms + handlers
+- [x] **H1: Rate limiting** - login, forgot-password, reset-password
+- [x] **H4: Security headers** - config/security.php
+- [x] **M2: safeEscapeString()** - verwijderd (niet gebruikt)
+- [x] **M3: Session ID in URL** - verwijderd
+- [x] **M4: display_errors** - disabled in security.php
+- [x] **L1: Zone.Identifier** - verwijderd
+- [x] **L3: HTML typo** - gefixed
+- [x] **H2: Session encryption** - skipped (dedicated server, niet nodig)
