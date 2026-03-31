@@ -10,11 +10,11 @@ $resultItems = [
     'horoscope' => 'Horoscoop',
     'planetshouses' => 'Astrodata',
     'aspects' => 'Aspecten',
+    'progressions' => 'Progressies',
 ];
 
 $futureItems = [
     'transits' => 'Transits',
-    'progressions' => 'Progressies',
     'midpoints' => 'Midpunten',
     'antiscia' => 'Spiegelpunten',
 ];

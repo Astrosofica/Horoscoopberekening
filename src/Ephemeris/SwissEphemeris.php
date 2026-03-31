@@ -75,6 +75,51 @@ class SwissEphemeris
         );
     }
 
+    public function timestampFromJulianDay(float $julianDay): int
+    {
+        $jd = $julianDay + 0.5;
+        $Z = (int)$jd;
+        $F = $jd - $Z;
+
+        if ($Z >= 2299161) {
+            $alpha = (int)((($Z - 1867216.25) / 36524.25));
+            $A = $Z + 1 + $alpha - (int)((($alpha / 4)));
+        } else {
+            $A = $Z;
+        }
+
+        $B = $A + 1524;
+        $C = (int)((($B - 122.1) / 365.25));
+        $D = (int)((365.25 * $C));
+        $E = (int)((($B - $D) / 30.6001));
+
+        $day = $B - $D - (int)((30.6001 * $E));
+
+        if ($E < 14) {
+            $month = $E - 1;
+        } else {
+            $month = $E - 13;
+        }
+
+        if ($month > 2) {
+            $year = $C - 4716;
+        } else {
+            $year = $C - 4715;
+        }
+
+        $hour = $F * 24;
+        $hours = (int)$hour;
+        $minutes = (int)((($hour - $hours) * 60));
+        $seconds = (int)((((($hour - $hours) * 60) - $minutes) * 60));
+
+        $datetime = new \DateTime();
+        $datetime->setDate($year, $month, $day);
+        $datetime->setTime($hours, $minutes, $seconds);
+        $datetime->setTimezone(new \DateTimeZone('UTC'));
+
+        return $datetime->getTimestamp();
+    }
+
     public function calculatePlanet(
         float $julianDay,
         int $planet,

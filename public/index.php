@@ -38,6 +38,7 @@ use Tijd\Calculation\AspectCalculator;
 use Tijd\Calculation\HousePlanetMatcher;
 use Tijd\Calculation\ParsFortuna;
 use Tijd\Calculation\HoroscopeCalculator;
+use Tijd\Calculation\ProgressionCalculator;
 use Tijd\Helpers\Formatter;
 use Tijd\Glyph\SymbolGlyph;
 
@@ -371,6 +372,36 @@ if ($hasResult && $mode !== 'edit') {
                     $currentTab = 'aspects';
                 }
                 break;
+                
+            case 'progressions':
+                // LAZY: Progressies tab - alleen berekenen als core en input data bestaat
+                if (isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
+                    // Al berekend? Gebruik cached result
+                    if (!isset($_SESSION['horoscope']['progressions']) || empty($_SESSION['horoscope']['progressions'])) {
+                        // Bereken secundaire progressies voor vandaag
+                        $progCalculator = new ProgressionCalculator();
+                        
+                        $_SESSION['horoscope']['progressions'] = $progCalculator->calculateSecondaryProgressions(
+                            $_SESSION['horoscope']['core']['houses'],
+                            $_SESSION['horoscope']['input']['birth_date'],
+                            $_SESSION['horoscope']['input']['birth_time'],
+                            $_SESSION['horoscope']['input']['latitude'],
+                            $_SESSION['horoscope']['input']['longitude'],
+                            $_SESSION['horoscope']['input']['utc_offset']
+                        );
+                    }
+                    
+                    // Gebruik session data voor result
+                    $progressionsResult = $_SESSION['horoscope']['progressions'];
+                    
+                    // Update result array voor template compatibility
+                    if ($result !== null) {
+                        $result['progressions'] = $progressionsResult;
+                    }
+                    
+                    $currentTab = 'progressions';
+                }
+                break;
         }
     }
 }
@@ -620,6 +651,49 @@ if ($hasResult && $mode !== 'edit') {
                         </table>
                     </div>
                 </section>
+
+                <?php if (isset($result['progressions'])): ?>
+                <section id="tab-progressions" class="tab-content tab-content--hidden">
+                    <div class="card card--progressions">
+                        <h4>Secundaire Progressies</h4>
+                        <p class="progressions-info">
+                            Leeftijd: <?= round($result['progressions']['years']) ?> jaar 
+                            (<?= round($result['progressions']['progress_days'], 2) ?> progressieve dagen)
+                        </p>
+                        <table>
+                            <tr>
+                                <th>Planeet</th>
+                                <th>Positie</th>
+                                <th>Huis</th>
+                                <th>Richting</th>
+                            </tr>
+                            <?php foreach ($result['progressions']['planets'] as $name => $data): ?>
+                                <?php if ($name === 'Ascendant' || $name === 'MC'): ?>
+                                    <tr class="row--axis">
+                                        <td class="text-center"><?= htmlspecialchars($name) ?></td>
+                                        <td class="text-center"><?= Formatter::formatLongitudeWithGlyph($data['longitude']) ?></td>
+                                        <td class="text-center"><?= $data['house'] ?></td>
+                                        <td class="text-center"><?= $data['direction'] ?></td>
+                                    </tr>
+                                <?php else: ?>
+                                    <tr>
+                                        <td class="text-center"><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByName($name) ?></span></td>
+                                        <td class="text-center"><?= Formatter::formatLongitudeWithGlyph($data['longitude']) ?></td>
+                                        <td class="text-center"><?= $data['house'] ?></td>
+                                        <td class="text-center">
+                                            <?php if ($data['direction'] === 'R'): ?>
+                                                <span class="astro-glyph"><?= SymbolGlyph::getRetrogradeGlyph() ?></span>
+                                            <?php else: ?>
+                                                <?= $data['direction'] ?>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
+                </section>
+                <?php endif; ?>
             <?php endif; ?>
         </main>
     </div>
