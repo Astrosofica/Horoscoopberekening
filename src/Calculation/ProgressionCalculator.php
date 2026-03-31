@@ -36,34 +36,35 @@ class ProgressionCalculator
         }
 
         $birthDateTime = new \DateTime($birthDate . ' ' . $birthTime, new \DateTimeZone('UTC'));
-        $birthTimestamp = $birthDateTime->getTimestamp() + $utcOffset;
+        $birthTimestamp = $birthDateTime->getTimestamp() - $utcOffset;
 
-        $progressDateTime = new \DateTime();
-        $progressDateTime->setTimestamp($progressTimestamp);
+        $solaryear = 365.24219893;
+        $secProgRate = 1 / $solaryear;
+        
+        $progressBirthTimestamp = $birthTimestamp + ($progressTimestamp - $birthTimestamp) * $secProgRate;
+        $progressBirthTimestamp = (int)round($progressBirthTimestamp);
 
-        $ageInterval = $birthDateTime->diff($progressDateTime);
-        $years = $ageInterval->y;
-        $totalDays = $ageInterval->days;
-        $daysInCurrentYear = $totalDays % 365;
+        $progressBirthDateTime = new \DateTime();
+        $progressBirthDateTime->setTimestamp($progressBirthTimestamp);
+        $progressBirthDateTime->setTimezone(new \DateTimeZone('UTC'));
 
-        $progressDays = $years + ($daysInCurrentYear / 365.24219893);
-        $progressDaysInt = (int)floor($progressDays);
-        $progressDaysFraction = $progressDays - $progressDaysInt;
+        $birthUtcDateTime = new \DateTime();
+        $birthUtcDateTime->setTimestamp($birthTimestamp);
+        $birthUtcDateTime->setTimezone(new \DateTimeZone('UTC'));
 
-        $progressBirthDateTime = clone $birthDateTime;
-        $progressBirthDateTime->modify("+{$progressDaysInt} days");
-        $progressBirthTimestamp = $progressBirthDateTime->getTimestamp();
-        $progressBirthTimestamp += (int)round($progressDaysFraction * 86400);
+        $nowDateTime = new \DateTime();
+        $nowDateTime->setTimestamp($progressTimestamp);
+        $nowDateTime->setTimezone(new \DateTimeZone('UTC'));
+
+        $actualAgeInterval = $birthUtcDateTime->diff($nowDateTime);
+        $years = $actualAgeInterval->y;
+
+        $progressDays = ($progressBirthTimestamp - $birthTimestamp) / 86400;
 
         $planetResult = $this->planetCalculator->calculateForTimestamp($progressBirthTimestamp);
 
-        $preDateTime = clone $birthDateTime;
-        $preDateTime->modify("+{$years} days");
-        $preTimestamp = $preDateTime->getTimestamp();
-
-        $postDateTime = clone $birthDateTime;
-        $postDateTime->modify("+{$years} days +1 day");
-        $postTimestamp = $postDateTime->getTimestamp();
+        $preTimestamp = $birthTimestamp + ($years * 86400);
+        $postTimestamp = $birthTimestamp + (($years + 1) * 86400);
 
         $preHouses = $this->houseCalculator->calculateByTimestamp(
             $preTimestamp,
@@ -81,17 +82,17 @@ class ProgressionCalculator
 
         $timeDiff = $progressBirthTimestamp - $preTimestamp;
         $secondsPerDay = 86400;
-        $fractionalYear = $timeDiff / $secondsPerDay;
+        $fractionalDay = $timeDiff / $secondsPerDay;
 
         $preAsc = $preHouses['ascmc']['ascendant']['longitude'];
         $postAsc = $postHouses['ascmc']['ascendant']['longitude'];
         $ascDiff = $this->normalizeAngleDiff($postAsc - $preAsc);
-        $progressAsc = $preAsc + ($ascDiff * $fractionalYear);
+        $progressAsc = $preAsc + ($ascDiff * $fractionalDay);
 
         $preMc = $preHouses['ascmc']['mc']['longitude'];
         $postMc = $postHouses['ascmc']['mc']['longitude'];
         $mcDiff = $this->normalizeAngleDiff($postMc - $preMc);
-        $progressMc = $preMc + ($mcDiff * $fractionalYear);
+        $progressMc = $preMc + ($mcDiff * $fractionalDay);
 
         $progressPlanets = [];
         $radixHouseCusps = $this->extractHouseCusps($radixHouses);
@@ -154,7 +155,7 @@ class ProgressionCalculator
             ],
             'progress_days' => $progressDays,
             'years' => $years,
-            'fractional_year' => $fractionalYear,
+            'fractional_day' => $fractionalDay,
             'progress_date' => $progressBirthDateTime->format('Y-m-d H:i:s')
         ];
     }
