@@ -35,8 +35,9 @@ class ProgressionCalculator
             $progressTimestamp = time();
         }
 
-        $birthDateTime = new \DateTime($birthDate . ' ' . $birthTime, new \DateTimeZone('UTC'));
-        $birthTimestamp = $birthDateTime->getTimestamp() - $utcOffset;
+        // ZELFDE logica als Horoscope entity
+        $localTimestamp = strtotime($birthDate . ' ' . $birthTime);
+        $birthTimestamp = $localTimestamp - $utcOffset;
 
         $solaryear = 365.24219893;
         $secProgRate = 1 / $solaryear;
