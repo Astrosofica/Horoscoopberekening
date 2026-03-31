@@ -145,8 +145,7 @@ class SwissEphemeris
 
         return [
             'success' => false,
-            // Ook hier de instantie gebruiken voor de string conversie
-            'error' => self::$ffi->string($serr)
+            'error' => \FFI::string($serr)
         ];
     }
 

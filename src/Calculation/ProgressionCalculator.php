@@ -47,10 +47,13 @@ class ProgressionCalculator
         $daysInCurrentYear = $totalDays % 365;
 
         $progressDays = $years + ($daysInCurrentYear / 365.24219893);
+        $progressDaysInt = (int)floor($progressDays);
+        $progressDaysFraction = $progressDays - $progressDaysInt;
 
         $progressBirthDateTime = clone $birthDateTime;
-        $progressBirthDateTime->modify("+{$progressDays} days");
+        $progressBirthDateTime->modify("+{$progressDaysInt} days");
         $progressBirthTimestamp = $progressBirthDateTime->getTimestamp();
+        $progressBirthTimestamp += (int)round($progressDaysFraction * 86400);
 
         $planetResult = $this->planetCalculator->calculateForTimestamp($progressBirthTimestamp);
 
