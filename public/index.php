@@ -409,15 +409,8 @@ if ($mode === 'view' && $viewHoroscope) {
         'aspects' => null, // Lazy loaded
     ];
     
-    // Herstel progression_events indien die bestond
-    if ($existingProgressionEvents !== null) {
-        $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
-    }
-    
-    // Herstel progression_events indien die bestond
-    if ($existingProgressionEvents !== null) {
-        $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
-    }
+    // Verwijder progression_events bij laden opgeslagen horoscoop
+    unset($_SESSION['horoscope']['progression_events']);
 }
 
 $hasResult = $result !== null;
