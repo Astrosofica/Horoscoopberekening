@@ -378,6 +378,9 @@ if ($mode === 'view' && $viewHoroscope) {
     // Behoud progression_events als die al bestaat
     $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
     
+    // Behoud progression_events als die al bestaat (bij view/edit mode)
+    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
+    
     $calculator = new HoroscopeCalculator();
     $result = $calculator->calculate($viewHoroscope);
     $wheelData = $calculator->prepareWheelData($result);
@@ -405,6 +408,11 @@ if ($mode === 'view' && $viewHoroscope) {
         ],
         'aspects' => null, // Lazy loaded
     ];
+    
+    // Herstel progression_events indien die bestond
+    if ($existingProgressionEvents !== null) {
+        $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
+    }
     
     // Herstel progression_events indien die bestond
     if ($existingProgressionEvents !== null) {
