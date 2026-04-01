@@ -77,8 +77,9 @@
 }
 
 .progression-results .astro-glyph {
-    font-family: 'AstroGlyph', 'Segoe UI Symbol', sans-serif;
+    font-family: 'Astro', sans-serif;
     font-size: 1.2rem;
+    display: inline-block;
 }
 
 .progression-results .row--rd {

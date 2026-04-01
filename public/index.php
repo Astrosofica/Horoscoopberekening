@@ -885,8 +885,8 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                     <tr class="<?= $event['event_type'] === 'rd_transition' ? 'row--rd' : '' ?><?= ($event['event_type'] === 'house_ingress' || $event['event_type'] === 'sign_ingress') ? 'row--ingress' : '' ?>">
                                         <td><?= date('d-m-Y', $event['timestamp']) ?></td>
                                         <td><?= $event['direction'] ?></td>
-                                        <td class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($event['progressive_index']) ?></td>
-                                        <td class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($event['aspect']) ?></td>
+                                        <td><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($event['progressive_index']) ?></span></td>
+                                        <td><span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($event['aspect']) ?></span></td>
                                         <td><?= $event['event_type'] === 'rd_transition' ? htmlspecialchars($event['radix_target']) : ($event['event_type'] === 'sign_ingress' ? htmlspecialchars($event['radix_target']) : ($event['event_type'] === 'house_ingress' ? htmlspecialchars($event['radix_target']) : '<span class="astro-glyph">' . SymbolGlyph::getGlyphForTarget($event['radix_index']) . '</span>')) ?></td>
                                         <td><?= Formatter::formatLongitudeWithGlyph($event['progressive_position']) ?></td>
                                         <td><?= Formatter::formatLongitudeWithGlyph($event['radix_position']) ?></td>
