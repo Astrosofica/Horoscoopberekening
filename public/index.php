@@ -362,6 +362,22 @@ $_SESSION['horoscope']['progression_events'] = [
     }
 }
 
+// ===========================================================================
+// TAB SWITCH LOGIC - Lazy Loading
+// ===========================================================================
+// Check of user een specifieke tab wil bekijken (?tab=aspects)
+$requestedTab = $_GET['tab'] ?? null;
+
+if (!isset($currentTab)) {
+    $currentTab = 'calculate';
+}
+
+// Check of we net een progression submit hebben gedaan (moet VÓÓR viewHoroscope blok!)
+if (isset($_SESSION['just_submitted_progressions'])) {
+    $currentTab = 'progressions-list';
+    // Marker wordt verwijderd in viewHoroscope blok
+}
+
 if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname'])) {
     $_POST['firstname'] = $viewHoroscope->getFirstname();
     $_POST['infix'] = $viewHoroscope->getInfix();
@@ -424,33 +440,20 @@ if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'
         unset($_SESSION['horoscope']['progression_events']);
     }
     
-    // Verwijder marker als die gezet was
+    // Verwijder marker als die gezet was (tab is al gezet in tab switch logic)
     if ($justDidProgression) {
         unset($_SESSION['just_submitted_progressions']);
     }
 }
 
+// ===========================================================================
+// TAB SWITCH LOGIC - Lazy Loading (vervolg)
+// ===========================================================================
 $hasResult = $result !== null;
 $formDisabled = ($mode === 'view');
 
-// ===========================================================================
-// TAB SWITCH LOGIC - Lazy Loading
-// ===========================================================================
-// Check of user een specifieke tab wil bekijken (?tab=aspects)
-$requestedTab = $_GET['tab'] ?? null;
-
-if (!isset($currentTab)) {
-    $currentTab = 'calculate';
-}
-
-// Check of we net een progression submit hebben gedaan
-if (isset($_SESSION['just_submitted_progressions'])) {
-    $currentTab = 'progressions-list';
-    unset($_SESSION['just_submitted_progressions']);
-}
-
+// Default tab bij resultaat is horoscope, tenzij andere tab gevraagd
 if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
-    // Default tab bij resultaat is horoscope, tenzij andere tab gevraagd
     $currentTab = 'horoscope';
     
     // Lazy tabs worden hieronder verwerkt
