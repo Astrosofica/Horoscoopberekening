@@ -354,6 +354,10 @@ $_SESSION['horoscope']['progression_events'] = [
                 
                 // Markeer dat we net een progression submit hebben gedaan
                 $_SESSION['just_submitted_progressions'] = true;
+                
+                // Redirect naar GET om browser resubmit te voorkomen
+                header('Location: ' . $_SERVER['REQUEST_URI']);
+                exit;
             } catch (\Exception $e) {
                 $error = "Berekening mislukt: " . $e->getMessage();
                 error_log("[Tijd] Progression error: " . $e->getMessage());
@@ -1011,6 +1015,7 @@ echo '<strong>DEBUG TAB INFO:</strong><br>';
 echo 'currentTab: ' . ($currentTab ?? 'UNDEFINED') . '<br>';
 echo 'hasResult: ' . ($hasResult ? 'TRUE' : 'FALSE') . '<br>';
 echo 'mode: ' . ($mode ?? 'UNDEFINED') . '<br>';
+echo 'REQUEST_METHOD: ' . ($_SERVER['REQUEST_METHOD'] ?? 'UNDEFINED') . '<br>';
 echo 'viewHoroscope: ' . ($viewHoroscope ? 'SET' : 'NULL') . '<br>';
 echo 'isLoggedIn: ' . ($isLoggedIn ? 'YES' : 'NO') . '<br>';
 echo 'progression_events exists: ' . (isset($_SESSION['horoscope']['progression_events']) ? 'YES' : 'NO') . '<br>';
