@@ -266,6 +266,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
     }
 }
 
+// ===========================================================================
+// POST HANDLER - Progression Events Form
+// ===========================================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progressions'])) {
+    if (!isset($_SESSION['horoscope']['core'])) {
+        $error = "Eerst een horoscoop berekenen voordat progressies kunnen worden berekend.";
+    } else {
+        $startDate = $_POST['prog_start_date'] ?? '';
+        $endDate = $_POST['prog_end_date'] ?? '';
+        $progressivePlanets = $_POST['progressive_planet'] ?? [];
+        $radixTargets = $_POST['radix_target'] ?? [];
+        $aspects = $_POST['aspect_type'] ?? [];
+        $includeHouseIngress = isset($_POST['include_house_ingress']);
+        $includeSignIngress = isset($_POST['include_sign_ingress']);
+        
+        if (empty($startDate) || empty($endDate)) {
+            $error = "Start- en einddatum zijn verplicht.";
+        } elseif (strtotime($startDate) > strtotime($endDate)) {
+            $error = "Einddatum moet na startdatum liggen.";
+        } elseif (empty($progressivePlanets) && empty($radixTargets) && empty($aspects)) {
+            $error = "Selecteer minimaal één planeet, radix target of aspect.";
+        } else {
+            $startTimestamp = strtotime($startDate);
+            $endTimestamp = strtotime($endDate) + 86400;
+            
+            $radixData = [
+                'planets' => $_SESSION['horoscope']['core']['planets'],
+                'houses' => $_SESSION['horoscope']['core']['houses'],
+                'ascmc' => $_SESSION['horoscope']['core']['ascmc'],
+            ];
+            
+            $birthUtcTimestamp = strtotime($_SESSION['horoscope']['input']['birth_date'] . ' ' . $_SESSION['horoscope']['input']['birth_time']) 
+                - $_SESSION['horoscope']['input']['utc_offset'];
+            
+            $progEventCalculator = new ProgressionEventCalculator();
+            
+            try {
+                $progEvents = $progEventCalculator->calculateEvents(
+                    $radixData,
+                    $progressivePlanets,
+                    $radixTargets,
+                    $aspects,
+                    $startTimestamp,
+                    $endTimestamp,
+                    $includeHouseIngress,
+                    $includeSignIngress,
+                    $_SESSION['horoscope']['input']['latitude'],
+                    $_SESSION['horoscope']['input']['longitude'],
+                    $birthUtcTimestamp,
+                    $_SESSION['horoscope']['input']['utc_offset']
+                );
+                
+                $_SESSION['horoscope']['progression_events'] = [
+                    'input' => [
+                        'start_date' => $startDate,
+                        'end_date' => $endDate,
+                        'progressive_planets' => $progressivePlanets,
+                        'radix_targets' => $radixTargets,
+                        'aspects' => $aspects,
+                        'include_house_ingress' => $includeHouseIngress,
+                        'include_sign_ingress' => $includeSignIngress,
+                    ],
+                    'results' => $progEvents,
+                ];
+                
+                $currentTab = 'progressions-list';
+            } catch (\Exception $e) {
+                $error = "Berekening mislukt: " . $e->getMessage();
+                error_log("[Tijd] Progression error: " . $e->getMessage());
+            }
+        }
+    }
+}
+
 if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname'])) {
     $_POST['firstname'] = $viewHoroscope->getFirstname();
     $_POST['infix'] = $viewHoroscope->getInfix();
@@ -401,6 +475,14 @@ if ($hasResult && $mode !== 'edit') {
                     
                     $currentTab = 'progressions';
                 }
+                break;
+                
+            case 'progressions-list':
+                // Show cached progression events if available
+                if (isset($_SESSION['horoscope']['progression_events']['results'])) {
+                    $progEventsResult = $_SESSION['horoscope']['progression_events']['results'];
+                }
+                $currentTab = 'progressions-list';
                 break;
         }
     }
@@ -692,6 +774,108 @@ if ($hasResult && $mode !== 'edit') {
                             <?php endforeach; ?>
                         </table>
                     </div>
+                </section>
+                <?php endif; ?>
+                
+                <?php if (isset($_SESSION['horoscope']['core'])): ?>
+                <section id="tab-progressions-list" class="tab-content tab-content--hidden">
+                    <div class="card card--large">
+                        <h2>Progressie Events</h2>
+                        <form method="POST" class="progression-form">
+                            <div class="progression-column" style="min-width: 280px;">
+                                <h4>Tijdvak</h4>
+                                <div class="progression-datepicker">
+                                    <label>Start: <input type="date" name="prog_start_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['start_date'] ?? date('Y-01-01')) ?>"></label>
+                                    <label>Eind: <input type="date" name="prog_end_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['end_date'] ?? date('Y-12-31')) ?>"></label>
+                                </div>
+                                <div class="progression-options">
+                                    <label><input type="checkbox" name="include_house_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_house_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_house_ingress'] ? 'checked' : '' ?>> Huis ingress</label>
+                                    <label><input type="checkbox" name="include_sign_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_sign_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_sign_ingress'] ? 'checked' : '' ?>> Teken ingress</label>
+                                </div>
+                            </div>
+                            
+                            <div class="progression-column">
+                                <h4>Progressief</h4>
+                                <?php for ($i = 0; $i <= 9; $i++): ?>
+                                    <label class="astro-glyph">
+                                        <input type="checkbox" name="progressive_planet[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['progressive_planets'] ?? []) ? 'checked' : '' ?>>
+                                        <?= SymbolGlyph::getPlanetGlyphByIndex($i) ?>
+                                    </label>
+                                <?php endfor; ?>
+                            </div>
+                            
+                            <div class="progression-column">
+                                <h4>Aspecten</h4>
+                                <?php 
+                                $aspectOptions = [0, 45, 60, 90, 120, 135, 150, 180];
+                                foreach ($aspectOptions as $aspDeg): ?>
+                                    <label class="astro-glyph">
+                                        <input type="checkbox" name="aspect_type[]" value="<?= $aspDeg ?>" <?= in_array($aspDeg, $_SESSION['horoscope']['progression_events']['input']['aspects'] ?? []) ? 'checked' : '' ?>>
+                                        <?= SymbolGlyph::getAspectGlyph($aspDeg) ?>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                            
+                            <div class="progression-column">
+                                <h4>Radix</h4>
+                                <?php for ($i = 0; $i <= 12; $i++): ?>
+                                    <label class="astro-glyph">
+                                        <input type="checkbox" name="radix_target[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
+                                        <?= SymbolGlyph::getPlanetGlyphByIndex($i) ?>
+                                    </label>
+                                <?php endfor; ?>
+                                <hr style="margin: 0.5rem 0; border-color: #ddd;">
+                                <?php for ($i = 20; $i <= 31; $i++): ?>
+                                    <label class="astro-glyph">
+                                        <input type="checkbox" name="radix_target[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
+                                        <?= SymbolGlyph::getSignGlyphByIndex($i - 20) ?>
+                                    </label>
+                                <?php endfor; ?>
+                            </div>
+                            
+                            <button type="submit" name="calculate_progressions" class="btn btn--primary" style="width: 100%; margin-top: 0.5rem;">Bereken Progressie Events</button>
+                        </form>
+                        
+                        <?php if (isset($error)): ?>
+                            <p class="form-error"><?= htmlspecialchars($error) ?></p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <?php if (isset($progEventsResult) && count($progEventsResult) > 0): ?>
+                    <div class="card card--large progression-results">
+                        <h4>Resultaten (<?= count($progEventsResult) ?> events)</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Dir</th>
+                                    <th>Progressief</th>
+                                    <th>Aspect</th>
+                                    <th>Radix</th>
+                                    <th>Prog Pos</th>
+                                    <th>Radix Pos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($progEventsResult as $event): ?>
+                                    <tr class="<?= $event['event_type'] === 'rd_transition' ? 'row--rd' : '' ?><?= ($event['event_type'] === 'house_ingress' || $event['event_type'] === 'sign_ingress') ? 'row--ingress' : '' ?>">
+                                        <td><?= date('d-m-Y', $event['timestamp']) ?></td>
+                                        <td><?= $event['direction'] ?></td>
+                                        <td class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($event['progressive_index']) ?></td>
+                                        <td class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($event['aspect']) ?></td>
+                                        <td><?= $event['event_type'] === 'rd_transition' ? htmlspecialchars($event['radix_target']) : '<span class="astro-glyph">' . SymbolGlyph::getGlyphForTarget($event['radix_index']) . '</span>' ?></td>
+                                        <td><?= Formatter::formatLongitudeWithGlyph($event['progressive_position']) ?></td>
+                                        <td><?= Formatter::formatLongitudeWithGlyph($event['radix_position']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php elseif (isset($progEventsResult) && count($progEventsResult) === 0): ?>
+                    <div class="card card--large">
+                        <p>Geen events gevonden in de opgegeven periode.</p>
+                    </div>
+                    <?php endif; ?>
                 </section>
                 <?php endif; ?>
             <?php endif; ?>
