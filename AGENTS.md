@@ -246,6 +246,193 @@ $utcTimestamp = $localTimestamp - $utcOffset;
 
 ---
 
+## DEEL 3: LESSON LEARNED - PROGRESSION EVENTS MODULE (2026-04-01)
+
+*Deze sectie documenteert specifieke problemen en oplossingen van vandaag om herhaling te voorkomen.*
+
+### Het Probleem
+
+Bij het implementeren van de Progression Events module ontstonden meerdere bugs die pas na uitgebreide debugging werden opgelost. Het patroon: **aannames doen zonder te debuggen → verkeerde fixes → meer problemen**.
+
+### Wat Er Mis Ging
+
+**1. Te Snel Aannames Doen**
+- Ik nam aan dat de tab HTML correct was → bleek statische `hidden` klasse te hebben
+- Ik nam aan dat de session data correct werd doorgegeven → marker werd te vroeg verwijderd
+- Ik nam aan dat de browser als GET herlaadde → bleef in POST modus
+- **Tijd verloren:** ~2 uur aan verkeerde fixes
+
+**2. Meerdere Fixes Tegelijk**
+- Ik paste meerdere dingen tegelijk aan zonder te weten welke het probleem was
+- Hierdoor was het onduidelijk welke fix werkte en welke niet
+- **Les:** Één probleem per keer, direct testen na elke fix
+
+**3. Code Flow Niet Volledig Gevolgd**
+- Ik begreep niet dat viewHoroscope blok de session overschreef
+- Ik zag niet dat tab switch logic na viewHoroscope kwam (te laat voor marker)
+- **Les:** Teken de code flow uit of gebruik debug logging op elke cruciale stap
+
+**4. Browser Gedrag Genegeerd**
+- Ik realiseerde me niet dat browsers POST data onthouden bij refresh
+- POST-Redirect-GET pattern was niet toegepast
+- **Les:** Bij form handling altijd POST-Redirect-GET gebruiken
+
+### Wat Uiteindelijk Werkte
+
+**Systematische Debugging Aanpak:**
+
+```
+1. Debug script gemaakt → session data inspecteren
+2. Request info tonen → REQUEST_METHOD, GET, POST
+3. Variabelen tonen → $currentTab, $hasResult, $viewHoroscope
+4. Code flow volgen → waar wordt wat gezet/overschreven?
+5. Één fix per keer → direct testen
+```
+
+**Debug Output Die Hielp:**
+```
+currentTab: progressions-list      ← Tab werd correct gezet
+hasResult: FALSE                   ← Maar resultaat was niet berekend!
+REQUEST_METHOD: POST               ← Browser bleef in POST!
+viewHoroscope: SET                 ← Horoscoop was geladen
+progression_events: YES            ← Data bestond in session
+just_submitted: YES                ← Marker stond
+```
+
+Deze output toonde precies waar het misging: `$hasResult = FALSE` ondats alle andere data correct was.
+
+### Specifieke Fixes Die Nodig Waren
+
+| Probleem | Oorzaak | Oplossing |
+|----------|---------|-----------|
+| Tab altijd verborgen | Statische `tab-content--hidden` klasse | Dynamische klasse: `<?= $currentTab !== 'progressions-list' ? 'hidden' : '' ?>` |
+| Session data verloren | Marker verwijderd vóór tab switch | Tab switch logic vóór viewHoroscope blok plaatsen |
+| `$hasResult = false` | `!isset($_POST['...'])` check faalde bij browser resubmit | `$_SERVER['REQUEST_METHOD'] === 'GET'` gebruiken |
+| Browser herhaalde POST | Geen redirect na submit | POST-Redirect-GET pattern: `header('Location: ...'); exit;` |
+| Results table leeg | `$progEventsResult` niet geladen na redirect | Uit session halen: `$_SESSION['horoscope']['progression_events']['results']` |
+
+### Regels Voor Toekomstige Ontwikkeling
+
+**Bij Nieuwe Features:**
+```
+✅ Tab HTML altijd dynamisch maken (zoals bestaande tabs)
+✅ Session markers gebruiken voor state tussen requests
+✅ POST-Redirect-GET bij form submissions
+✅ Results uit session laden na redirect
+✅ Debug logging toevoegen tijdens ontwikkeling
+```
+
+**Bij Problemen:**
+```
+✅ Eerst debuggen, dan fixen (niet andersom!)
+✅ Debug script maken dat ALLE relevante variabelen toont
+✅ Code flow stap-voor-stap volgen
+✅ Één fix per keer, direct testen
+✅ User betrekken bij debugging (debug output delen)
+```
+
+**Code Review Checklist:**
+```
+□ Heeft de tab een dynamische visibility klasse?
+□ Worden session markers op het juiste moment gezet/verwijderd?
+□ Is er een POST-Redirect-GET bij form handling?
+□ Worden resultaten uit session geladen na redirect?
+□ Staat tab switch logic vóór blocks die session overschrijven?
+```
+
+### Samenvatting
+
+**Gouden Regel:** *"Debug first, fix second"*
+
+Wanneer iets niet werkt:
+1. **Stop** met code aanpassen
+2. **Maak** een debug script
+3. **Inspecteer** session, request, en variabele waarden
+4. **Volg** de code flow stap voor stap
+5. **Fix** één probleem per keer
+6. **Test** direct na elke fix
+
+Deze aanpak had ons ~2 uur kunnen besparen. Gebruik dit bij elk toekomstig probleem.
+
+---
+
+## DEEL 4: SAMENWERKING EN COMMUNICATIE PATRONEN
+
+*Lessen over hoe agent en gebruiker effectief kunnen samenwerken.*
+
+### Communicatie Tijdens Debugging
+
+**Wat Werkte Goed:**
+- **User deelde concrete debug output** → agent kon precies zien wat er misging
+- **User stelde gerichte vragen** → "Kun je de debug gegevens delen?"
+- **User gaf context** → URL, browser gedrag, exacte symptomen
+- **Agent vroeg om specifieke info** → niet "werkt het?", maar "wat is REQUEST_METHOD?"
+
+**Wat Kan Beter:**
+- **Agent moet EERDER om debug info vragen** → niet pas na 5 verkeerde fixes
+- **Agent moet aangeven wat hij denkt** → "Ik denk dat het probleem X is, laten we Y checken"
+- **User moet EERDER debuggen voorstellen** → "Kunnen we een debug script maken?"
+
+### Samenwerking Patterns
+
+**Bij Nieuwe Features:**
+```
+1. User: beschrijft wat er gebouwd moet worden
+2. Agent: analyseert referentie bestanden EN bestaande architectuur
+3. Agent: stelt design voor met 2-3 opties
+4. User: kiest optie en geeft feedback
+5. Agent: implementeert in kleine steps
+6. User: test tussentijds
+```
+
+**Bij Problemen:**
+```
+1. User: beschrijft symptoom (niet oplossing)
+2. Agent: stelt debug plan voor (niet fix!)
+3. User: voert debug uit, deelt output
+4. Agent: analyseert output, stelt hypothese op
+5. User: bevestigt of ontkracht hypothese
+6. Agent: maakt gerichte fix
+7. User: test fix
+```
+
+**Red Flags (Stop en Heroriënteer):**
+- Agent past >3 dingen tegelijk aan
+- User zegt "het werkt nog steeds niet" >2 keer
+- Agent maakt aannames zonder verificatie
+- Debug output wordt niet gedeeld
+- Er wordt >30 minuten gepuzzeld zonder voortgang
+
+**Green Flags (Goed Gaande):**
+- Debug output wordt gedeeld binnen 5 minuten na probleem
+- Agent stelt gerichte vragen ("wat is REQUEST_METHOD?")
+- User deelt concrete symptomen (niet "het werkt niet")
+- Elke fix wordt direct getest
+- Fouten worden snel erkend en gecorrigeerd
+
+### Specifiek Voor Dit Project
+
+**Tijd Project Kenmerken:**
+- Session-based state management (kritiek!)
+- Lazy loading voor zware berekeningen
+- POST-Redirect-GET required voor form handling
+- Code flow volgorde is essentieel (tab switch → viewHoroscope → result render)
+
+**Wanneer Iets Niet Werkt:**
+1. Check session data: `print_r($_SESSION['horoscope'])`
+2. Check REQUEST_METHOD: `$_SERVER['REQUEST_METHOD']`
+3. Check variabele waarden: `$currentTab`, `$hasResult`, `$viewHoroscope`
+4. Traceer code flow: waar wordt wat gezet/overschreven?
+5. Gebruik inline debug: `echo` statements in index.php
+
+**Vermijd:**
+- Aannames over browser gedrag (test!)
+- Aannames over session state (inspecteer!)
+- Meerdere fixes tegelijk (één per keer!)
+- Lang puzzelen zonder debug (maak debug script!)
+
+---
+
 ## Laatst Bijgewerkt
 
 2026-04-01 - Na progression events module implementatie en uitgebreide debugging (tab visibility, session marker volgorde, POST/GET flow)
