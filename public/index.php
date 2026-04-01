@@ -332,6 +332,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                     'results' => $progEvents,
                 ];
                 
+                // Debug: log naar error log
+                error_log("[Tijd] POST saved: progressive_planets = " . json_encode($progressivePlanets));
+                error_log("[Tijd] POST saved: aspects = " . json_encode($aspects));
+                
                 $progEventsResult = $progEvents;
                 $currentTab = 'progressions-list';
             } catch (\Exception $e) {
@@ -791,6 +795,10 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                         $selProg = $_SESSION['horoscope']['progression_events']['input']['progressive_planets'] ?? [];
                         $selAspects = $_SESSION['horoscope']['progression_events']['input']['aspects'] ?? [];
                         $selRadix = $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? [];
+                        
+                        // Debug
+                        error_log("[Tijd] Render: selProg = " . json_encode($selProg));
+                        error_log("[Tijd] Render: selAspects = " . json_encode($selAspects));
                         
                         // Bepaal toggle states (afleiden uit selectie)
                         $allProgressive = count($selProg) === 10;
