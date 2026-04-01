@@ -786,12 +786,27 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                 <section id="tab-progressions-list" class="tab-content tab-content--hidden">
                     <div class="card card--large">
                         <h2>Progressie Events</h2>
+                        <?php
+                        // Haal huidige selecties op
+                        $selProg = $_SESSION['horoscope']['progression_events']['input']['progressive_planets'] ?? [];
+                        $selAspects = $_SESSION['horoscope']['progression_events']['input']['aspects'] ?? [];
+                        $selRadix = $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? [];
+                        
+                        // Bepaal toggle states (afleiden uit selectie)
+                        $allProgressive = count($selProg) === 10;
+                        $allAspects = count($selAspects) === 8;
+                        $allRadix = count($selRadix) === 13;
+                        ?>
                         <form method="POST" class="progression-form">
                             <div class="progression-column" style="min-width: 280px;">
                                 <h4>Tijdvak</h4>
                                 <div class="progression-datepicker">
-                                    <label>Start: <input type="date" name="prog_start_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['start_date'] ?? date('Y-01-01')) ?>"></label>
-                                    <label>Eind: <input type="date" name="prog_end_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['end_date'] ?? date('Y-12-31')) ?>"></label>
+                                    <label>Start: <input type="date" name="prog_start_date" id="prog_start_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['start_date'] ?? date('Y-01-01')) ?>"></label>
+                                    <label>Eind: <input type="date" name="prog_end_date" id="prog_end_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['end_date'] ?? date('Y-12-31')) ?>"></label>
+                                </div>
+                                <div class="progression-quickdates">
+                                    <label><input type="checkbox" id="quick-calyear" onchange="quickCalendarYear()"> Kalenderjaar</label>
+                                    <label><input type="checkbox" id="quick-twoyear" onchange="quickTwoYears()"> Twee jaar</label>
                                 </div>
                                 <div class="progression-options">
                                     <label><input type="checkbox" name="include_house_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_house_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_house_ingress'] ? 'checked' : '' ?>> Huis ingress</label>
@@ -801,9 +816,13 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                             
                             <div class="progression-column">
                                 <h4>Progressief</h4>
+                                <label class="toggle-all">
+                                    <input type="checkbox" id="toggle-progressive" onchange="toggleAllGroup('progressive_planet[]', this)" <?= $allProgressive ? 'checked' : '' ?>>
+                                    Alle
+                                </label>
                                 <?php for ($i = 0; $i <= 9; $i++): ?>
                                     <label>
-                                        <input type="checkbox" name="progressive_planet[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['progressive_planets'] ?? []) ? 'checked' : '' ?>>
+                                        <input type="checkbox" name="progressive_planet[]" value="<?= $i ?>" onchange="checkToggleState('progressive_planet[]', 'toggle-progressive', 10)" <?= in_array($i, $selProg) ? 'checked' : '' ?>>
                                         <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($i) ?></span>
                                     </label>
                                 <?php endfor; ?>
@@ -811,11 +830,15 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                             
                             <div class="progression-column">
                                 <h4>Aspecten</h4>
+                                <label class="toggle-all">
+                                    <input type="checkbox" id="toggle-aspects" onchange="toggleAllGroup('aspect_type[]', this)" <?= $allAspects ? 'checked' : '' ?>>
+                                    Alle
+                                </label>
                                 <?php 
                                 $aspectOptions = [0, 45, 60, 90, 120, 135, 150, 180];
                                 foreach ($aspectOptions as $aspDeg): ?>
                                     <label>
-                                        <input type="checkbox" name="aspect_type[]" value="<?= $aspDeg ?>" <?= in_array($aspDeg, $_SESSION['horoscope']['progression_events']['input']['aspects'] ?? []) ? 'checked' : '' ?>>
+                                        <input type="checkbox" name="aspect_type[]" value="<?= $aspDeg ?>" onchange="checkToggleState('aspect_type[]', 'toggle-aspects', 8)" <?= in_array($aspDeg, $selAspects) ? 'checked' : '' ?>>
                                         <span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($aspDeg) ?></span>
                                     </label>
                                 <?php endforeach; ?>
@@ -823,6 +846,10 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                             
                             <div class="progression-column">
                                 <h4>Radix</h4>
+                                <label class="toggle-all">
+                                    <input type="checkbox" id="toggle-radix" onchange="toggleAllGroup('radix_target[]', this)" <?= $allRadix ? 'checked' : '' ?>>
+                                    Alle
+                                </label>
                                 <?php 
                                 $radixPlanetLabels = [
                                     0 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(0), 'name' => 'Zon'],
@@ -838,7 +865,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                 ];
                                 foreach ($radixPlanetLabels as $idx => $planet): ?>
                                     <label>
-                                        <input type="checkbox" name="radix_target[]" value="<?= $idx ?>" <?= in_array($idx, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
+                                        <input type="checkbox" name="radix_target[]" value="<?= $idx ?>" onchange="checkToggleState('radix_target[]', 'toggle-radix', 13)" <?= in_array($idx, $selRadix) ? 'checked' : '' ?>>
                                         <span class="astro-glyph"><?= $planet['glyph'] ?></span>
                                     </label>
                                 <?php endforeach; ?>
@@ -851,7 +878,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                 ];
                                 foreach ($radixAxisLabels as $idx => $axis): ?>
                                     <label>
-                                        <input type="checkbox" name="radix_target[]" value="<?= $idx ?>" <?= in_array($idx, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
+                                        <input type="checkbox" name="radix_target[]" value="<?= $idx ?>" onchange="checkToggleState('radix_target[]', 'toggle-radix', 13)" <?= in_array($idx, $selRadix) ? 'checked' : '' ?>>
                                         <span class="astro-glyph"><?= $axis['glyph'] ?></span> <?= $axis['name'] ?>
                                     </label>
                                 <?php endforeach; ?>

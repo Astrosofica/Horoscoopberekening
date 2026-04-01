@@ -53,6 +53,27 @@
     font-size: 0.85rem;
 }
 
+.progression-quickdates {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: var(--color-bg-secondary, #f5f5f5);
+    border-radius: 0.25rem;
+}
+
+.progression-quickdates label {
+    display: inline-block;
+    margin-right: 1rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.progression-column .toggle-all {
+    font-weight: 600;
+    padding: 0.25rem 0;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--color-border, #ddd);
+}
+
 .progression-results {
     margin-top: 1rem;
     overflow-x: auto;

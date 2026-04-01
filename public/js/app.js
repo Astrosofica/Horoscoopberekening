@@ -138,3 +138,43 @@ class TijdApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.tijdApp = new TijdApp();
 });
+
+// =============================================================================
+// Progression Events Form Helpers
+// =============================================================================
+
+function toggleAllGroup(name, toggleCheckbox) {
+    const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
+    checkboxes.forEach(cb => cb.checked = toggleCheckbox.checked);
+}
+
+function checkToggleState(name, toggleId, totalCount) {
+    const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    document.getElementById(toggleId).checked = (checkedCount === totalCount);
+}
+
+function quickCalendarYear() {
+    const year = new Date().getFullYear();
+    document.getElementById('prog_start_date').value = `${year}-01-01`;
+    document.getElementById('prog_end_date').value = `${year}-12-31`;
+    document.getElementById('quick-twoyear').checked = false;
+}
+
+function quickTwoYears() {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    
+    const startDate = new Date(now);
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    
+    const endDate = new Date(now);
+    endDate.setFullYear(endDate.getFullYear() + 1);
+    
+    document.getElementById('prog_start_date').value = 
+        `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`;
+    document.getElementById('prog_end_date').value = 
+        `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}`;
+    
+    document.getElementById('quick-calyear').checked = false;
+}
