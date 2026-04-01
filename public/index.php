@@ -394,7 +394,7 @@ if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']
     }
 }
 
-if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'])) {
+if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') {
     // Check of we net een progression submit hebben gedaan
     $justDidProgression = isset($_SESSION['just_submitted_progressions']);
     
@@ -1003,5 +1003,20 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
+
+<?php
+// DEBUG: Toon tab info
+echo '<div style="position:fixed;bottom:0;left:0;background:#fff;border:2px solid red;padding:10px;z-index:9999;font-family:monospace;font-size:12px;">';
+echo '<strong>DEBUG TAB INFO:</strong><br>';
+echo 'currentTab: ' . ($currentTab ?? 'UNDEFINED') . '<br>';
+echo 'hasResult: ' . ($hasResult ? 'TRUE' : 'FALSE') . '<br>';
+echo 'mode: ' . ($mode ?? 'UNDEFINED') . '<br>';
+echo 'viewHoroscope: ' . ($viewHoroscope ? 'SET' : 'NULL') . '<br>';
+echo 'isLoggedIn: ' . ($isLoggedIn ? 'YES' : 'NO') . '<br>';
+echo 'progression_events exists: ' . (isset($_SESSION['horoscope']['progression_events']) ? 'YES' : 'NO') . '<br>';
+echo 'just_submitted: ' . (isset($_SESSION['just_submitted_progressions']) ? 'YES' : 'NO') . '<br>';
+echo '</div>';
+?>
+
 </body>
 </html>
