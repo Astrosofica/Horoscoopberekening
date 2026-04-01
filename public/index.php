@@ -39,6 +39,7 @@ use Tijd\Calculation\HousePlanetMatcher;
 use Tijd\Calculation\ParsFortuna;
 use Tijd\Calculation\HoroscopeCalculator;
 use Tijd\Calculation\ProgressionCalculator;
+use Tijd\Calculation\ProgressionEventCalculator;
 use Tijd\Helpers\Formatter;
 use Tijd\Glyph\SymbolGlyph;
 
