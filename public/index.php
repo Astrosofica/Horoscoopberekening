@@ -380,7 +380,7 @@ if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']
 
 if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'])) {
     // Check of we net een progression submit hebben gedaan
-    $justDidProgression = isset($_SESSION['progression_submit_done']);
+    $justDidProgression = isset($_SESSION['just_submitted_progressions']);
     
     // Reset lazy tabs bij laden opgeslagen horoscoop
     unset($_SESSION['horoscope']['aspects']);
@@ -426,7 +426,7 @@ if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'
     
     // Verwijder marker als die gezet was
     if ($justDidProgression) {
-        unset($_SESSION['progression_submit_done']);
+        unset($_SESSION['just_submitted_progressions']);
     }
 }
 
