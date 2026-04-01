@@ -15,6 +15,7 @@ class ProgressionEventCalculator
     private const SOLAR_YEAR = 365.24219893;
     private const THRESHOLD_SECONDS = 0.5;
     private const MAX_REFINEMENT_ITERATIONS = 5;
+    private const SECONDS_PER_DAY = 86400;
 
     private const PLANET_NAMES = [
         0 => 'Sun',
@@ -62,6 +63,8 @@ class ProgressionEventCalculator
         51 => 'House 12',
     ];
 
+    private int $birthTimestamp;
+
     public function __construct()
     {
         $this->planetCalculator = new PlanetCalculator();
@@ -83,54 +86,65 @@ class ProgressionEventCalculator
         int $birthUtcTimestamp,
         int $utcOffset
     ): array {
+        $this->birthTimestamp = $birthUtcTimestamp;
         $events = [];
 
-        $progStartTimestamp = $this->convertRealToProgression($startTimestamp, $birthUtcTimestamp);
-        $progEndTimestamp = $this->convertRealToProgression($endTimestamp, $birthUtcTimestamp);
+        // Converteer echte tijd naar progressieve tijd
+        $progStartTimestamp = $this->realToProgression($startTimestamp);
+        $progEndTimestamp = $this->realToProgression($endTimestamp);
 
+        // Bouw lijst van aspect targets (posities waar de progressieve planeet moet komen)
         $aspectTargets = $this->buildAspectTargets($radixData, $radixTargetIndices, $aspectDegrees);
 
         foreach ($progressivePlanetIndices as $planetIndex) {
-            $progStartPos = $this->getProgressivePlanetPosition($planetIndex, $progStartTimestamp);
-            $progEndPos = $this->getProgressivePlanetPosition($planetIndex, $progEndTimestamp);
+            // Haal posities en speeds bij start en einde (in progressieve tijd)
+            $startPos = $this->getProgressivePlanetPosition($planetIndex, $progStartTimestamp);
+            $endPos = $this->getProgressivePlanetPosition($planetIndex, $progEndTimestamp);
 
-            if (!$progStartPos['success'] || !$progEndPos['success']) {
+            if (!$startPos['success'] || !$endPos['success']) {
                 continue;
             }
 
-            $startLon = $progStartPos['longitude'];
-            $endLon = $progEndPos['longitude'];
-            $startSpeed = $progStartPos['speed'];
+            $startLon = $startPos['longitude'];
+            $endLon = $endPos['longitude'];
+            $startSpeed = $startPos['speed'];
+            $endSpeed = $endPos['speed'];
 
             $isDirectAtStart = $startSpeed >= 0;
-            $isDirectAtEnd = $progEndPos['speed'] >= 0;
+            $isDirectAtEnd = $endSpeed >= 0;
 
             $planetName = self::PLANET_NAMES[$planetIndex] ?? 'Unknown';
 
-            $relevantTargets = $this->filterTargetsInRange($aspectTargets, $startLon, $endLon, $isDirectAtStart);
+            // Vind targets in de range van de beweging
+            $relevantTargets = $this->filterTargetsInRange($aspectTargets, $startLon, $endLon, $startSpeed, $endSpeed);
 
             foreach ($relevantTargets as $target) {
-                $estimatedTimestamp = $this->estimateEventTime(
-                    $startTimestamp,
-                    $startLon,
-                    $target['aspect_position'],
-                    $startSpeed
-                );
-
-                $refinedTimestamp = $this->refineEventTime(
-                    $estimatedTimestamp,
-                    $target['aspect_position'],
+                // Bereken progressieve timestamp waarop het aspect exact is
+                $progEventTimestamp = $this->findEventTime(
                     $planetIndex,
-                    $birthUtcTimestamp
+                    $progStartTimestamp,
+                    $progEndTimestamp,
+                    $startLon,
+                    $startSpeed,
+                    $endSpeed,
+                    $target['aspect_position']
                 );
 
-                if ($refinedTimestamp >= $startTimestamp && $refinedTimestamp <= $endTimestamp) {
-                    $progTimestamp = $this->convertRealToProgression($refinedTimestamp, $birthUtcTimestamp);
-                    $finalPos = $this->getProgressivePlanetPosition($planetIndex, $progTimestamp);
+                if ($progEventTimestamp === null) {
+                    continue;
+                }
+
+                // Check of event binnen de periode valt
+                if ($progEventTimestamp >= $progStartTimestamp && $progEventTimestamp <= $progEndTimestamp) {
+                    // Converteer progressieve tijd terug naar echte tijd
+                    $realTimestamp = $this->progressionToReal($progEventTimestamp);
+
+                    // Haal finale positie op
+                    $finalPos = $this->getProgressivePlanetPosition($planetIndex, $progEventTimestamp);
 
                     $events[] = [
-                        'timestamp' => $refinedTimestamp,
-                        'date' => date('Y-m-d', $refinedTimestamp),
+                        'timestamp' => $realTimestamp,
+                        'date' => date('Y-m-d', $realTimestamp),
                         'progressive_planet' => $planetName,
                         'progressive_index' => $planetIndex,
                         'direction' => $finalPos['speed'] >= 0 ? 'D' : 'R',
@@ -144,39 +158,42 @@ class ProgressionEventCalculator
                 }
             }
 
+            // Teken ingress
             if ($includeSignIngress) {
                 $signEvents = $this->calculateSignIngress(
                     $planetIndex,
                     $startLon,
                     $endLon,
-                    $startTimestamp,
-                    $endTimestamp,
-                    $birthUtcTimestamp,
-                    $isDirectAtStart
+                    $startSpeed,
+                    $endSpeed,
+                    $progStartTimestamp,
+                    $progEndTimestamp
                 );
                 $events = array_merge($events, $signEvents);
             }
 
+            // Huis ingress
             if ($includeHouseIngress) {
                 $houseEvents = $this->calculateHouseIngress(
                     $planetIndex,
                     $startLon,
                     $endLon,
-                    $startTimestamp,
-                    $endTimestamp,
-                    $birthUtcTimestamp,
-                    $radixData,
-                    $isDirectAtStart
+                    $startSpeed,
+                    $endSpeed,
+                    $progStartTimestamp,
+                    $progEndTimestamp,
+                    $radixData
                 );
                 $events = array_merge($events, $houseEvents);
             }
 
+            // RD transitie
             if ($isDirectAtStart !== $isDirectAtEnd) {
                 $rdEvent = $this->calculateRDTransition(
                     $planetIndex,
-                    $startTimestamp,
-                    $endTimestamp,
-                    $birthUtcTimestamp,
+                    $startSpeed,
+                    $progStartTimestamp,
+                    $progEndTimestamp,
                     $planetName
                 );
                 if ($rdEvent !== null) {
@@ -185,26 +202,29 @@ class ProgressionEventCalculator
             }
         }
 
+        // Sorteer op echte tijd
         usort($events, fn($a, $b) => $a['timestamp'] <=> $b['timestamp']);
 
         return $events;
     }
 
-    private function convertRealToProgression(int $realTimestamp, int $birthTimestamp): int
+    private function realToProgression(int $realTimestamp): int
     {
-        $secProgRate = 1 / self::SOLAR_YEAR;
-        return (int) round($birthTimestamp + ($realTimestamp - $birthTimestamp) * $secProgRate);
+        // Echte tijd → progressieve tijd
+        // 1 jaar echt = 1 dag progressief
+        return (int) round($this->birthTimestamp + ($realTimestamp - $this->birthTimestamp) / self::SOLAR_YEAR);
     }
 
-    private function convertProgressionToReal(int $progTimestamp, int $birthTimestamp): int
+    private function progressionToReal(int $progTimestamp): int
     {
-        $secProgRate = 1 / self::SOLAR_YEAR;
-        return (int) round($birthTimestamp + ($progTimestamp - $birthTimestamp) / $secProgRate);
+        // Progressieve tijd → echte tijd
+        // 1 dag progressief = 1 jaar echt
+        return (int) round($this->birthTimestamp + ($progTimestamp - $this->birthTimestamp) * self::SOLAR_YEAR);
     }
 
-    private function getProgressivePlanetPosition(int $planetIndex, int $progressionTimestamp): array
+    private function getProgressivePlanetPosition(int $planetIndex, int $progTimestamp): array
     {
-        $result = $this->planetCalculator->calculateForTimestamp($progressionTimestamp);
+        $result = $this->planetCalculator->calculateForTimestamp($progTimestamp);
         
         $planetName = self::PLANET_NAMES[$planetIndex] ?? null;
         if ($planetName === null || !isset($result['planets'][$planetName])) {
@@ -242,6 +262,7 @@ class ProgressionEventCalculator
             $targetName = $this->getTargetName($targetIndex);
             
             foreach ($aspectDegrees as $aspectDeg) {
+                // Vooruit
                 $aspectPos = $this->normalizeAngle($targetPos + $aspectDeg);
                 $targets[] = [
                     'target_index' => $targetIndex,
@@ -251,6 +272,7 @@ class ProgressionEventCalculator
                     'aspect_position' => $aspectPos,
                 ];
                 
+                // Achteruit (behalve voor 0 en 180)
                 if ($aspectDeg > 0 && $aspectDeg < 180) {
                     $aspectPosOpposite = $this->normalizeAngle($targetPos - $aspectDeg);
                     $targets[] = [
@@ -264,6 +286,7 @@ class ProgressionEventCalculator
             }
         }
         
+        // Sorteer op positie
         usort($targets, fn($a, $b) => $a['aspect_position'] <=> $b['aspect_position']);
         
         return $targets;
@@ -304,144 +327,211 @@ class ProgressionEventCalculator
             ?? 'Unknown';
     }
 
-    private function filterTargetsInRange(array $targets, float $startLon, float $endLon, bool $isDirect): array
+    private function filterTargetsInRange(array $targets, float $startLon, float $endLon, float $startSpeed, float $endSpeed): array
     {
         $filtered = [];
+        $isDirect = $startSpeed >= 0;
+        
+        // Bepaal of planeet over 0°/360° grens gaat
+        $crossesZero = $isDirect ? ($endLon < $startLon) : ($endLon > $startLon);
         
         foreach ($targets as $target) {
             $targetPos = $target['aspect_position'];
+            $inRange = false;
             
             if ($isDirect) {
-                if ($endLon >= $startLon) {
-                    if ($targetPos >= $startLon && $targetPos <= $endLon) {
-                        $filtered[] = $target;
+                // Direct beweging
+                if ($crossesZero) {
+                    // Van hoge naar lage positie (over 0°) - bv 350° → 10°
+                    if ($targetPos >= $startLon || $targetPos <= $endLon) {
+                        $inRange = true;
                     }
                 } else {
-                    if ($targetPos >= $startLon || $targetPos <= $endLon) {
-                        $filtered[] = $target;
+                    // Normale beweging
+                    if ($targetPos >= $startLon && $targetPos <= $endLon) {
+                        $inRange = true;
                     }
                 }
             } else {
-                if ($endLon <= $startLon) {
-                    if ($targetPos >= $endLon && $targetPos <= $startLon) {
-                        $filtered[] = $target;
+                // Retrograde beweging
+                if ($crossesZero) {
+                    // Van lage naar hoge positie (over 0°) - bv 10° → 350°
+                    if ($targetPos <= $startLon || $targetPos >= $endLon) {
+                        $inRange = true;
                     }
                 } else {
-                    if ($targetPos >= $endLon || $targetPos <= $startLon) {
-                        $filtered[] = $target;
+                    // Normale retrograde
+                    if ($targetPos >= $endLon && $targetPos <= $startLon) {
+                        $inRange = true;
                     }
                 }
+            }
+            
+            if ($inRange) {
+                $filtered[] = $target;
             }
         }
         
         return $filtered;
     }
 
-    private function estimateEventTime(int $startTimestamp, float $startLon, float $targetLon, float $speed): int
-    {
-        if (abs($speed) < 0.0001) {
-            return $startTimestamp;
-        }
-
+    private function findEventTime(
+        int $planetIndex,
+        int $progStartTimestamp,
+        int $progEndTimestamp,
+        float $startLon,
+        float $startSpeed,
+        float $endSpeed,
+        float $targetLon
+    ): ?int {
+        // Eerste schatting op basis van positieverschil en speed
         $diff = $this->normalizeAngleDiff($targetLon - $startLon);
         
-        if ($speed < 0 && $diff > 0) {
-            $diff = $diff - 360;
-        } elseif ($speed > 0 && $diff < 0) {
-            $diff = $diff + 360;
+        // Als retrograde, draai diff om
+        if ($startSpeed < 0) {
+            $diff = $this->normalizeAngleDiff($startLon - $targetLon);
         }
-
-        $daysToEvent = $diff / $speed;
         
-        return (int) round($startTimestamp + $daysToEvent * 86400);
+        // Als diff te groot is, waarschijnlijk over de 0° grens
+        if ($startSpeed >= 0 && $diff < 0) {
+            $diff += 360;
+        } elseif ($startSpeed < 0 && $diff > 0) {
+            $diff -= 360;
+        }
+        
+        // Voorkom delen door nul
+        if (abs($startSpeed) < 0.0001) {
+            return null;
+        }
+        
+        // Geschatte tijd in progressieve seconden
+        $estimatedSeconds = $diff / abs($startSpeed) * self::SECONDS_PER_DAY;
+        $progEstimatedTimestamp = $progStartTimestamp + (int) round($estimatedSeconds);
+        
+        // Check of dit binnen onze range valt (voor refinement)
+        // Voeg marge toe voor refinement
+        $margin = self::SECONDS_PER_DAY * 2; // 2 dagen marge
+        if ($progEstimatedTimestamp < $progStartTimestamp - $margin || 
+            $progEstimatedTimestamp > $progEndTimestamp + $margin) {
+            return null;
+        }
+        
+        // Verfijn met Newton-Raphson
+        return $this->refineEventTime($planetIndex, $progEstimatedTimestamp, $targetLon);
     }
 
-    private function refineEventTime(
-        int $estimatedTimestamp,
-        float $targetLongitude,
-        int $planetIndex,
-        int $birthTimestamp
-    ): int {
-        $thresholdDegrees = self::THRESHOLD_SECONDS / 86400;
-        $prevSpeed = null;
+    private function refineEventTime(int $planetIndex, int $progEstimatedTimestamp, float $targetLon): ?int
+    {
+        $timestamp = $progEstimatedTimestamp;
         
         for ($i = 0; $i < self::MAX_REFINEMENT_ITERATIONS; $i++) {
-            $progTimestamp = $this->convertRealToProgression($estimatedTimestamp, $birthTimestamp);
-            $position = $this->getProgressivePlanetPosition($planetIndex, $progTimestamp);
+            $pos = $this->getProgressivePlanetPosition($planetIndex, $timestamp);
             
-            if (!$position['success']) {
+            if (!$pos['success'] || abs($pos['speed']) < 0.0001) {
                 break;
             }
             
-            $currentLon = $position['longitude'];
-            $currentSpeed = $position['speed'];
+            $diff = $this->normalizeAngleDiff($pos['longitude'] - $targetLon);
             
-            $diff = $this->normalizeAngleDiff($currentLon - $targetLongitude);
+            // Threshold: 0.5 seconde progressief = 0.5/86400 graden
+            $thresholdDegrees = self::THRESHOLD_SECONDS / self::SECONDS_PER_DAY;
             
             if (abs($diff) < $thresholdDegrees) {
-                break;
+                return $timestamp;
             }
             
-            if ($prevSpeed !== null && ($prevSpeed * $currentSpeed) < 0) {
-                break;
-            }
-            
-            $prevSpeed = $currentSpeed;
-            
-            if (abs($currentSpeed) > 0.0001) {
-                $timeCorrectionSeconds = ($diff / $currentSpeed) * 86400;
-                $estimatedTimestamp = (int) round($estimatedTimestamp - $timeCorrectionSeconds);
-            }
+            // Corrigeer timestamp: diff/speed = dagen, * 86400 = seconden
+            $correctionSeconds = ($diff / $pos['speed']) * self::SECONDS_PER_DAY;
+            $timestamp = (int) round($timestamp - $correctionSeconds);
         }
         
-        return $estimatedTimestamp;
+        // Return zelfs als niet perfect verfijnd
+        return $timestamp;
     }
 
     private function calculateSignIngress(
         int $planetIndex,
         float $startLon,
         float $endLon,
-        int $startTimestamp,
-        int $endTimestamp,
-        int $birthTimestamp,
-        bool $isDirect
+        float $startSpeed,
+        float $endSpeed,
+        int $progStartTimestamp,
+        int $progEndTimestamp
     ): array {
         $events = [];
         $planetName = self::PLANET_NAMES[$planetIndex] ?? 'Unknown';
 
+        // Alle teken grenzen (0°, 30°, 60°, ..., 330°)
         $signBoundaries = [];
         for ($i = 0; $i < 12; $i++) {
-            $signBoundaries[] = ['aspect_position' => $i * 30];
+            $signBoundaries[] = [
+                'position' => $i * 30,
+                'sign_index' => $i,
+            ];
         }
 
-        $relevantBoundaries = $this->filterTargetsInRange($signBoundaries, $startLon, $endLon, $isDirect);
+        $isDirect = $startSpeed >= 0;
+        $crossesZero = $isDirect ? ($endLon < $startLon) : ($endLon > $startLon);
 
-        foreach ($relevantBoundaries as $boundary) {
-            $targetLon = $boundary['aspect_position'];
-            $signIndex = (int) ($targetLon / 30);
-            $signName = self::SIGN_NAMES[20 + $signIndex] ?? 'Unknown';
+        foreach ($signBoundaries as $boundary) {
+            $targetPos = $boundary['position'];
+            $inRange = false;
+            
+            if ($isDirect) {
+                if ($crossesZero) {
+                    if ($targetPos >= $startLon || $targetPos <= $endLon) {
+                        $inRange = true;
+                    }
+                } else {
+                    if ($targetPos >= $startLon && $targetPos <= $endLon) {
+                        $inRange = true;
+                    }
+                }
+            } else {
+                if ($crossesZero) {
+                    if ($targetPos <= $startLon || $targetPos >= $endLon) {
+                        $inRange = true;
+                    }
+                } else {
+                    if ($targetPos >= $endLon && $targetPos <= $startLon) {
+                        $inRange = true;
+                    }
+                }
+            }
+            
+            if (!$inRange) {
+                continue;
+            }
 
-            $progStart = $this->convertRealToProgression($startTimestamp, $birthTimestamp);
-            $progStartPos = $this->getProgressivePlanetPosition($planetIndex, $progStart);
-            $speed = $progStartPos['speed'];
+            $progEventTimestamp = $this->findEventTime(
+                $planetIndex,
+                $progStartTimestamp,
+                $progEndTimestamp,
+                $startLon,
+                $startSpeed,
+                $endSpeed,
+                $targetPos
+            );
 
-            $estimatedTimestamp = $this->estimateEventTime($startTimestamp, $startLon, $targetLon, $speed);
-            $refinedTimestamp = $this->refineEventTime($estimatedTimestamp, $targetLon, $planetIndex, $birthTimestamp);
+            if ($progEventTimestamp === null) {
+                continue;
+            }
 
-            if ($refinedTimestamp >= $startTimestamp && $refinedTimestamp <= $endTimestamp) {
-                $progTimestamp = $this->convertRealToProgression($refinedTimestamp, $birthTimestamp);
-                $finalPos = $this->getProgressivePlanetPosition($planetIndex, $progTimestamp);
+            if ($progEventTimestamp >= $progStartTimestamp && $progEventTimestamp <= $progEndTimestamp) {
+                $realTimestamp = $this->progressionToReal($progEventTimestamp);
+                $finalPos = $this->getProgressivePlanetPosition($planetIndex, $progEventTimestamp);
+                $signName = self::SIGN_NAMES[20 + $boundary['sign_index']] ?? 'Unknown';
 
                 $events[] = [
-                    'timestamp' => $refinedTimestamp,
-                    'date' => date('Y-m-d', $refinedTimestamp),
+                    'timestamp' => $realTimestamp,
+                    'date' => date('Y-m-d', $realTimestamp),
                     'progressive_planet' => $planetName,
                     'progressive_index' => $planetIndex,
                     'direction' => $finalPos['speed'] >= 0 ? 'D' : 'R',
                     'aspect' => 0,
                     'radix_target' => $signName,
-                    'radix_index' => 20 + $signIndex,
-                    'radix_position' => $targetLon,
+                    'radix_index' => 20 + $boundary['sign_index'],
+                    'radix_position' => $targetPos,
                     'progressive_position' => $finalPos['longitude'],
                     'event_type' => 'sign_ingress',
                 ];
@@ -455,49 +545,87 @@ class ProgressionEventCalculator
         int $planetIndex,
         float $startLon,
         float $endLon,
-        int $startTimestamp,
-        int $endTimestamp,
-        int $birthTimestamp,
-        array $radixData,
-        bool $isDirect
+        float $startSpeed,
+        float $endSpeed,
+        int $progStartTimestamp,
+        int $progEndTimestamp,
+        array $radixData
     ): array {
         $events = [];
         $planetName = self::PLANET_NAMES[$planetIndex] ?? 'Unknown';
 
+        // Alle huis cusps
         $houseCusps = [];
         for ($i = 1; $i <= 12; $i++) {
-            $cuspLon = $radixData['houses'][$i]['longitude'] ?? 0;
-            $houseCusps[] = ['aspect_position' => $cuspLon, 'house_num' => $i];
+            $cuspPos = $radixData['houses'][$i]['longitude'] ?? 0;
+            $houseCusps[] = [
+                'position' => $cuspPos,
+                'house_num' => $i,
+            ];
         }
 
-        $relevantCusps = $this->filterTargetsInRange($houseCusps, $startLon, $endLon, $isDirect);
+        $isDirect = $startSpeed >= 0;
+        $crossesZero = $isDirect ? ($endLon < $startLon) : ($endLon > $startLon);
 
-        foreach ($relevantCusps as $cusp) {
-            $targetLon = $cusp['aspect_position'];
-            $houseNum = $cusp['house_num'];
-            $houseName = self::HOUSE_NAMES[39 + $houseNum] ?? "House $houseNum";
+        foreach ($houseCusps as $cusp) {
+            $targetPos = $cusp['position'];
+            $inRange = false;
+            
+            if ($isDirect) {
+                if ($crossesZero) {
+                    if ($targetPos >= $startLon || $targetPos <= $endLon) {
+                        $inRange = true;
+                    }
+                } else {
+                    if ($targetPos >= $startLon && $targetPos <= $endLon) {
+                        $inRange = true;
+                    }
+                }
+            } else {
+                if ($crossesZero) {
+                    if ($targetPos <= $startLon || $targetPos >= $endLon) {
+                        $inRange = true;
+                    }
+                } else {
+                    if ($targetPos >= $endLon && $targetPos <= $startLon) {
+                        $inRange = true;
+                    }
+                }
+            }
+            
+            if (!$inRange) {
+                continue;
+            }
 
-            $progStart = $this->convertRealToProgression($startTimestamp, $birthTimestamp);
-            $progStartPos = $this->getProgressivePlanetPosition($planetIndex, $progStart);
-            $speed = $progStartPos['speed'];
+            $progEventTimestamp = $this->findEventTime(
+                $planetIndex,
+                $progStartTimestamp,
+                $progEndTimestamp,
+                $startLon,
+                $startSpeed,
+                $endSpeed,
+                $targetPos
+            );
 
-            $estimatedTimestamp = $this->estimateEventTime($startTimestamp, $startLon, $targetLon, $speed);
-            $refinedTimestamp = $this->refineEventTime($estimatedTimestamp, $targetLon, $planetIndex, $birthTimestamp);
+            if ($progEventTimestamp === null) {
+                continue;
+            }
 
-            if ($refinedTimestamp >= $startTimestamp && $refinedTimestamp <= $endTimestamp) {
-                $progTimestamp = $this->convertRealToProgression($refinedTimestamp, $birthTimestamp);
-                $finalPos = $this->getProgressivePlanetPosition($planetIndex, $progTimestamp);
+            if ($progEventTimestamp >= $progStartTimestamp && $progEventTimestamp <= $progEndTimestamp) {
+                $realTimestamp = $this->progressionToReal($progEventTimestamp);
+                $finalPos = $this->getProgressivePlanetPosition($planetIndex, $progEventTimestamp);
+                $houseName = self::HOUSE_NAMES[39 + $cusp['house_num']] ?? "House {$cusp['house_num']}";
 
                 $events[] = [
-                    'timestamp' => $refinedTimestamp,
-                    'date' => date('Y-m-d', $refinedTimestamp),
+                    'timestamp' => $realTimestamp,
+                    'date' => date('Y-m-d', $realTimestamp),
                     'progressive_planet' => $planetName,
                     'progressive_index' => $planetIndex,
                     'direction' => $finalPos['speed'] >= 0 ? 'D' : 'R',
                     'aspect' => 0,
                     'radix_target' => $houseName,
-                    'radix_index' => 39 + $houseNum,
-                    'radix_position' => $targetLon,
+                    'radix_index' => 39 + $cusp['house_num'],
+                    'radix_position' => $targetPos,
                     'progressive_position' => $finalPos['longitude'],
                     'event_type' => 'house_ingress',
                 ];
@@ -509,76 +637,60 @@ class ProgressionEventCalculator
 
     private function calculateRDTransition(
         int $planetIndex,
-        int $startTimestamp,
-        int $endTimestamp,
-        int $birthTimestamp,
+        float $startSpeed,
+        int $progStartTimestamp,
+        int $progEndTimestamp,
         string $planetName
     ): ?array {
-        $midTimestamp = (int) round(($startTimestamp + $endTimestamp) / 2);
+        // Binary search om het moment te vinden waarop speed = 0
+        $searchStart = $progStartTimestamp;
+        $searchEnd = $progEndTimestamp;
+        $wasDirect = $startSpeed >= 0;
         
-        $progStart = $this->convertRealToProgression($startTimestamp, $birthTimestamp);
-        $progEnd = $this->convertRealToProgression($endTimestamp, $birthTimestamp);
-        $progMid = $this->convertRealToProgression($midTimestamp, $birthTimestamp);
-        
-        $posStart = $this->getProgressivePlanetPosition($planetIndex, $progStart);
-        $posEnd = $this->getProgressivePlanetPosition($planetIndex, $progEnd);
-        $posMid = $this->getProgressivePlanetPosition($planetIndex, $progMid);
-        
-        $speedStart = $posStart['speed'];
-        $speedMid = $posMid['speed'];
-        
-        $transitionFound = false;
-        $searchStart = $startTimestamp;
-        $searchEnd = $endTimestamp;
-        
-        if (($speedStart >= 0 && $speedMid < 0) || ($speedStart < 0 && $speedMid >= 0)) {
-            $transitionFound = true;
-            $searchEnd = $midTimestamp;
-        } elseif (($speedMid >= 0 && $posEnd['speed'] < 0) || ($speedMid < 0 && $posEnd['speed'] >= 0)) {
-            $transitionFound = true;
-            $searchStart = $midTimestamp;
-        }
-        
-        if (!$transitionFound) {
-            return null;
-        }
-        
-        for ($i = 0; $i < 10; $i++) {
+        for ($iteration = 0; $iteration < 15; $iteration++) {
             $diff = $searchEnd - $searchStart;
-            if ($diff < 86400) {
+            if ($diff < 60) { // Minder dan 1 minuut verschil
                 break;
             }
             
-            $midSearch = (int) round(($searchStart + $searchEnd) / 2);
-            $progMidSearch = $this->convertRealToProgression($midSearch, $birthTimestamp);
-            $posMidSearch = $this->getProgressivePlanetPosition($planetIndex, $progMidSearch);
-            $speedMidSearch = $posMidSearch['speed'];
+            $midTimestamp = (int) round(($searchStart + $searchEnd) / 2);
+            $midPos = $this->getProgressivePlanetPosition($planetIndex, $midTimestamp);
             
-            if (($speedStart >= 0 && $speedMidSearch < 0) || ($speedStart < 0 && $speedMidSearch >= 0)) {
-                $searchEnd = $midSearch;
+            if (!$midPos['success']) {
+                break;
+            }
+            
+            $midSpeed = $midPos['speed'];
+            
+            if (($wasDirect && $midSpeed < 0) || (!$wasDirect && $midSpeed >= 0)) {
+                // Transitie in eerste helft
+                $searchEnd = $midTimestamp;
             } else {
-                $searchStart = $midSearch;
-                $speedStart = $speedMidSearch;
+                // Transitie in tweede helft
+                $searchStart = $midTimestamp;
             }
         }
         
-        $transitionTimestamp = (int) round(($searchStart + $searchEnd) / 2);
-        $progTransition = $this->convertRealToProgression($transitionTimestamp, $birthTimestamp);
-        $posTransition = $this->getProgressivePlanetPosition($planetIndex, $progTransition);
+        $progTransitionTimestamp = (int) round(($searchStart + $searchEnd) / 2);
+        $transitionPos = $this->getProgressivePlanetPosition($planetIndex, $progTransitionTimestamp);
         
-        $wasDirect = $posStart['speed'] >= 0;
+        if (!$transitionPos['success']) {
+            return null;
+        }
+        
+        $realTimestamp = $this->progressionToReal($progTransitionTimestamp);
         
         return [
-            'timestamp' => $transitionTimestamp,
-            'date' => date('Y-m-d', $transitionTimestamp),
+            'timestamp' => $realTimestamp,
+            'date' => date('Y-m-d', $realTimestamp),
             'progressive_planet' => $planetName,
             'progressive_index' => $planetIndex,
             'direction' => 'S',
             'aspect' => 0,
             'radix_target' => $wasDirect ? 'Gaat Retrograde' : 'Gaat Direct',
             'radix_index' => $wasDirect ? 60 : 61,
-            'radix_position' => $posTransition['longitude'],
-            'progressive_position' => $posTransition['longitude'],
+            'radix_position' => $transitionPos['longitude'],
+            'progressive_position' => $transitionPos['longitude'],
             'event_type' => 'rd_transition',
         ];
     }
