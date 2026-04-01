@@ -102,6 +102,32 @@ Architectuur duidelijker → Documenteren
 
 ---
 
+## DEEL 1.5: VERPLICHTE SKILLS
+
+**Bij ELK probleem:** Gebruik `systematic-debugging` skill
+- NIET zelf fixes voorstellen
+- WEL: skill aanroepen, 4 fasen volgen (Root Cause → Pattern → Hypothesis → Implementation)
+- **Had ons vandaag bespaard:** ~2 uur aan verkeerde fixes
+
+**VOOR "done" te claimen:** Gebruik `verification-before-completion` skill
+- NIET zeggen "werkt!" zonder tests te runnen
+- WEL: test command runnen, output lezen, DAN claimen
+- **Iron Law:** "NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE"
+
+**BIJ nieuwe features:** Gebruik `brainstorming` skill
+- NIET direct code schrijven
+- WEL: design voorleggen, approval krijgen
+- **Gouden regel:** "Geen implementatie zonder design approval"
+
+**Hoe skills te gebruiken:**
+```
+skill tool → kies skill → skill wordt geladen → volg instructies
+```
+
+Skills kunnen als subagent worden ingezet voor gespecialiseerde taken.
+
+---
+
 ## DEEL 2: PROJECT-SPECIFIEKE REGELS
 
 *Deze sectie bevat regels en context specifiek voor het Tijd project.*
@@ -239,6 +265,7 @@ $utcTimestamp = $localTimestamp - $utcOffset;
 3. **UTC conversie?** Gebruik `strtotime() - utcOffset` zoals Horoscope entity
 4. **FFI nodig?** Via SwissEphemeris class, nooit direct
 5. **Debuggen bij problemen?** Gebruik systematische debugging:
+   - **VERPLICHT:** Gebruik `systematic-debugging` skill (zie DEEL 1.5)
    - Maak een debug script dat session data, request info, en variabele waarden toont
    - Check de code flow stap voor stap (waar worden variabelen gezet/overschreven?)
    - Log op cruciale plekken wat er gebeurt
@@ -430,6 +457,17 @@ Deze aanpak had ons ~2 uur kunnen besparen. Gebruik dit bij elk toekomstig probl
 - Aannames over session state (inspecteer!)
 - Meerdere fixes tegelijk (één per keer!)
 - Lang puzzelen zonder debug (maak debug script!)
+
+### Skills Reference
+
+| Skill | Wanneer | Wat Het Doet |
+|-------|---------|--------------|
+| `systematic-debugging` | ELKE bug/fout | 4-fasen debug proces, voorkomt verkeerde fixes |
+| `verification-before-completion` | VOOR "done" claimen | Run tests, lees output, DAN claimen |
+| `brainstorming` | Nieuwe features | Design voorleggen før implementatie |
+| `writing-plans` | Na design approval | Gedetailleerd implementation plan |
+| `test-driven-development` | Nieuwe classes | Test-first development |
+| `subagent-driven-development` | Grote taken | Fresh subagent per taak |
 
 ---
 
