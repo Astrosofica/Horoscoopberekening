@@ -110,15 +110,3 @@
 .progression-results .row--ingress {
     background-color: var(--color-success-bg, #d4edda);
 }
-
-.progression-quick-select {
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-}
-
-.progression-quick-select button {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
-    margin-right: 0.5rem;
-    cursor: pointer;
-}
