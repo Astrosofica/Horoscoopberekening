@@ -26,10 +26,6 @@
     cursor: pointer;
 }
 
-.progression-column label.astro-glyph {
-    font-family: 'AstroGlyph', 'Segoe UI Symbol', sans-serif;
-}
-
 .progression-datepicker {
     display: flex;
     gap: 1rem;

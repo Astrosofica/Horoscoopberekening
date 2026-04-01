@@ -798,9 +798,9 @@ if ($hasResult && $mode !== 'edit') {
                             <div class="progression-column">
                                 <h4>Progressief</h4>
                                 <?php for ($i = 0; $i <= 9; $i++): ?>
-                                    <label class="astro-glyph">
+                                    <label>
                                         <input type="checkbox" name="progressive_planet[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['progressive_planets'] ?? []) ? 'checked' : '' ?>>
-                                        <?= SymbolGlyph::getPlanetGlyphByIndex($i) ?>
+                                        <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($i) ?></span>
                                     </label>
                                 <?php endfor; ?>
                             </div>
@@ -810,9 +810,9 @@ if ($hasResult && $mode !== 'edit') {
                                 <?php 
                                 $aspectOptions = [0, 45, 60, 90, 120, 135, 150, 180];
                                 foreach ($aspectOptions as $aspDeg): ?>
-                                    <label class="astro-glyph">
+                                    <label>
                                         <input type="checkbox" name="aspect_type[]" value="<?= $aspDeg ?>" <?= in_array($aspDeg, $_SESSION['horoscope']['progression_events']['input']['aspects'] ?? []) ? 'checked' : '' ?>>
-                                        <?= SymbolGlyph::getAspectGlyph($aspDeg) ?>
+                                        <span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($aspDeg) ?></span>
                                     </label>
                                 <?php endforeach; ?>
                             </div>
@@ -820,16 +820,16 @@ if ($hasResult && $mode !== 'edit') {
                             <div class="progression-column">
                                 <h4>Radix</h4>
                                 <?php for ($i = 0; $i <= 12; $i++): ?>
-                                    <label class="astro-glyph">
+                                    <label>
                                         <input type="checkbox" name="radix_target[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
-                                        <?= SymbolGlyph::getPlanetGlyphByIndex($i) ?>
+                                        <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($i) ?></span>
                                     </label>
                                 <?php endfor; ?>
                                 <hr style="margin: 0.5rem 0; border-color: #ddd;">
                                 <?php for ($i = 20; $i <= 31; $i++): ?>
-                                    <label class="astro-glyph">
+                                    <label>
                                         <input type="checkbox" name="radix_target[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
-                                        <?= SymbolGlyph::getSignGlyphByIndex($i - 20) ?>
+                                        <span class="astro-glyph"><?= SymbolGlyph::getSignGlyphByIndex($i - 20) ?></span>
                                     </label>
                                 <?php endfor; ?>
                             </div>
