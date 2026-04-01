@@ -823,12 +823,38 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                             
                             <div class="progression-column">
                                 <h4>Radix</h4>
-                                <?php for ($i = 0; $i <= 12; $i++): ?>
+                                <?php 
+                                $radixPlanetLabels = [
+                                    0 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(0), 'name' => 'Zon'],
+                                    1 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(1), 'name' => 'Maan'],
+                                    2 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(2), 'name' => 'Mercurius'],
+                                    3 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(3), 'name' => 'Venus'],
+                                    4 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(4), 'name' => 'Mars'],
+                                    5 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(5), 'name' => 'Jupiter'],
+                                    6 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(6), 'name' => 'Saturnus'],
+                                    7 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(7), 'name' => 'Uranus'],
+                                    8 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(8), 'name' => 'Neptunus'],
+                                    9 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(9), 'name' => 'Pluto'],
+                                ];
+                                foreach ($radixPlanetLabels as $idx => $planet): ?>
                                     <label>
-                                        <input type="checkbox" name="radix_target[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
-                                        <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($i) ?></span>
+                                        <input type="checkbox" name="radix_target[]" value="<?= $idx ?>" <?= in_array($idx, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
+                                        <span class="astro-glyph"><?= $planet['glyph'] ?></span>
                                     </label>
-                                <?php endfor; ?>
+                                <?php endforeach; ?>
+                                <hr style="margin: 0.5rem 0; border-color: #ddd;">
+                                <?php 
+                                $radixAxisLabels = [
+                                    10 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(10), 'name' => 'Noordknoop'],
+                                    11 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(11), 'name' => 'Ascendant'],
+                                    12 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(12), 'name' => 'MC'],
+                                ];
+                                foreach ($radixAxisLabels as $idx => $axis): ?>
+                                    <label>
+                                        <input type="checkbox" name="radix_target[]" value="<?= $idx ?>" <?= in_array($idx, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
+                                        <span class="astro-glyph"><?= $axis['glyph'] ?></span> <?= $axis['name'] ?>
+                                    </label>
+                                <?php endforeach; ?>
                             </div>
                             
                             <button type="submit" name="calculate_progressions" class="btn btn--primary" style="width: 100%; margin-top: 0.5rem;">Bereken Progressie Events</button>
