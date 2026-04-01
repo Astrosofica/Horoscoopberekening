@@ -351,6 +351,9 @@ $_SESSION['horoscope']['progression_events'] = [
                 
                 $progEventsResult = $progEvents;
                 $currentTab = 'progressions-list';
+                
+                // Markeer dat we net een progression submit hebben gedaan
+                $_SESSION['just_submitted_progressions'] = true;
             } catch (\Exception $e) {
                 $error = "Berekening mislukt: " . $e->getMessage();
                 error_log("[Tijd] Progression error: " . $e->getMessage());
@@ -438,6 +441,12 @@ $requestedTab = $_GET['tab'] ?? null;
 
 if (!isset($currentTab)) {
     $currentTab = 'calculate';
+}
+
+// Check of we net een progression submit hebben gedaan
+if (isset($_SESSION['just_submitted_progressions'])) {
+    $currentTab = 'progressions-list';
+    unset($_SESSION['just_submitted_progressions']);
 }
 
 if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
