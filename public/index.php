@@ -1013,18 +1013,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php endif; ?>
 
 <?php
-// DEBUG: Toon tab info
-echo '<div style="position:fixed;bottom:0;left:0;background:#fff;border:2px solid red;padding:10px;z-index:9999;font-family:monospace;font-size:12px;">';
-echo '<strong>DEBUG TAB INFO:</strong><br>';
-echo 'currentTab: ' . ($currentTab ?? 'UNDEFINED') . '<br>';
-echo 'hasResult: ' . ($hasResult ? 'TRUE' : 'FALSE') . '<br>';
-echo 'mode: ' . ($mode ?? 'UNDEFINED') . '<br>';
-echo 'REQUEST_METHOD: ' . ($_SERVER['REQUEST_METHOD'] ?? 'UNDEFINED') . '<br>';
-echo 'viewHoroscope: ' . ($viewHoroscope ? 'SET' : 'NULL') . '<br>';
-echo 'isLoggedIn: ' . ($isLoggedIn ? 'YES' : 'NO') . '<br>';
-echo 'progression_events exists: ' . (isset($_SESSION['horoscope']['progression_events']) ? 'YES' : 'NO') . '<br>';
-echo 'just_submitted: ' . (isset($_SESSION['just_submitted_progressions']) ? 'YES' : 'NO') . '<br>';
-echo '</div>';
+// DEBUG: Toon tab info (verwijder na testing)
+// echo '<div style="position:fixed;bottom:0;left:0;background:#fff;border:2px solid red;padding:10px;z-index:9999;font-family:monospace;font-size:12px;">';
+// echo '<strong>DEBUG TAB INFO:</strong><br>';
+// echo 'currentTab: ' . ($currentTab ?? 'UNDEFINED') . '<br>';
+// echo 'hasResult: ' . ($hasResult ? 'TRUE' : 'FALSE') . '<br>';
+// echo 'mode: ' . ($mode ?? 'UNDEFINED') . '<br>';
+// echo 'REQUEST_METHOD: ' . ($_SERVER['REQUEST_METHOD'] ?? 'UNDEFINED') . '<br>';
+// echo 'viewHoroscope: ' . ($viewHoroscope ? 'SET' : 'NULL') . '<br>';
+// echo 'isLoggedIn: ' . ($isLoggedIn ? 'YES' : 'NO') . '<br>';
+// echo 'progression_events exists: ' . (isset($_SESSION['horoscope']['progression_events']) ? 'YES' : 'NO') . '<br>';
+// echo 'just_submitted: ' . (isset($_SESSION['just_submitted_progressions']) ? 'YES' : 'NO') . '<br>';
+// echo '</div>';
 ?>
 
 </body>
