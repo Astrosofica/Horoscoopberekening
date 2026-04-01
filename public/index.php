@@ -329,7 +329,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                     $_SESSION['horoscope']['input']['utc_offset']
                 );
                 
-                $_SESSION['horoscope']['progression_events'] = [
+$_SESSION['horoscope']['progression_events'] = [
                     'input' => [
                         'start_date' => $startDate,
                         'end_date' => $endDate,
@@ -342,8 +342,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                     'results' => $progEvents,
                 ];
                 
-                // Debug
-                file_put_contents(__DIR__ . '/../var/log/debug.log', "Session saved: " . json_encode($_SESSION['horoscope']['progression_events']['input']) . "\n", FILE_APPEND);
+                // Debug logging na POST
+                error_log("[Tijd] POST Handler - Saved progression_events: " . json_encode([
+                    'progressive_planets' => $progressivePlanets,
+                    'radix_targets' => $radixTargets,
+                    'aspects' => $aspects
+                ]));
                 
                 $progEventsResult = $progEvents;
                 $currentTab = 'progressions-list';
@@ -371,15 +375,9 @@ if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']
     }
 }
 
-if ($mode === 'view' && $viewHoroscope) {
+if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions']) && !isset($_POST['lastname'])) {
     // Reset lazy tabs bij laden opgeslagen horoscoop
     unset($_SESSION['horoscope']['aspects']);
-    
-    // Behoud progression_events als die al bestaat
-    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
-    
-    // Behoud progression_events als die al bestaat (bij view/edit mode)
-    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
     
     $calculator = new HoroscopeCalculator();
     $result = $calculator->calculate($viewHoroscope);
@@ -808,14 +806,18 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                 <section id="tab-progressions-list" class="tab-content tab-content--hidden">
                     <div class="card card--large">
                         <h2>Progressie Events</h2>
-                        <?php
+<?php
                         // Haal huidige selecties op
                         $selProg = $_SESSION['horoscope']['progression_events']['input']['progressive_planets'] ?? [];
                         $selAspects = $_SESSION['horoscope']['progression_events']['input']['aspects'] ?? [];
                         $selRadix = $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? [];
                         
-                        // Debug
-                        file_put_contents(__DIR__ . '/../var/log/debug.log', "Render: selProg = " . json_encode($selProg) . "\n", FILE_APPEND);
+                        // Debug logging
+                        error_log("[Tijd] Form Render - Reading progression_events: " . json_encode([
+                            'progressive_planets' => $selProg,
+                            'aspects' => $selAspects,
+                            'radix_targets' => $selRadix
+                        ]));
                         
                         // Bepaal toggle states (afleiden uit selectie)
                         $allProgressive = count($selProg) === 10;
