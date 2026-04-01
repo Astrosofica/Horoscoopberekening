@@ -263,6 +263,73 @@ class SymbolGlyph
         return self::$status[self::STATUS_RETROGRADE]['code'];
     }
 
+    public static function getPlanetGlyphByIndex(int $index): string
+    {
+        $mapping = [
+            0 => self::PLANET_SUN,
+            1 => self::PLANET_MOON,
+            2 => self::PLANET_MERCURY,
+            3 => self::PLANET_VENUS,
+            4 => self::PLANET_MARS,
+            5 => self::PLANET_JUPITER,
+            6 => self::PLANET_SATURN,
+            7 => self::PLANET_URANUS,
+            8 => self::PLANET_NEPTUNE,
+            9 => self::PLANET_PLUTO,
+            10 => self::PLANET_NORTH_NODE,
+            11 => self::PLANET_ASCENDANT,
+            12 => self::PLANET_MC,
+        ];
+        $code = $mapping[$index] ?? null;
+        if ($code === null || !isset(self::$planets[$code])) {
+            return '?';
+        }
+        return self::$planets[$code]['code'];
+    }
+
+    public static function getSignGlyphByIndex(int $index): string
+    {
+        $mapping = [
+            0 => self::SIGN_ARIES,
+            1 => self::SIGN_TAURUS,
+            2 => self::SIGN_GEMINI,
+            3 => self::SIGN_CANCER,
+            4 => self::SIGN_LEO,
+            5 => self::SIGN_VIRGO,
+            6 => self::SIGN_LIBRA,
+            7 => self::SIGN_SCORPIO,
+            8 => self::SIGN_SAGITTARIUS,
+            9 => self::SIGN_CAPRICORN,
+            10 => self::SIGN_AQUARIUS,
+            11 => self::SIGN_PISCES,
+        ];
+        $code = $mapping[$index] ?? null;
+        if ($code === null || !isset(self::$signs[$code])) {
+            return '?';
+        }
+        return self::$signs[$code]['code'];
+    }
+
+    public static function getGlyphForTarget(int $targetIndex): string
+    {
+        if ($targetIndex >= 0 && $targetIndex <= 12) {
+            return self::getPlanetGlyphByIndex($targetIndex);
+        }
+        if ($targetIndex >= 20 && $targetIndex <= 31) {
+            return self::getSignGlyphByIndex($targetIndex - 20);
+        }
+        if ($targetIndex >= 40 && $targetIndex <= 51) {
+            return 'H' . ($targetIndex - 39);
+        }
+        if ($targetIndex === 60) {
+            return 'R';
+        }
+        if ($targetIndex === 61) {
+            return 'D';
+        }
+        return '?';
+    }
+
     public static function render(string $text): string
     {
         return '<span class="astro-font">' . htmlspecialchars($text) . '</span>';

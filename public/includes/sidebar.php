@@ -11,6 +11,7 @@ $resultItems = [
     'planetshouses' => 'Astrodata',
     'aspects' => 'Aspecten',
     'progressions' => 'Progressies',
+    'progressions-list' => 'Progressie Events',
 ];
 
 $futureItems = [
