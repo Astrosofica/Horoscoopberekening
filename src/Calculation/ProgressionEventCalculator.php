@@ -384,33 +384,37 @@ class ProgressionEventCalculator
         float $endSpeed,
         float $targetLon
     ): ?int {
-        // Eerste schatting op basis van positieverschil en speed
-        $diff = $this->normalizeAngleDiff($targetLon - $startLon);
-        
-        // Als retrograde, draai diff om
-        if ($startSpeed < 0) {
-            $diff = $this->normalizeAngleDiff($startLon - $targetLon);
-        }
-        
-        // Als diff te groot is, waarschijnlijk over de 0° grens
-        if ($startSpeed >= 0 && $diff < 0) {
-            $diff += 360;
-        } elseif ($startSpeed < 0 && $diff > 0) {
-            $diff -= 360;
-        }
-        
         // Voorkom delen door nul
         if (abs($startSpeed) < 0.0001) {
             return null;
         }
         
+        $isDirect = $startSpeed >= 0;
+        
+        // Bereken positieverschil in bewegingsrichting
+        if ($isDirect) {
+            // Direct: beweegt van laag naar hoog
+            $diff = $targetLon - $startLon;
+            if ($diff < 0) {
+                $diff += 360;  // Over de 0° grens
+            }
+        } else {
+            // Retrograde: beweegt van hoog naar laag
+            $diff = $startLon - $targetLon;
+            if ($diff < 0) {
+                $diff += 360;  // Over de 0° grens
+            }
+        }
+        
         // Geschatte tijd in progressieve seconden
-        $estimatedSeconds = $diff / abs($startSpeed) * self::SECONDS_PER_DAY;
+        // speed is in graden/dag, diff in graden
+        // tijd in dagen = diff / |speed|
+        $estimatedDays = $diff / abs($startSpeed);
+        $estimatedSeconds = $estimatedDays * self::SECONDS_PER_DAY;
         $progEstimatedTimestamp = $progStartTimestamp + (int) round($estimatedSeconds);
         
-        // Check of dit binnen onze range valt (voor refinement)
-        // Voeg marge toe voor refinement
-        $margin = self::SECONDS_PER_DAY * 2; // 2 dagen marge
+        // Check of dit binnen onze range valt (met marge voor refinement)
+        $margin = self::SECONDS_PER_DAY * 2;
         if ($progEstimatedTimestamp < $progStartTimestamp - $margin || 
             $progEstimatedTimestamp > $progEndTimestamp + $margin) {
             return null;

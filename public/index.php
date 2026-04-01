@@ -276,9 +276,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
     } else {
         $startDate = $_POST['prog_start_date'] ?? '';
         $endDate = $_POST['prog_end_date'] ?? '';
-        $progressivePlanets = $_POST['progressive_planet'] ?? [];
-        $radixTargets = $_POST['radix_target'] ?? [];
-        $aspects = $_POST['aspect_type'] ?? [];
+        $progressivePlanets = array_map('intval', $_POST['progressive_planet'] ?? []);
+        $radixTargets = array_map('intval', $_POST['radix_target'] ?? []);
+        $aspects = array_map('intval', $_POST['aspect_type'] ?? []);
         $includeHouseIngress = isset($_POST['include_house_ingress']);
         $includeSignIngress = isset($_POST['include_sign_ingress']);
         
