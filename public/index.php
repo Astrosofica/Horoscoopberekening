@@ -375,7 +375,10 @@ if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']
     }
 }
 
-if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions']) && !isset($_POST['lastname'])) {
+if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'])) {
+    // Check of we net een progression submit hebben gedaan
+    $justDidProgression = isset($_SESSION['progression_submit_done']);
+    
     // Reset lazy tabs bij laden opgeslagen horoscoop
     unset($_SESSION['horoscope']['aspects']);
     
@@ -384,8 +387,8 @@ if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'
     $wheelData = $calculator->prepareWheelData($result);
     $_SESSION['wheel_data'] = $wheelData;
     
-    // Behoud progression_events als die al bestaat (bijvoorbeeld na progression submit)
-    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
+    // Behoud progression_events als we net een submit hebben gedaan
+    $existingProgressionEvents = $justDidProgression ? ($_SESSION['horoscope']['progression_events'] ?? null) : null;
     
     // Session structuur voor lazy loading
     $_SESSION['horoscope'] = [
@@ -410,11 +413,16 @@ if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'
         'aspects' => null, // Lazy loaded
     ];
     
-    // Herstel progression_events als die bestond, behalve als we net een progression submit deden
-    if ($existingProgressionEvents !== null && !isset($_SESSION['progression_submit_done'])) {
+    // Herstel progression_events als we net een submit hadden
+    if ($existingProgressionEvents !== null) {
+        $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
+    } else {
+        // Verwijder progression_events bij normaal laden opgeslagen horoscoop
         unset($_SESSION['horoscope']['progression_events']);
-    } elseif (isset($_SESSION['progression_submit_done'])) {
-        // Als we net een progression submit hebben gedaan, behoud de events en verwijder marker
+    }
+    
+    // Verwijder marker als die gezet was
+    if ($justDidProgression) {
         unset($_SESSION['progression_submit_done']);
     }
 }
