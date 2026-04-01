@@ -844,11 +844,15 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                         $selAspects = $_SESSION['horoscope']['progression_events']['input']['aspects'] ?? [];
                         $selRadix = $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? [];
                         
+                        // Haal resultaten uit session (na redirect)
+                        $progEventsResult = $_SESSION['horoscope']['progression_events']['results'] ?? null;
+                        
                         // Debug logging
                         error_log("[Tijd] Form Render - Reading progression_events: " . json_encode([
                             'progressive_planets' => $selProg,
                             'aspects' => $selAspects,
-                            'radix_targets' => $selRadix
+                            'radix_targets' => $selRadix,
+                            'results_count' => count($progEventsResult ?? [])
                         ]));
                         
                         // Bepaal toggle states (afleiden uit selectie)
