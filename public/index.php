@@ -828,7 +828,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                 <?php endif; ?>
                 
                 <?php if (isset($_SESSION['horoscope']['core'])): ?>
-                <section id="tab-progressions-list" class="tab-content tab-content--hidden">
+                <section id="tab-progressions-list" class="tab-content<?= $currentTab !== 'progressions-list' ? ' tab-content--hidden' : '' ?>">
                     <div class="card card--large">
                         <h2>Progressie Events</h2>
 <?php
