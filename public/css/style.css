@@ -16,6 +16,7 @@
 @import url('_birth-info.css');
 @import url('_wheel.css');
 @import url('_utilities.css');
+@import url('_progression.css');
 
 .tab-content--hidden {
     display: none !important;

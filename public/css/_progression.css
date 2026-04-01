@@ -1,0 +1,106 @@
+.progression-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.progression-column {
+    flex: 1;
+    min-width: 180px;
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+
+.progression-column h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    color: var(--color-text, #333);
+}
+
+.progression-column label {
+    display: block;
+    margin: 0.25rem 0;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.progression-column label.astro-glyph {
+    font-family: 'AstroGlyph', 'Segoe UI Symbol', sans-serif;
+}
+
+.progression-datepicker {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.progression-datepicker label {
+    font-size: 0.85rem;
+}
+
+.progression-datepicker input[type="date"] {
+    padding: 0.25rem;
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 0.25rem;
+}
+
+.progression-options {
+    margin-bottom: 0.5rem;
+}
+
+.progression-options label {
+    display: inline-block;
+    margin-right: 1rem;
+    font-size: 0.85rem;
+}
+
+.progression-results {
+    margin-top: 1rem;
+    overflow-x: auto;
+}
+
+.progression-results table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.progression-results th,
+.progression-results td {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border, #ddd);
+    text-align: center;
+}
+
+.progression-results th {
+    background-color: var(--color-bg-secondary, #f5f5f5);
+    font-weight: 600;
+}
+
+.progression-results .astro-glyph {
+    font-family: 'AstroGlyph', 'Segoe UI Symbol', sans-serif;
+    font-size: 1.2rem;
+}
+
+.progression-results .row--rd {
+    background-color: var(--color-warning-bg, #fff3cd);
+}
+
+.progression-results .row--ingress {
+    background-color: var(--color-success-bg, #d4edda);
+}
+
+.progression-quick-select {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.progression-quick-select button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    margin-right: 0.5rem;
+    cursor: pointer;
+}
