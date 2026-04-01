@@ -332,6 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                     'results' => $progEvents,
                 ];
                 
+                $progEventsResult = $progEvents;
                 $currentTab = 'progressions-list';
             } catch (\Exception $e) {
                 $error = "Berekening mislukt: " . $e->getMessage();
@@ -398,9 +399,12 @@ $formDisabled = ($mode === 'view');
 // ===========================================================================
 // Check of user een specifieke tab wil bekijken (?tab=aspects)
 $requestedTab = $_GET['tab'] ?? null;
-$currentTab = 'calculate';
 
-if ($hasResult && $mode !== 'edit') {
+if (!isset($currentTab)) {
+    $currentTab = 'calculate';
+}
+
+if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
     // Default tab bij resultaat is horoscope, tenzij andere tab gevraagd
     $currentTab = 'horoscope';
     
@@ -825,13 +829,6 @@ if ($hasResult && $mode !== 'edit') {
                                         <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($i) ?></span>
                                     </label>
                                 <?php endfor; ?>
-                                <hr style="margin: 0.5rem 0; border-color: #ddd;">
-                                <?php for ($i = 20; $i <= 31; $i++): ?>
-                                    <label>
-                                        <input type="checkbox" name="radix_target[]" value="<?= $i ?>" <?= in_array($i, $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? []) ? 'checked' : '' ?>>
-                                        <span class="astro-glyph"><?= SymbolGlyph::getSignGlyphByIndex($i - 20) ?></span>
-                                    </label>
-                                <?php endfor; ?>
                             </div>
                             
                             <button type="submit" name="calculate_progressions" class="btn btn--primary" style="width: 100%; margin-top: 0.5rem;">Bereken Progressie Events</button>
@@ -864,7 +861,7 @@ if ($hasResult && $mode !== 'edit') {
                                         <td><?= $event['direction'] ?></td>
                                         <td class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($event['progressive_index']) ?></td>
                                         <td class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($event['aspect']) ?></td>
-                                        <td><?= $event['event_type'] === 'rd_transition' ? htmlspecialchars($event['radix_target']) : '<span class="astro-glyph">' . SymbolGlyph::getGlyphForTarget($event['radix_index']) . '</span>' ?></td>
+                                        <td><?= $event['event_type'] === 'rd_transition' ? htmlspecialchars($event['radix_target']) : ($event['event_type'] === 'sign_ingress' ? htmlspecialchars($event['radix_target']) : ($event['event_type'] === 'house_ingress' ? htmlspecialchars($event['radix_target']) : '<span class="astro-glyph">' . SymbolGlyph::getGlyphForTarget($event['radix_index']) . '</span>')) ?></td>
                                         <td><?= Formatter::formatLongitudeWithGlyph($event['progressive_position']) ?></td>
                                         <td><?= Formatter::formatLongitudeWithGlyph($event['radix_position']) ?></td>
                                     </tr>
