@@ -1,4 +1,7 @@
 <?php
+// Debug: log alle requests
+file_put_contents(__DIR__ . '/../var/log/debug.log', date('Y-m-d H:i:s') . " REQUEST: " . $_SERVER['REQUEST_METHOD'] . " POST: " . json_encode($_POST) . "\n", FILE_APPEND);
+
 require_once __DIR__ . '/../config/bootstrap.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -234,6 +237,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                         'planets' => $planetsForWheel
                     ];
                     
+// Behoud progression_events als die al bestaat
+                    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
+                    
                     // Session structuur voor lazy loading
                     $_SESSION['horoscope'] = [
                         'input' => [
@@ -248,14 +254,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                             'timezone_id' => $timezoneId,
                             'utc_offset' => $timeResult['offset'],
                         ],
-                        'core' => [
-                            'planets' => $result['planets'],
-                            'houses' => $result['houses']['houses'],
-                            'ascmc' => $result['houses']['ascmc'],
-                            'julian_day' => $result['julian_day'],
-                        ],
+                        'core' => $result,
                         'aspects' => null, // Lazy loaded
                     ];
+                    
+                    // Herstel progression_events indien die bestond
+                    if ($existingProgressionEvents !== null) {
+                        $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
+                    }
                     
                     $mode = 'calculate';
                 } catch (\Exception $e) {
@@ -271,6 +277,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
 // POST HANDLER - Progression Events Form
 // ===========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progressions'])) {
+    // Debug naar bestand
+    file_put_contents(__DIR__ . '/../var/log/debug.log', date('Y-m-d H:i:s') . " POST received\n", FILE_APPEND);
+    file_put_contents(__DIR__ . '/../var/log/debug.log', "POST data: " . json_encode($_POST) . "\n", FILE_APPEND);
+    
     if (!isset($_SESSION['horoscope']['core'])) {
         $error = "Eerst een horoscoop berekenen voordat progressies kunnen worden berekend.";
     } else {
@@ -332,9 +342,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                     'results' => $progEvents,
                 ];
                 
-                // Debug: log naar error log
-                error_log("[Tijd] POST saved: progressive_planets = " . json_encode($progressivePlanets));
-                error_log("[Tijd] POST saved: aspects = " . json_encode($aspects));
+                // Debug
+                file_put_contents(__DIR__ . '/../var/log/debug.log', "Session saved: " . json_encode($_SESSION['horoscope']['progression_events']['input']) . "\n", FILE_APPEND);
                 
                 $progEventsResult = $progEvents;
                 $currentTab = 'progressions-list';
@@ -366,6 +375,9 @@ if ($mode === 'view' && $viewHoroscope) {
     // Reset lazy tabs bij laden opgeslagen horoscoop
     unset($_SESSION['horoscope']['aspects']);
     
+    // Behoud progression_events als die al bestaat
+    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
+    
     $calculator = new HoroscopeCalculator();
     $result = $calculator->calculate($viewHoroscope);
     $wheelData = $calculator->prepareWheelData($result);
@@ -393,6 +405,11 @@ if ($mode === 'view' && $viewHoroscope) {
         ],
         'aspects' => null, // Lazy loaded
     ];
+    
+    // Herstel progression_events indien die bestond
+    if ($existingProgressionEvents !== null) {
+        $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
+    }
 }
 
 $hasResult = $result !== null;
@@ -797,8 +814,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                         $selRadix = $_SESSION['horoscope']['progression_events']['input']['radix_targets'] ?? [];
                         
                         // Debug
-                        error_log("[Tijd] Render: selProg = " . json_encode($selProg));
-                        error_log("[Tijd] Render: selAspects = " . json_encode($selAspects));
+                        file_put_contents(__DIR__ . '/../var/log/debug.log', "Render: selProg = " . json_encode($selProg) . "\n", FILE_APPEND);
                         
                         // Bepaal toggle states (afleiden uit selectie)
                         $allProgressive = count($selProg) === 10;
