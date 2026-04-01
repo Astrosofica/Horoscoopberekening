@@ -384,6 +384,9 @@ if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'
     $wheelData = $calculator->prepareWheelData($result);
     $_SESSION['wheel_data'] = $wheelData;
     
+    // Behoud progression_events als die al bestaat (bijvoorbeeld na progression submit)
+    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
+    
     // Session structuur voor lazy loading
     $_SESSION['horoscope'] = [
         'input' => [
@@ -407,8 +410,13 @@ if ($mode === 'view' && $viewHoroscope && !isset($_POST['calculate_progressions'
         'aspects' => null, // Lazy loaded
     ];
     
-    // Verwijder progression_events bij laden opgeslagen horoscoop
-    unset($_SESSION['horoscope']['progression_events']);
+    // Herstel progression_events als die bestond, behalve als we net een progression submit deden
+    if ($existingProgressionEvents !== null && !isset($_SESSION['progression_submit_done'])) {
+        unset($_SESSION['horoscope']['progression_events']);
+    } elseif (isset($_SESSION['progression_submit_done'])) {
+        // Als we net een progression submit hebben gedaan, behoud de events en verwijder marker
+        unset($_SESSION['progression_submit_done']);
+    }
 }
 
 $hasResult = $result !== null;
