@@ -1081,7 +1081,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                                     <?= SymbolGlyph::getPlanetGlyphByIndex($aspect['name2']) ?>
                                                 </span> r
                                             </td>
-                                            <td class="text-right">
+                                            <td>
                                                 orb: <?= Formatter::formatOrb($aspect['orb']) ?>
                                             </td>
                                         </tr>
