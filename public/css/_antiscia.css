@@ -1,65 +1,64 @@
+/* Override card--large padding voor antiscia */
+.card.card--large.card--antiscia {
+    padding: 1rem !important;
+}
+
+.card.card--large.card--antiscia h4 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
 .antiscia-container {
     display: flex;
-    flex-wrap: nowrap;
-    gap: 0.5rem;
+    gap: 1rem;
     width: 100%;
 }
 
-.card--antiscia-points {
-    flex: 0 0 32%;
+.antiscia-column {
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+
+.antiscia-column--points {
+    flex: 0 0 35%;
     min-width: 180px;
 }
 
-.card--antiscia-aspects {
-    flex: 0 0 calc(68% - 0.5rem);
+.antiscia-column--aspects {
+    flex: 1;
     min-width: 250px;
 }
 
-.card--antiscia-points .card,
-.card--antiscia-aspects .card {
-    padding: 0.5rem 0.625rem;
-    margin-bottom: 0;
-}
-
-.card--antiscia-points h4,
-.card--antiscia-aspects h4 {
-    font-size: 0.95rem;
-    margin-bottom: 0.625rem;
-}
-
-.card--antiscia-points table,
-.card--antiscia-aspects table {
+.antiscia-column table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.card--antiscia-points td {
-    padding: 0.125rem 0.25rem;
+.antiscia-column td {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
 }
 
-.card--antiscia-aspects td {
-    padding: 0.125rem 0.25rem;
-    font-size: 0.85rem;
+.antiscia-column--aspects td:nth-child(1),
+.antiscia-column--aspects td:nth-child(3) {
+    white-space: nowrap;
 }
 
-.card--antiscia-aspects td:nth-child(1),
-.card--antiscia-aspects td:nth-child(3) {
-    width: 1%;
-}
-
-.card--antiscia-aspects td:nth-child(2) {
+.antiscia-column--aspects td:nth-child(2) {
     text-align: center;
-    width: 1%;
 }
 
-.card--antiscia-aspects td:nth-child(4) {
+.antiscia-column--aspects td:nth-child(4) {
     text-align: right;
     white-space: nowrap;
-    width: 1%;
 }
 
-.card--antiscia-points tr:hover td,
-.card--antiscia-aspects tr:hover td {
+.antiscia-column tr:nth-child(even) {
+    background-color: var(--bg-card-alt, #f9f9f9);
+}
+
+.antiscia-column tr:hover td {
     background-color: var(--bg-hover, #e0e0e0);
 }
 
@@ -68,8 +67,8 @@
         flex-wrap: wrap;
     }
     
-    .card--antiscia-points,
-    .card--antiscia-aspects {
+    .antiscia-column--points,
+    .antiscia-column--aspects {
         flex: 0 0 100%;
         max-width: 100%;
     }

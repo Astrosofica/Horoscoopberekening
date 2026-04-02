@@ -1035,11 +1035,11 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                 
                 <?php if (isset($result['antiscia'])): ?>
                 <section id="tab-antiscia" class="tab-content tab-content--hidden">
-                    <div class="card card--large">
+                    <div class="card card--large card--antiscia">
                         <h4>Spiegelpunten (Jan de Jong)</h4>
                         
                         <div class="antiscia-container">
-                            <div class="card card--antiscia-points">
+                            <div class="antiscia-column antiscia-column--points">
                                 <table>
                                     <tr>
                                         <th colspan="2">Spiegelpunten</th>
@@ -1059,7 +1059,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                 </table>
                             </div>
                             
-                            <div class="card card--antiscia-aspects">
+                            <div class="antiscia-column antiscia-column--aspects">
                                 <table>
                                     <tr>
                                         <th colspan="4">Aspecten spiegelpunten</th>
