@@ -1062,7 +1062,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                             <div class="card card--antiscia-aspects">
                                 <table>
                                     <tr>
-                                        <th colspan="4">Aspecten met spiegelpunten</th>
+                                        <th colspan="4">Aspecten spiegelpunten</th>
                                     </tr>
                                     <?php foreach ($result['antiscia']['aspects'] as $aspect): ?>
                                         <tr>
