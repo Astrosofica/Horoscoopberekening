@@ -816,8 +816,8 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                     <div class="card card--progressions">
                         <h4>Secundaire Progressies</h4>
                         <p class="progressions-info">
-                            Leeftijd: <?= round($result['progressions']['years']) ?> jaar 
-                            (<?= round($result['progressions']['progress_days'], 2) ?> progressieve dagen)
+                            Leeftijd: <?= Formatter::formatProgressAge($result['progressions']['progress_days']) ?>
+                            <span class="progressions-decimal">(<?= round($result['progressions']['progress_days'], 2) ?>)</span>
                         </p>
                         <table>
                             <tr>

@@ -316,4 +316,34 @@ class Formatter
         
         return sprintf("%d°%02d'%02d\"", $degree, $minute, $second);
     }
+    
+    /**
+     * Formatteer progressieve leeftijd in jaren, maanden en dagen
+     * 
+     * @param float $progressDays Progressieve dagen
+     * @return string Formaat: "62 jaar, 8 maanden, 21 dagen"
+     */
+    public static function formatProgressAge(float $progressDays): string
+    {
+        $years = (int) floor($progressDays);
+        $remainingDays = $progressDays - $years;
+        
+        $months = (int) floor($remainingDays * 12);
+        $remainingMonths = ($remainingDays * 12) - $months;
+        
+        $days = (int) round($remainingMonths * 30);
+        
+        $parts = [];
+        $parts[] = $years . ' jaar';
+        
+        if ($months > 0 || $days > 0) {
+            $parts[] = $months . ' maand' . ($months !== 1 ? 'en' : '');
+        }
+        
+        if ($days > 0) {
+            $parts[] = $days . ' dag' . ($days !== 1 ? 'en' : '');
+        }
+        
+        return implode(', ', $parts);
+    }
 }
