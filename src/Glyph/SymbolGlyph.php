@@ -279,6 +279,7 @@ class SymbolGlyph
             10 => self::PLANET_NORTH_NODE,
             11 => self::PLANET_ASCENDANT,
             12 => self::PLANET_MC,
+            14 => self::PLANET_PARS_FORTUNA,
         ];
         $code = $mapping[$index] ?? null;
         if ($code === null || !isset(self::$planets[$code])) {
