@@ -27,53 +27,14 @@
     margin-bottom: 0.625rem;
 }
 
-@media (max-width: 900px) {
-    .antiscia-container {
-        flex-wrap: wrap;
-    }
-    
-    .card--antiscia-points,
-    .card--antiscia-aspects {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
-}
-
-.text-right {
-    text-align: right;
-}
-
-.antiscia-container {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 0.5rem;
-    width: 100%;
-}
-
-.card--antiscia-points {
-    flex: 0 0 35%;
-    max-width: 35%;
-}
-
-.card--antiscia-aspects {
-    flex: 0 0 65%;
-    max-width: 65%;
-}
-
-.card--antiscia-points .card,
-.card--antiscia-aspects .card {
-    padding: 0.5rem 0.625rem;
-    margin-bottom: 0;
-}
-
-.card--antiscia-points h4,
-.card--antiscia-aspects h4 {
-    font-size: 0.95rem;
-    margin-bottom: 0.625rem;
-}
-
+.card--antiscia-points table,
 .card--antiscia-aspects table {
     width: 100%;
+    border-collapse: collapse;
+}
+
+.card--antiscia-points td {
+    padding: 0.125rem 0.25rem;
 }
 
 .card--antiscia-aspects td {
@@ -84,46 +45,18 @@
 .card--antiscia-aspects td:nth-child(1),
 .card--antiscia-aspects td:nth-child(3) {
     white-space: nowrap;
+    width: 1%;
 }
 
 .card--antiscia-aspects td:nth-child(2) {
     text-align: center;
+    width: 1%;
 }
 
 .card--antiscia-aspects td:nth-child(4) {
     text-align: right;
     white-space: nowrap;
-}
-
-.card--antiscia-aspects th:nth-child(4),
-.card--antiscia-aspects td:nth-child(4) {
-    text-align: right;
-    white-space: nowrap;
-    width: auto;
-}
-
-.card--antiscia-points table,
-.card--antiscia-aspects table {
-    width: 100%;
-}
-
-.card--antiscia-points td,
-.card--antiscia-aspects td {
-    padding: 0.125rem 0.25rem;
-}
-
-.card--antiscia-aspects td:nth-child(1),
-.card--antiscia-aspects td:nth-child(3) {
-    white-space: nowrap;
-}
-
-.card--antiscia-aspects td:nth-child(2) {
-    text-align: center;
-}
-
-.card--antiscia-aspects td:nth-child(4) {
-    text-align: right;
-    white-space: nowrap;
+    width: 1%;
 }
 
 .card--antiscia-points tr:hover td,
@@ -131,7 +64,7 @@
     background-color: var(--bg-hover, #e0e0e0);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
     .antiscia-container {
         flex-wrap: wrap;
     }
