@@ -745,8 +745,8 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                             <?php endif; ?>
                                         </td>
                                     </tr>
-                                <?php endforeach; ?>
-                            </table>
+                            <?php endforeach; ?>
+                        </table>
                         </div>
 
                         <div class="card card--houses">
@@ -788,6 +788,12 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                 </tr>
                             <?php endforeach; ?>
                         </table>
+                        <div class="aspecten-toggle-container">
+                            <label class="aspecten-toggle-label">
+                                <input type="checkbox" id="toggle-dominant-aspects" onchange="toggleDominantAspects()">
+                                Toon de dominante aspecten:
+                            </label>
+                        </div>
                     </div>
                 </section>
 
@@ -836,7 +842,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                 
                 <?php if (isset($_SESSION['horoscope']['core'])): ?>
                 <section id="tab-progressions-list" class="tab-content<?= $currentTab !== 'progressions-list' ? ' tab-content--hidden' : '' ?>">
-                    <div class="card card--large">
+                    <div class="card card--large card--progression-events">
                         <h2>Progressie Events</h2>
 <?php
                         // Haal huidige selecties op
@@ -861,23 +867,35 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                         $allRadix = count($selRadix) === 13;
                         ?>
                         <form method="POST" class="progression-form">
-                            <div class="progression-column" style="min-width: 280px;">
+                            <div class="progression-column progression-column--tijdvak">
                                 <h4>Tijdvak</h4>
                                 <div class="progression-datepicker">
-                                    <label>Start: <input type="date" name="prog_start_date" id="prog_start_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['start_date'] ?? date('Y-01-01')) ?>"></label>
-                                    <label>Eind: <input type="date" name="prog_end_date" id="prog_end_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['end_date'] ?? date('Y-12-31')) ?>"></label>
+                                    <label>Start:<br><input type="date" name="prog_start_date" id="prog_start_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['start_date'] ?? date('Y-01-01')) ?>"></label>
+                                    <label>Eind:<br><input type="date" name="prog_end_date" id="prog_end_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['end_date'] ?? date('Y-12-31')) ?>"></label>
                                 </div>
-                                <div class="progression-quickdates">
-                                    <label><input type="checkbox" id="quick-calyear" onchange="quickCalendarYear()"> Kalenderjaar</label>
-                                    <label><input type="checkbox" id="quick-twoyear" onchange="quickTwoYears()"> Twee jaar</label>
+                                <div class="section-divider"></div>
+                                <div class="progression-sectie">
+                                    <h5>Selectie</h5>
+                                    <div class="progression-quickdates">
+                                        <button type="button" id="quick-calyear" onclick="quickCalendarYear()" class="progression-quickbtn">📅 Kalenderjaar</button>
+                                        <button type="button" id="quick-twoyear" onclick="quickTwoYears()" class="progression-quickbtn">📅 Twee jaar</button>
+                                    </div>
                                 </div>
-                                <div class="progression-options">
-                                    <label><input type="checkbox" name="include_house_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_house_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_house_ingress'] ? 'checked' : '' ?>> Huis ingress</label>
-                                    <label><input type="checkbox" name="include_sign_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_sign_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_sign_ingress'] ? 'checked' : '' ?>> Teken ingress</label>
+                                <div class="section-divider"></div>
+                                <div class="progression-sectie">
+                                    <h5>Opties</h5>
+                                    <div class="progression-options">
+                                        <label class="progression-checkbox-label">
+                                            <input type="checkbox" name="include_house_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_house_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_house_ingress'] ? 'checked' : '' ?>> Huis ingress
+                                        </label>
+                                        <label class="progression-checkbox-label">
+                                            <input type="checkbox" name="include_sign_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_sign_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_sign_ingress'] ? 'checked' : '' ?>> Teken ingress
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <div class="progression-column">
+                            <div class="progression-column progression-column--planets">
                                 <h4>Progressief</h4>
                                 <label class="toggle-all">
                                     <input type="checkbox" id="toggle-progressive" onchange="toggleAllGroup('progressive_planet[]', this)" <?= $allProgressive ? 'checked' : '' ?>>
@@ -891,7 +909,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                 <?php endfor; ?>
                             </div>
                             
-                            <div class="progression-column">
+                            <div class="progression-column progression-column--aspects">
                                 <h4>Aspecten</h4>
                                 <label class="toggle-all">
                                     <input type="checkbox" id="toggle-aspects" onchange="toggleAllGroup('aspect_type[]', this)" <?= $allAspects ? 'checked' : '' ?>>
@@ -907,7 +925,7 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                 <?php endforeach; ?>
                             </div>
                             
-                            <div class="progression-column">
+                            <div class="progression-column progression-column--radix">
                                 <h4>Radix</h4>
                                 <label class="toggle-all">
                                     <input type="checkbox" id="toggle-radix" onchange="toggleAllGroup('radix_target[]', this)" <?= $allRadix ? 'checked' : '' ?>>
@@ -932,22 +950,22 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                         <span class="astro-glyph"><?= $planet['glyph'] ?></span>
                                     </label>
                                 <?php endforeach; ?>
-                                <hr style="margin: 0.5rem 0; border-color: #ddd;">
+                                <div class="section-divider"></div>
                                 <?php 
                                 $radixAxisLabels = [
-                                    10 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(10), 'name' => 'Noordknoop'],
-                                    11 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(11), 'name' => 'Ascendant'],
-                                    12 => ['glyph' => SymbolGlyph::getPlanetGlyphByIndex(12), 'name' => 'MC'],
+                                    10 => SymbolGlyph::getPlanetGlyphByIndex(10),
+                                    11 => SymbolGlyph::getPlanetGlyphByIndex(11),
+                                    12 => SymbolGlyph::getPlanetGlyphByIndex(12),
                                 ];
-                                foreach ($radixAxisLabels as $idx => $axis): ?>
+                                foreach ($radixAxisLabels as $idx => $glyph): ?>
                                     <label>
                                         <input type="checkbox" name="radix_target[]" value="<?= $idx ?>" onchange="checkToggleState('radix_target[]', 'toggle-radix', 13)" <?= in_array($idx, $selRadix) ? 'checked' : '' ?>>
-                                        <span class="astro-glyph"><?= $axis['glyph'] ?></span> <?= $axis['name'] ?>
+                                        <span class="astro-glyph"><?= $glyph ?></span>
                                     </label>
                                 <?php endforeach; ?>
                             </div>
                             
-                            <button type="submit" name="calculate_progressions" class="btn btn--primary" style="width: 100%; margin-top: 0.5rem;">Bereken Progressie Events</button>
+                            <button type="submit" name="calculate_progressions" class="progression-submit">Bereken Progressie Events</button>
                         </form>
                         
                         <?php if (isset($error)): ?>
@@ -977,7 +995,15 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                         <td><?= $event['direction'] ?></td>
                                         <td><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($event['progressive_index']) ?></span></td>
                                         <td><span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($event['aspect']) ?></span></td>
-                                        <td><?= $event['event_type'] === 'rd_transition' ? htmlspecialchars($event['radix_target']) : ($event['event_type'] === 'sign_ingress' ? htmlspecialchars($event['radix_target']) : ($event['event_type'] === 'house_ingress' ? htmlspecialchars($event['radix_target']) : '<span class="astro-glyph">' . SymbolGlyph::getGlyphForTarget($event['radix_index']) . '</span>')) ?></td>
+                                        <td>
+                                            <?php if ($event['event_type'] === 'rd_transition'): ?>
+                                                <?= htmlspecialchars($event['radix_target']) ?>
+                                            <?php else: ?>
+                                                <span class="astro-glyph">
+                                                    <?= SymbolGlyph::getGlyphForTarget($event['radix_index']) ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?= Formatter::formatLongitudeWithGlyph($event['progressive_position']) ?></td>
                                         <td><?= Formatter::formatLongitudeWithGlyph($event['radix_position']) ?></td>
                                     </tr>

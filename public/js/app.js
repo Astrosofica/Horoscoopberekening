@@ -72,6 +72,18 @@ class TijdApp {
             }
         }
         
+        // Lazy loading: reload bij eerste bezoek aan progressies tab
+        if (tabId === 'progressions' && pushState) {
+            const url = new URL(window.location.href);
+            const currentTab = url.searchParams.get('tab');
+            
+            if (currentTab !== 'progressions') {
+                url.searchParams.set('tab', tabId);
+                window.location.href = url.toString();
+                return;
+            }
+        }
+        
         document.querySelectorAll('.tab-content').forEach(el => {
             el.classList.add('tab-content--hidden');
         });
@@ -158,8 +170,47 @@ function quickCalendarYear() {
     const year = new Date().getFullYear();
     document.getElementById('prog_start_date').value = `${year}-01-01`;
     document.getElementById('prog_end_date').value = `${year}-12-31`;
-    document.getElementById('quick-twoyear').checked = false;
 }
+
+function quickTwoYears() {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    
+    const startDate = new Date(now);
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    
+    const endDate = new Date(now);
+    endDate.setFullYear(endDate.getFullYear() + 1);
+    
+    document.getElementById('prog_start_date').value = 
+        `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`;
+    document.getElementById('prog_end_date').value = 
+        `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}`;
+}
+
+function toggleDominantAspects() {
+    const checkbox = document.getElementById('toggle-dominant-aspects');
+    const aspectTable = document.querySelector('#tab-aspects table');
+    
+    if (checkbox.checked) {
+        aspectTable.classList.add('table--dominant-highlight');
+    } else {
+        aspectTable.classList.remove('table--dominant-highlight');
+    }
+    
+    localStorage.setItem('showDominantAspects', checkbox.checked);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem('showDominantAspects');
+    if (saved === 'true') {
+        const checkbox = document.getElementById('toggle-dominant-aspects');
+        if (checkbox) {
+            checkbox.checked = true;
+            toggleDominantAspects();
+        }
+    }
+});
 
 function quickTwoYears() {
     const now = new Date();
