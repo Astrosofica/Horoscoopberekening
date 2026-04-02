@@ -1,17 +1,24 @@
 .antiscia-container {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 1rem;
+    width: 100%;
 }
 
 .card--antiscia-points {
-    flex: 1 1 40%;
-    min-width: 200px;
+    flex: 0 0 40%;
+    max-width: 40%;
 }
 
 .card--antiscia-aspects {
-    flex: 1 1 60%;
-    min-width: 300px;
+    flex: 0 0 60%;
+    max-width: 60%;
+}
+
+.card--antiscia-points .card,
+.card--antiscia-aspects .card {
+    padding: 1rem;
+    margin-bottom: 0;
 }
 
 .text-right {
@@ -39,8 +46,13 @@
 }
 
 @media (max-width: 768px) {
+    .antiscia-container {
+        flex-wrap: wrap;
+    }
+    
     .card--antiscia-points,
     .card--antiscia-aspects {
-        flex: 1 1 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
     }
 }

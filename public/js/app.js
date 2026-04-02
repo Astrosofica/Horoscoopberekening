@@ -84,6 +84,18 @@ class TijdApp {
             }
         }
         
+        // Lazy loading: reload bij eerste bezoek aan antiscia tab
+        if (tabId === 'antiscia' && pushState) {
+            const url = new URL(window.location.href);
+            const currentTab = url.searchParams.get('tab');
+            
+            if (currentTab !== 'antiscia') {
+                url.searchParams.set('tab', tabId);
+                window.location.href = url.toString();
+                return;
+            }
+        }
+        
         document.querySelectorAll('.tab-content').forEach(el => {
             el.classList.add('tab-content--hidden');
         });
