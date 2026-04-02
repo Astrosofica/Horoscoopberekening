@@ -54,10 +54,6 @@
     white-space: nowrap;
 }
 
-.antiscia-column tr:nth-child(even) {
-    background-color: var(--bg-card-alt, #f9f9f9);
-}
-
 .antiscia-column tr:hover td {
     background-color: var(--bg-hover, #e0e0e0);
 }
