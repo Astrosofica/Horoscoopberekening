@@ -12,7 +12,7 @@ $resultItems = [
     'aspects' => 'Aspecten',
     'progressions' => 'Progressies',
     'progressions-list' => 'Progressie Events',
-    'antiscia' => 'Spiegelpunten (Jan de Jong)',
+    'antiscia' => 'Spiegelpunten',
 ];
 
 $futureItems = [
