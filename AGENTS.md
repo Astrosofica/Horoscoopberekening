@@ -473,4 +473,295 @@ Deze aanpak had ons ~2 uur kunnen besparen. Gebruik dit bij elk toekomstig probl
 
 ## Laatst Bijgewerkt
 
-2026-04-01 - Na progression events module implementatie en uitgebreide debugging (tab visibility, session marker volgorde, POST/GET flow)
+2026-04-02 - Na progression events UI optimalisaties (compact form, lazy loading fix, glyphs, toggle voor dominante aspecten, responsive CSS fixes)
+
+---
+
+## DEEL 5: LESSON LEARNED - PROGRESSIONS UI OPTIMALISATIES (2026-04-02)
+
+*Deze sectie documenteert UI/UX lessen van de progression events module voor toekomstige modules (transits, midpunten, etc.).*
+
+### Overzicht
+
+Na de werkende implementatie (2026-04-01) volgde een UI optimalisatie sessie met de volgende verbeteringen:
+1. Lazy loading fix voor progressies tab
+2. Formulier compacter gemaakt (4 kolommen naast elkaar)
+3. Quick date knoppen i.p.v. checkboxes
+4. Glyphs voor sign/house ingress (♈, ♉, H1, H2)
+5. Toggle voor dominante aspecten
+6. Responsive CSS fixes
+
+### Wat Ging Goed ✅
+
+#### 1. Systematische Probleemanalyse
+- **Patroon herkend:** Lazy loading issue identiek aan aspecten tab
+- **Fix:** Zelfde patroon gekopieerd → werkte direct
+
+**Les voor Transits:**
+> Gebruik dit lazy loading pattern in `app.js`:
+> ```javascript
+> if (tabId === 'transits' && pushState) {
+>     const url = new URL(window.location.href);
+>     const currentTab = url.searchParams.get('tab');
+>     if (currentTab !== 'transits') {
+>         url.searchParams.set('tab', tabId);
+>         window.location.href = url.toString();
+>         return;
+>     }
+> }
+> ```
+
+#### 2. Iteratieve Verbeteringen
+- **Kleine stapjes:** Eén optimalisatie per keer
+- **Direct testen:** Na elke wijziging getest
+- **User feedback:** Regelmatig gevraagd of resultaat voldeed
+
+**Les voor Transits:**
+> - Breek grote taken in kleine, testbare eenheden
+> - Test na elke wijziging voordat je verder gaat
+> - Vraag om feedback tussendoor, niet pas aan het einde
+
+#### 3. Bestaande Architectuur Gevolgd
+- **Glyph system:** Hergebruikt (`SymbolGlyph::getGlyphForTarget()`)
+- **CSS patronen:** Bestaande class naming gevolgd
+- **Session structuur:** Lazy loading pattern gevolgd
+
+**Les voor Transits:**
+> - Zoek eerst naar bestaande classes/methods
+> - Volg bestaande naming conventions (`.transits-*`)
+> - Kijk naar session caching voor progressies → zelfde pattern
+
+---
+
+### Problemen en Oplossingen 🔧
+
+#### Probleem 1: Formulier Past Niet Naast Elkaar
+**Symptoom:** 4 kolommen wrapten naar 4×1 i.p.v. 2×2 bij 768px
+
+**Root Causes (meerdere issues!):**
+1. **Gap mismatch:** `calc(50% - 0.75rem)` i.p.v. `calc(50% - 0.25rem)`
+2. **Card padding conflict:** `.card--large` (2rem) vs `.card--progression-events` (1.25rem)
+3. **CSS specificiteit:** `.card--large` won van `.card--progression-events`
+
+**Fixes:**
+```css
+/* 1. Gap formule gecorrigeerd */
+@media (max-width: 768px) {
+    .progression-column {
+        flex: 1 1 calc(50% - 0.25rem); /* Niet 0.75rem! */
+    }
+}
+
+/* 2. Specificiteit verhoogd */
+.card.card--large.card--progression-events {
+    padding: 1.25rem !important;
+}
+```
+
+**Les voor Transits:**
+> ⚠️ **CSS Valkuilen:**
+> - Gap formules: Gebruik `calc(50% - (gap / 2))` niet `calc(50% - gap)`
+> - Card padding: Check of meerdere classes conflicteren
+> - Specificiteit: Gebruik `.card.card--large.card--transits`
+> - Test responsive bij meerdere breakpoints (900px, 768px, 600px)
+
+---
+
+#### Probleem 2: Toggle Verkeerde Sectie
+**Symptoom:** Toggle verscheen bij planeten/huizen i.p.v. aspecten
+
+**Root Cause:** Edit ging over meerdere secties heen - verkeerde closing tags
+
+**Les voor Transits:**
+> ⚠️ **HTML Editing Risico's:**
+> - Lees volledige sectie voordat je edit
+> - Check opening/closing tags van omringende elementen
+> - Gebruik unieke class names voor containers
+> - Test na edit of andere secties nog intact zijn
+
+---
+
+#### Probleem 3: Huizen Tabel Verdwijnt
+**Symptoom:** `card--houses` volledig verwijderd uit template
+
+**Root Cause:** Te grote edit in één keer
+
+**Les voor Transits:**
+> ⚠️ **Template Editing:**
+> - Maak kleine, gerichte edits (maximaal 20-30 regels)
+> - Check na edit of alle secties nog bestaan
+> - Gebruik `git diff` om per ongeluk verwijderde code te zien
+> - Backup belangrijke secties voordat je grote refactors doet
+
+---
+
+#### Probleem 4: CSS Background Kleur Werkt Niet
+**Symptoom:** Toggle veranderde hover kleur, maar niet row achtergrond
+
+**Root Cause:**
+```css
+/* Werkt niet goed in browsers - background op <tr> wordt genegeerd */
+.table--dominant-highlight .row--dominant {
+    background-color: #ffebee;
+}
+```
+
+**Fix:**
+```css
+/* Moet op <td> elementen */
+.card--aspects .table--dominant-highlight .row--dominant td {
+    background-color: #ffcdd2 !important;
+}
+```
+
+**Les voor Transits:**
+> ⚠️ **CSS Browser Quirks:**
+> - `background-color` op `<tr>` werkt niet consistent
+> - Altijd op `<td>` elementen toepassen
+> - Verhoog specificiteit met `.card--* .table--* .row--* td`
+> - Gebruik `!important` als laatste redmiddel (wel documenteren!)
+
+---
+
+### Patterns Voor Toekomstige Modules 📝
+
+#### 1. Session Structuur Template
+
+```php
+// POST handler
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_module'])) {
+    // ... validatie ...
+    
+    $calculator = new ModuleCalculator();
+    $results = $calculator->calculate(/* ... */);
+    
+    $_SESSION['horoscope']['module'] = [
+        'input' => [ /* ... */ ],
+        'results' => $results,
+    ];
+    
+    // Redirect om browser resubmit te voorkomen
+    header('Location: ' . $_SERVER['REQUEST_URI']);
+    exit;
+}
+```
+
+#### 2. Lazy Loading Template
+
+```php
+// Tab switch logic
+case 'module':
+    if (isset($_SESSION['horoscope']['core'])) {
+        if (!isset($_SESSION['horoscope']['module'])) {
+            // Bereken voor vandaag
+            $_SESSION['horoscope']['module'] = $calculator->calculateForToday();
+        }
+        $result['module'] = $_SESSION['horoscope']['module'];
+        $currentTab = 'module';
+    }
+    break;
+```
+
+#### 3. UI Component Template
+
+```php
+<!-- Formulier met compacte kolommen -->
+<div class="module-form">
+    <div class="module-column module-column--tijdvak">
+        <h4>Tijdvak</h4>
+        <!-- ... -->
+    </div>
+    <!-- Meer kolommen -->
+    <button type="submit" class="module-submit">Bereken</button>
+</div>
+
+<!-- Resultaten tabel met glyphs -->
+<?php if (isset($results) && count($results) > 0): ?>
+<table>
+    <?php foreach ($results as $event): ?>
+    <tr>
+        <td><span class="astro-glyph"><?= SymbolGlyph::getGlyphForTarget($event['index']) ?></span></td>
+        <!-- ... -->
+    </tr>
+    <?php endforeach; ?>
+</table>
+<?php endif; ?>
+```
+
+---
+
+### Checklist Voor Transits ✅
+
+#### Voor Implementatie
+- [ ] Referentie code verzamelen (Svelte + PHP)
+- [ ] TransitCalculator class aanmaken (of bestaat die al?)
+- [ ] Session structuur definiëren (input + results)
+- [ ] UI design schetsen (welke kolommen? welke filters?)
+
+#### Tijdens Implementatie
+- [ ] POST handler met redirect pattern
+- [ ] Lazy loading in `app.js` en `index.php`
+- [ ] Session caching voor results
+- [ ] Formulier met compacte kolommen (4 naast elkaar)
+- [ ] Resultaten tabel met glyphs (niet lange tekst)
+- [ ] Toggle voor belangrijke transits (optioneel)
+
+#### Na Implementatie
+- [ ] Test bij verschillende viewport breedtes (>900px, 768px, 600px)
+- [ ] Test page reload (blijft state behouden?)
+- [ ] Test browser back/forward navigation
+- [ ] Test met grote datasets (100+ transits)
+- [ ] PHP syntax check (`php -l`)
+- [ ] Git commit met duidelijke beschrijving
+
+---
+
+### Valkuilen Om Te Vermijden ⚠️
+
+| Valkuil | Oplossing |
+|---------|-----------|
+| **Te grote edits in één keer** | Maximaal 20-30 regels per edit, direct testen |
+| **CSS specificiteit onderschatten** | Gebruik `.card.card--large.card--transits` patroon |
+| **Gap formules verkeerd** | `calc(50% - (gap / 2))` testen in browser |
+| **Background op `<tr>`** | Altijd op `<td>` toepassen |
+| **Verkeerde sectie editten** | Check opening/closing tags |
+| **Geen responsive test** | Test bij 3 breakpoints voordat je "done" claimt |
+| **Session state niet persistent** | Gebruik POST-Redirect-GET + session caching |
+
+---
+
+### Golden Rules 🏆
+
+1. **Test na elke wijziging** - Niet 5 edits achter elkaar zonder test
+2. **Volg bestaande patronen** - Copy-paste van progressies is beter dan "nieuw en beter"
+3. **Kleine stapjes** - 10 kleine commits is beter dan 1 grote
+4. **Documenteer while you go** - Schrijf lessons live op
+5. **User feedback vroeg** - Vraag "past dit?" voordat je verder optimaliseert
+6. **CSS eerst in browser** - Gebruik dev tools om kleuren/selectors te testen
+7. **Git commit bij milestones** - Elke werkende feature = commit
+
+---
+
+### Verwachtingen Voor Transits Module
+
+**Wat hetzelfde is als progressions:**
+- Session structuur (input + results)
+- Lazy loading pattern
+- Formulier met 4 kolommen
+- Glyphs voor tekens/huizen
+- Responsive CSS breakpoints
+
+**Wat anders kan zijn:**
+- Complexere berekeningen (meer planeten/aspecten?)
+- Meer data → performance overwegingen
+- Andere tijdvakken (transits kunnen jaren beslaan)
+
+**Grootste risico's:**
+1. Te complexe berekeningen in één keer
+2. Performance issues bij grote datasets
+3. Verkeerde verwachtingen over welke transits getoond moeten worden
+
+**Mitigatie:**
+- Begin met simpele implementatie (alleen conjuncties)
+- Test met realistische datasets (1000+ events)
+- Vraag vroeg om feedback over welke transits relevant zijn

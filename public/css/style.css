@@ -17,6 +17,7 @@
 @import url('_wheel.css');
 @import url('_utilities.css');
 @import url('_progression.css');
+@import url('_antiscia.css');
 
 .tab-content--hidden {
     display: none !important;

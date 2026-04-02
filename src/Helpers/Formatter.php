@@ -299,4 +299,21 @@ class Formatter
             'time' => $timeString
         ];
     }
+    
+    /**
+     * Formatteer een orb in graden naar DMS-notatie
+     * 
+     * @param float $orb Orb in decimale graden
+     * @return string Formaat: "1° 23' 45\""
+     */
+    public static function formatOrb(float $orb): string
+    {
+        $orb = abs($orb);
+        $degree = (int) floor($orb);
+        $rest = ($orb - $degree) * 60;
+        $minute = (int) floor($rest);
+        $second = (int) floor(($rest - $minute) * 60);
+        
+        return sprintf("%d°%02d'%02d\"", $degree, $minute, $second);
+    }
 }

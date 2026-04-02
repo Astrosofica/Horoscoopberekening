@@ -12,12 +12,12 @@ $resultItems = [
     'aspects' => 'Aspecten',
     'progressions' => 'Progressies',
     'progressions-list' => 'Progressie Events',
+    'antiscia' => 'Spiegelpunten (Jan de Jong)',
 ];
 
 $futureItems = [
     'transits' => 'Transits',
     'midpoints' => 'Midpunten',
-    'antiscia' => 'Spiegelpunten',
 ];
 ?>
 <button class="mobile-menu-toggle" aria-label="Menu openen">&#9776;</button>

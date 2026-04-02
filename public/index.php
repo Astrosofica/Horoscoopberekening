@@ -541,6 +541,20 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                 }
                 $currentTab = 'progressions-list';
                 break;
+                
+            case 'antiscia':
+                // Spiegelpunten (Jan de Jong) - alleen berekenen als core data bestaat
+                if (isset($_SESSION['horoscope']['core'])) {
+                    if (!isset($_SESSION['horoscope']['antiscia']) || empty($_SESSION['horoscope']['antiscia'])) {
+                        $mirrorCalculator = new \Tijd\Calculation\MirrorPointCalculator();
+                        $_SESSION['horoscope']['antiscia'] = $mirrorCalculator->calculate(
+                            $_SESSION['horoscope']['core']
+                        );
+                    }
+                    $result['antiscia'] = $_SESSION['horoscope']['antiscia'];
+                    $currentTab = 'antiscia';
+                }
+                break;
         }
     }
 }
@@ -1016,6 +1030,66 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                         <p>Geen events gevonden in de opgegeven periode.</p>
                     </div>
                     <?php endif; ?>
+                </section>
+                <?php endif; ?>
+                
+                <?php if (isset($result['antiscia'])): ?>
+                <section id="tab-antiscia" class="tab-content tab-content--hidden">
+                    <div class="card card--large">
+                        <h4>Spiegelpunten (Jan de Jong)</h4>
+                        
+                        <div class="antiscia-container">
+                            <div class="card card--antiscia-points">
+                                <table>
+                                    <tr>
+                                        <th colspan="2">Spiegelpunten</th>
+                                    </tr>
+                                    <?php foreach ($result['antiscia']['mirrorPoints'] as $point): ?>
+                                        <tr>
+                                            <td>
+                                                <span class="astro-glyph">
+                                                    <?= SymbolGlyph::getPlanetGlyphByIndex($point['name']) ?>
+                                                </span> i
+                                            </td>
+                                            <td>
+                                                <?= Formatter::formatLongitudeWithGlyph($point['pos']) ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </table>
+                            </div>
+                            
+                            <div class="card card--antiscia-aspects">
+                                <table>
+                                    <tr>
+                                        <th colspan="4">Aspecten met spiegelpunten</th>
+                                    </tr>
+                                    <?php foreach ($result['antiscia']['aspects'] as $aspect): ?>
+                                        <tr>
+                                            <td>
+                                                <span class="astro-glyph">
+                                                    <?= SymbolGlyph::getPlanetGlyphByIndex($aspect['name1']) ?>
+                                                </span> i
+                                            </td>
+                                            <td>
+                                                <span class="astro-glyph">
+                                                    <?= SymbolGlyph::getAspectGlyph($aspect['degree']) ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="astro-glyph">
+                                                    <?= SymbolGlyph::getPlanetGlyphByIndex($aspect['name2']) ?>
+                                                </span> r
+                                            </td>
+                                            <td class="text-right">
+                                                orb: <?= Formatter::formatOrb($aspect['orb']) ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </section>
                 <?php endif; ?>
             <?php endif; ?>

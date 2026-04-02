@@ -1,0 +1,46 @@
+.antiscia-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.card--antiscia-points {
+    flex: 1 1 40%;
+    min-width: 200px;
+}
+
+.card--antiscia-aspects {
+    flex: 1 1 60%;
+    min-width: 300px;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.card--antiscia-points table,
+.card--antiscia-aspects table {
+    width: 100%;
+}
+
+.card--antiscia-points td,
+.card--antiscia-aspects td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.card--antiscia-points tr:nth-child(even),
+.card--antiscia-aspects tr:nth-child(even) {
+    background-color: var(--bg-card-alt, #f9f9f9);
+}
+
+.card--antiscia-points tr:hover td,
+.card--antiscia-aspects tr:hover td {
+    background-color: var(--bg-hover, #e0e0e0);
+}
+
+@media (max-width: 768px) {
+    .card--antiscia-points,
+    .card--antiscia-aspects {
+        flex: 1 1 100%;
+    }
+}
