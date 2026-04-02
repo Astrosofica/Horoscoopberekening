@@ -3,22 +3,24 @@
     flex-wrap: nowrap;
     gap: 0.5rem;
     width: 100%;
+    overflow-x: auto;
 }
 
 .card--antiscia-points {
     flex: 0 0 35%;
-    max-width: 35%;
+    min-width: 200px;
 }
 
 .card--antiscia-aspects {
     flex: 0 0 65%;
-    max-width: 65%;
+    min-width: 300px;
 }
 
 .card--antiscia-points .card,
 .card--antiscia-aspects .card {
     padding: 0.5rem 0.625rem;
     margin-bottom: 0;
+    overflow-x: auto;
 }
 
 .card--antiscia-points h4,
@@ -31,6 +33,7 @@
 .card--antiscia-aspects table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .card--antiscia-points td {
@@ -45,18 +48,15 @@
 .card--antiscia-aspects td:nth-child(1),
 .card--antiscia-aspects td:nth-child(3) {
     white-space: nowrap;
-    width: 1%;
 }
 
 .card--antiscia-aspects td:nth-child(2) {
     text-align: center;
-    width: 1%;
 }
 
 .card--antiscia-aspects td:nth-child(4) {
     text-align: right;
     white-space: nowrap;
-    width: 1%;
 }
 
 .card--antiscia-points tr:hover td,
