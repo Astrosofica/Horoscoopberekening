@@ -18,6 +18,7 @@
 @import url('_utilities.css');
 @import url('_progression.css');
 @import url('_antiscia.css');
+@import url('_midpoints.css');
 
 .tab-content--hidden {
     display: none !important;

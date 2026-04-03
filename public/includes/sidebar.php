@@ -13,11 +13,11 @@ $resultItems = [
     'progressions' => 'Progressies',
     'progressions-list' => 'Progressie Events',
     'antiscia' => 'Spiegelpunten',
+    'midpoints-planet' => 'Midpunten',
 ];
 
 $futureItems = [
     'transits' => 'Transits',
-    'midpoints' => 'Midpunten',
 ];
 ?>
 <button class="mobile-menu-toggle" aria-label="Menu openen">&#9776;</button>

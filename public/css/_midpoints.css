@@ -1,0 +1,74 @@
+/* Override card--large padding voor midpunten */
+.card.card--large.card--midpoints {
+    padding: 1rem !important;
+}
+
+.card.card--large.card--midpoints h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.midpoints-container {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.midpoints-column {
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+
+.midpoints-column--left,
+.midpoints-column--right {
+    flex: 1;
+    min-width: 250px;
+}
+
+.midpoints-column table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.midpoints-column td {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+.midpoints-column td:nth-child(1) {
+    white-space: nowrap;
+}
+
+.midpoints-column td:nth-child(2) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.midpoints-column tr:hover td {
+    background-color: var(--bg-hover, #e0e0e0);
+}
+
+/* Lege rij na elke planeetgroep */
+.midpoints-row--separator td {
+    height: 0.75rem;
+    border-bottom: none;
+}
+
+@media (max-width: 900px) {
+    .midpoints-container {
+        flex-wrap: wrap;
+    }
+    
+    .midpoints-column--left,
+    .midpoints-column--right {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .card.card--large.card--midpoints {
+        padding: 0.75rem !important;
+    }
+}
