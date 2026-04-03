@@ -1004,4 +1004,222 @@ $wheelHash = substr(md5(json_encode([
 
 ## Laatst Bijgewerkt
 
-2026-04-02 - Na spiegelpunten (antiscia) module implementatie, wheel caching analyse, en progressies leeftijd formatter
+2026-04-03 - Na midpunten module (3 tabs: per planeet, per teken, boompjes), sidebar reorganisatie met submenu groups
+
+---
+
+## DEEL 7: LESSON LEARNED - MIDPUNTEN MODULE (2026-04-03)
+
+*Deze sectie documenteert lessen van de midpunten module implementatie.*
+
+### Het 360-0 Probleem (Aries/Pisces Boundary)
+
+**Probleem:** Midpuntberekening tussen Ram/Vissen overgang gaf foute waarden in originele reference code.
+
+**Root Cause:** Reference code (Svelte bestanden) had foutieve logica:
+```javascript
+// FOUTIEF - reference code
+if (graad > 180) {
+    graad = graad / 2 + pos1;  // ← FOUT: telt op bij verkeerde positie
+}
+```
+
+**Correcte formule (PHP):**
+```php
+private function calculateMidpoint(float $pos1, float $pos2): float
+{
+    $pos1 = fmod($pos1, 360);
+    $pos2 = fmod($pos2, 360);
+    if ($pos1 < 0) $pos1 += 360;
+    if ($pos2 < 0) $pos2 += 360;
+    
+    $diff = abs($pos1 - $pos2);
+    
+    if ($diff > 180) {
+        return fmod(($pos1 + $pos2) / 2 + 180, 360);  // Midpunt aan overkant
+    }
+    
+    return ($pos1 + $pos2) / 2;
+}
+```
+
+**Test case:** Ram 5° / Vissen 355° → moet Ram 0° zijn
+
+**Les:** 
+> ✅ **Reference code kritisch lezen** - Formules begrijpen, niet blind kopiëren
+> ✅ **Edge cases identificeren** - 360-0 overgangen expliciet testen
+> ✅ **User's historische data gebruiken** - Zij hadden de bug eerder gevonden
+
+---
+
+### Noordknoop Placeholder Bug
+
+**Probleem:** Noordknoop op 0.0 gezet als placeholder → foute aspecten in boompjes (0° Ram = foute conjuncties).
+
+**Root Cause:**
+```php
+// FOUT: placeholder waarde
+$positions[10] = 0.0;  // ← Noordknoop heeft échte positie!
+```
+
+**Fix:**
+```php
+// CORRECT: uit radix data halen
+$positions[10] = isset($radixData['planets']['NorthNode'])
+    ? (float) $radixData['planets']['NorthNode']['longitude']
+    : 0.0;
+```
+
+**Les:**
+> ⚠️ **Geen placeholders voor bestaande data** - Altijd uit session/radix halen
+> ⚠️ **Debug met echte data** - Noordknoop positie checken in debug output
+
+---
+
+### Boompjes Sortering (Iteratief Proces)
+
+**Drie iteraties nodig:**
+
+1. **Eerst:** Sorteren op absolute orb (kleinste boven) → `**` bij eerste
+2. **Dan:** Sorteren van negatief naar positief → `**` bij kleinste absolute
+3. **Uiteindelijk:** Sorteren van positief naar negatief (zoals reference)
+
+**Reference code analyse:**
+```javascript
+// Apart sorteren: signed orb én absolute orb
+mp_o1.sort((a, b) => a - b);  // Signed: -1, -0.5, +0.5, +1
+mp_o2.sort((a, b) => a - b);  // Absolute: 0.5, 0.5, 1, 1
+
+// Tonen van grootste naar kleinste (meest exact onder)
+for (valloop = element; valloop >= 0; valloop--)
+```
+
+**Definitieve PHP implementatie:**
+```php
+// Sorteer van positief naar negatief
+usort($foundAspects, function($a, $b) {
+    return $b['orb'] <=> $a['orb'];
+});
+
+// Vind kleinste absolute orb voor ** markering
+$exactIndex = array_search(min(array_map(fn($a) => abs($a['orb']), $foundAspects)), ...);
+```
+
+**Les:**
+> ✅ **Reference code volledig lezen** - Complexe sorteerlogica met 2 arrays
+> ✅ **Iteratief verfijnen** - Eerste versie was niet fout, maar kon beter
+> ✅ **User feedback** - Zij herkende de reference output beter
+
+---
+
+### Sidebar Submenu Pattern
+
+**Nieuw pattern voor gegroepeerde tabs:**
+
+```php
+// 1. Groep definiëren
+$midpointsGroup = [
+    'midpoints-planet' => 'per planeet',
+    'midpoints-sign' => 'per teken',
+    'midpoints-tree' => 'boompjes',
+];
+
+// 2. Template met header
+<div class="sidebar__section">
+    <div class="sidebar__section-title">Midpunten</div>
+    <?php foreach ($midpointsGroup as $id => $label): ?>
+        <a class="sidebar__item sidebar__item--indent">
+            <?= $label ?>
+        </a>
+    <?php endforeach; ?>
+</div>
+
+// 3. CSS voor inspringen + prefix
+.sidebar__item--indent {
+    font-size: 0.9em;
+}
+.sidebar__item--indent::before {
+    content: "—";
+    opacity: 0.6;
+    margin-right: 0.25rem;
+}
+```
+
+**Les:**
+> ✅ **Visuele hiërarchie** - Headers + inspringen voor sub-items
+> ✅ **CSS ::before pseudo-element** - Voor em-dash prefix zonder HTML clutter
+> ✅ **Herbruikbaar pattern** - Ook gebruikt voor Progressies groep
+
+---
+
+### Session Data Debugging
+
+**Probleem tijdens development:** Midpoints tab toonde "Geen data" ondats horoscoop geladen.
+
+**Debug aanpak:**
+```php
+// Debug script gemaakt om session te inspecteren
+echo "core exists: " . (isset($_SESSION['horoscope']['core']) ? 'YES' : 'NO');
+echo "midpoints exists: " . (isset($_SESSION['horoscope']['midpoints']) ? 'YES' : 'NO');
+
+// Composer autoloader vergeten!
+require_once __DIR__ . '/../vendor/autoload.php';
+```
+
+**Root cause:** 
+1. Composer autoloader niet meegenomen in debug script
+2. Index 10 (NorthNode) niet gevuld in `extractPlanetPositions()`
+3. Loop ging tot `TOTAL_POINTS` (13) maar array had alleen 0-9, 11-12
+
+**Les:**
+> ✅ **Debug scripts met bootstrap** - Altijd autoloader includen
+> ✅ **Array indices compleet** - Check alle indices (0-12) worden gevuld
+> ✅ **Composer dump-autoload** - Nieuwe classes registreren
+
+---
+
+### Valkuilen Om Te Vermijden ⚠️
+
+| Valkuil | Oplossing |
+|---------|-----------|
+| **Reference code blind kopiëren** | Formules begrijpen, 360-0 edge case testen |
+| **Placeholder waarden gebruiken** | Altijd uit session/radix data halen |
+| **Sorteervolgorde aannemen** | Reference output vergelijken, iteratief verfijnen |
+| **Composer autoloader vergeten** | `composer dump-autoload` na nieuwe classes |
+| **Array indices incompleet** | Check alle indices (0-12) worden gevuld |
+
+---
+
+### Golden Rules 🏆
+
+1. **Reference code ≠ implementatie** - Begrijp formules, pas aan aan architectuur
+2. **Test 360-0 edge cases** - Ram/Vissen overgang expliciet checken
+3. **Geen placeholder waarden** - Bestaande data uit session halen
+4. **Sortering iteratief verfijnen** - Eerste versie is zelden perfect
+5. **Debug met bootstrap** - Altijd autoloader + session meenemen
+6. **Composer autoload vergeten?** → `composer dump-autoload`
+7. **Sidebar groups** - Herbruikbaar pattern voor submenu's
+
+---
+
+### Checklist Voor Volgende Module (Transits?) ✅
+
+#### Voor Implementatie
+- [ ] Referentie code volledig lezen (formules + sortering)
+- [ ] 360-0 edge cases identificeren
+- [ ] Session structuur definiëren (input + results)
+- [ ] Sidebar group pattern overwegen (meerdere tabs?)
+
+#### Tijdens Implementatie
+- [ ] Composer autoload checken (`composer dump-autoload`)
+- [ ] Array indices compleet (0-12 voor alle planeten)
+- [ ] Sortering vergelijken met reference output
+- [ ] Lazy loading pattern volgen (zoals midpunten)
+
+#### Na Implementatie
+- [ ] Test met edge case horoscopen (Ram/Vissen overgangen)
+- [ ] Test alle planeten (ook NorthNode, Chiron, Pars Fortuna)
+- [ ] PHP syntax check (`php -l`)
+- [ ] Git commit met duidelijke beschrijving
+
+---

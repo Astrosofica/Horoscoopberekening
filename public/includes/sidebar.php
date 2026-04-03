@@ -10,11 +10,21 @@ $resultItems = [
     'horoscope' => 'Horoscoop',
     'planetshouses' => 'Astrodata',
     'aspects' => 'Aspecten',
-    'progressions' => 'Progressies',
-    'progressions-list' => 'Progressie Events',
+];
+
+$progressionsGroup = [
+    'progressions' => 'vandaag',
+    'progressions-list' => 'lijst',
+];
+
+$antisciaGroup = [
     'antiscia' => 'Spiegelpunten',
-    'midpoints-planet' => 'MP per planeet',
-    'midpoints-sign' => 'MP per teken',
+];
+
+$midpointsGroup = [
+    'midpoints-planet' => 'per planeet',
+    'midpoints-sign' => 'per teken',
+    'midpoints-tree' => 'boompjes',
 ];
 
 $futureItems = [
@@ -42,6 +52,38 @@ $futureItems = [
             <?php foreach ($resultItems as $id => $label): ?>
                 <a href="#<?= $id ?>" 
                    class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
+                   data-tab="<?= $id ?>">
+                    <?= $label ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="sidebar__section">
+            <div class="sidebar__section-title">Progressies</div>
+            <?php foreach ($progressionsGroup as $id => $label): ?>
+                <a href="#<?= $id ?>" 
+                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
+                   data-tab="<?= $id ?>">
+                    <?= $label ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="sidebar__section">
+            <?php foreach ($antisciaGroup as $id => $label): ?>
+                <a href="#<?= $id ?>" 
+                   class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
+                   data-tab="<?= $id ?>">
+                    <?= $label ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+        
+        <div class="sidebar__section">
+            <div class="sidebar__section-title">Midpunten</div>
+            <?php foreach ($midpointsGroup as $id => $label): ?>
+                <a href="#<?= $id ?>" 
+                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
                    data-tab="<?= $id ?>">
                     <?= $label ?>
                 </a>

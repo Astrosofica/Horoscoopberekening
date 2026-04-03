@@ -46,8 +46,10 @@ class MidpointCalculator
             }
         }
         
-        // Index 10: Skip (was NorthNode in originele code)
-        $positions[10] = 0.0;
+        // Index 10: NorthNode
+        $positions[10] = isset($radixData['planets']['NorthNode']) && isset($radixData['planets']['NorthNode']['longitude'])
+            ? (float) $radixData['planets']['NorthNode']['longitude']
+            : 0.0;
         
         // Index 11: Ascendant
         $positions[11] = (float) $radixData['ascmc']['ascendant']['longitude'];

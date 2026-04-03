@@ -78,6 +78,16 @@
     margin: var(--spacing-md) 0;
 }
 
+.sidebar__item--indent {
+    font-size: 0.9em;
+}
+
+.sidebar__item--indent::before {
+    content: "—";
+    opacity: 0.6;
+    margin-right: 0.25rem;
+}
+
 .mobile-menu-toggle {
     display: none;
     position: fixed;

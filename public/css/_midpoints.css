@@ -72,3 +72,18 @@
         padding: 0.75rem !important;
     }
 }
+
+/* Tree weergave */
+.midpoints-tree-planet-header td {
+    background-color: #F5F5F5;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.midpoints-tree-planet-header strong {
+    font-weight: 600;
+}
+
+.midpoints-tree-planet-header .astro-glyph {
+    margin-right: 0.25rem;
+}
