@@ -765,3 +765,243 @@ case 'module':
 - Begin met simpele implementatie (alleen conjuncties)
 - Test met realistische datasets (1000+ events)
 - Vraag vroeg om feedback over welke transits relevant zijn
+
+---
+
+## DEEL 6: LESSON LEARNED - SPIEGELPUNTEN (ANTISCIA) MODULE (2026-04-02)
+
+*Deze sectie documenteert lessen van de spiegelpunten module implementatie.*
+
+### Wat Ging Goed ✅
+
+#### 1. Systematic Debugging Skill Ingezet
+**Probleem:** Antiscia container brak uit card bounds, horizontale scroll bar.
+
+**Aanpak:** `systematic-debugging` skill gebruikt na meerdere gefaalde fixes.
+
+**Resultaat:** Root cause gevonden in 15 minuten (na 30+ minuten gefaald proberen).
+
+**Les:** 
+> ✅ **Bij CSS layout problemen:** Gebruik systematic-debugging skill EERDER
+> ✅ **Niet door gaan met "quick fixes"** na 2-3 mislukkingen
+> ✅ **Debug script maken** dat CSS regels en berekeningen toont
+
+---
+
+#### 2. Root Cause Gevonden: Nested Card Padding
+**Probleem:**
+```html
+<!-- FOUT: dubbele padding! -->
+<div class="card card--large">                    <!-- 2rem padding -->
+    <div class="card card--antiscia-points">     <!-- 0.5rem padding -->
+        <table>...</table>
+    </div>
+</div>
+```
+
+**Oplossing:**
+```html
+<!-- CORRECT: geen nested cards -->
+<div class="card card--large card--antiscia">    <!-- 1rem padding -->
+    <div class="antiscia-column--points">        <!-- 0.5rem padding -->
+        <table>...</table>
+    </div>
+</div>
+```
+
+**Les:**
+> ⚠️ **HTML structuur check:** Geen nested `.card` elementen tenzij expliciet bedoeld
+> ⚠️ **CSS specificiteit:** `.card.card--large.card--antiscia` voor overrides
+> ⚠️ **Padding stacking:** Meet totale padding (buiten + binnen) voordat je nested cards gebruikt
+
+---
+
+### Problemen en Oplossingen 🔧
+
+#### Probleem 1: Pars Fortuna Glyph Toont "?"
+**Symptoom:** Pars Fortuna rij toont "?" i.p.v. "|" glyph
+
+**Root Cause:**
+```php
+// getPlanetGlyphByIndex() had geen mapping voor index 14
+$mapping = [
+    0 => self::PLANET_SUN,
+    // ...
+    12 => self::PLANET_MC,
+    // 14 => self::PLANET_PARS_FORTUNA, ← ONTBRAK!
+];
+```
+
+**Fix:**
+```php
+$mapping = [
+    // ...
+    12 => self::PLANET_MC,
+    14 => self::PLANET_PARS_FORTUNA,  ← TOEGEVOEGD
+];
+```
+
+**Les:**
+> ✅ **Glyph mapping compleet:** Check alle indices die je gebruikt
+> ✅ **Test met alle data:** Pars Fortuna (index 14) wordt vergeten in tests
+> ✅ **SymbolGlyph class:** Heeft speciale handling voor index 14 nodig
+
+---
+
+#### Probleem 2: Aspect Tabel Kolommen Te Breed
+**Symptoom:** Orb kolom nam ~50% van tabelbreedte, paste niet in card
+
+**Gefaalde Fixes:**
+1. `width: 1%` trick → werkte niet
+2. `table-layout: fixed` → maakte het erger
+3. Kolom breedtes verkleinen → hielp beetje
+
+**Root Cause:**
+- `text-right` class op `<td>` element
+- Gecombineerd met `width: 100%` op tabel
+- Browser rekt laatste kolom op
+
+**Fix:**
+```css
+/* Verwijder text-right class van HTML */
+<td class="text-right"> → <td>
+
+/* Gebruik nth-child voor specifieke kolommen */
+.antiscia-column--aspects td:nth-child(4) {
+    text-align: right;
+    white-space: nowrap;
+    width: 1%; /* Forceer minimale breedte */
+}
+```
+
+**Les:**
+> ⚠️ **`text-right` class:** Veroorzaakt breedte issues in tabellen
+> ⚠️ **`width: 1%` trick:** Werkt alleen met `white-space: nowrap`
+> ⚠️ **CSS specificiteit:** Gebruik `td:nth-child(4)` i.p.v. algemene class
+
+---
+
+#### Probleem 3: Even Row Background Terug
+**Symptoom:** Na CSS refactor hadden rijen weer even/oneven achtergronden
+
+**Root Cause:**
+- CSS bestand had duplicate regels
+- `tr:nth-child(even)` stond er 2× in
+- Edit verwijderde maar 1 instantie
+
+**Fix:**
+```bash
+# CSS bestand volledig herschrijven i.p.v. edits
+cat > _antiscia.css << 'EOF'
+/* Complete nieuwe versie */
+EOF
+```
+
+**Les:**
+> ⚠️ **CSS duplicate regels:** Gebruik `grep` om duplicates te vinden
+> ⚠️ **Grote refactors:** Herschrijf hele bestand i.p.v. multiple edits
+> ⚠️ **Test na elke edit:** Check of andere regels niet verdwijnen
+
+---
+
+### Patterns Voor Toekomstige Modules 📝
+
+#### 1. Progressies Leeftijd Formatter
+**Nieuwe formatter methode:**
+```php
+// Formatter::formatProgressAge(62.71)
+// → "62 jaar, 8 maanden, 21 dagen (62.71)"
+
+public static function formatProgressAge(float $progressDays): string
+{
+    $years = (int) floor($progressDays);
+    $months = (int) floor(($progressDays - $years) * 12);
+    $days = (int) round((($progressDays - $years) * 12 - $months) * 30);
+    
+    return sprintf("%d jaar, %d maanden, %d dagen", $years, $months, $days);
+}
+```
+
+**Les:**
+> ✅ **Menselijke format:** Decimale dagen → jaren/maanden/dagen
+> ✅ **Subtiele hint:** Toon decimale waarde tussen haakjes
+> ✅ **Herbruikbaar:** Deze formatter werkt ook voor transits!
+
+---
+
+#### 2. Wheel Caching Overwegingen
+**Probleem:**
+- Wheel wordt elke keer gegenereerd (GD library)
+- Zichtbare laadtijd
+- Slug verandert bij edit → cache nutteloos
+
+**Oplossing (voor later):**
+```php
+// Data-hash i.p.v. slug
+$wheelHash = substr(md5(json_encode([
+    $horoscope->getBirthDate(),
+    $horoscope->getBirthTime(),
+    $horoscope->getLatitude(),
+    $horoscope->getLongitude(),
+])), 0, 12);
+
+// URL: <img src="./Wheel/wheel.php?hash=<?= $wheelHash ?>">
+// Browser cached 7 dagen met: Cache-Control: max-age=604800, immutable
+```
+
+**Les:**
+> ⚠️ **Slug ≠ cache key:** Slug verandert bij edit, data-hash niet
+> ⚠️ **Browser caching:** Gebruik query parameter + immutable header
+> ⚠️ **File caching (optioneel):** Kan later toegevoegd worden
+
+---
+
+### Checklist Voor Volgende Module (Transits?) ✅
+
+#### Voor Implementatie
+- [ ] Glyph mappings checken (alle indices ondersteund?)
+- [ ] Formatter methodes hergebruiken (formatProgressAge, formatOrb)
+- [ ] HTML structuur: géén nested cards!
+- [ ] CSS bestand: compleet herschrijven i.p.v. multiple edits
+
+#### Tijdens Implementatie
+- [ ] Systematic-debugging skill bij eerste CSS probleem
+- [ ] Debug script voor layout issues (padding, width berekeningen)
+- [ ] Test met alle data types (ook edge cases zoals Pars Fortuna)
+- [ ] Tabel kolommen: `nth-child()` selectors i.p.v. `text-right` class
+
+#### Na Implementatie
+- [ ] Test responsive bij 3 breakpoints (>900px, 768px, 600px)
+- [ ] Test page reload (blijft layout behouden?)
+- [ ] PHP syntax check (`php -l`)
+- [ ] Git commit met duidelijke beschrijving
+
+---
+
+### Valkuilen Om Te Vermijden ⚠️
+
+| Valkuil | Oplossing |
+|---------|-----------|
+| **Nested cards** | Gebruik `.antiscia-column` i.p.v. `.card` binnen cards |
+| **`text-right` class op `<td>`** | Gebruik `td:nth-child(4) { text-align: right }` |
+| **CSS duplicate regels** | Herschrijf hele bestand, niet multiple edits |
+| **Glyph mapping vergeten** | Test met ALLE planeten/punten (ook Pars Fortuna!) |
+| **Table width: 100% + flex** | Gebruik `table-layout: auto` voor naturale column widths |
+| **Te vroeg optimaliseren** | Start met browser caching, file caching kan later |
+
+---
+
+### Golden Rules 🏆
+
+1. **Geen nested cards** - Tenzij expliciet bedoeld, veroorzaakt padding stacking
+2. **Systematic debugging bij CSS** - Niet gissen, root cause vinden
+3. **Test glyph mappings** - Alle indices (0-14) moeten werken
+4. **CSS herschrijven > edits** - Voorkomt duplicates en conflicts
+5. **Browser caching eerst** - File caching kan later als het moet
+6. **Data-hash i.p.v. slug** - Voor cache persistence bij edits
+
+---
+
+## Laatst Bijgewerkt
+
+2026-04-02 - Na spiegelpunten (antiscia) module implementatie, wheel caching analyse, en progressies leeftijd formatter
