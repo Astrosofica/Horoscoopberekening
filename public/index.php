@@ -570,6 +570,47 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                     $midpointsResult = $_SESSION['horoscope']['midpoints']['all']['midpoints'];
                 }
                 break;
+                
+            case 'midpoints-sign':
+                // LAZY: Midpunten per teken - sorteren op longitude
+                if (isset($_SESSION['horoscope']['core'])) {
+                    if (!isset($_SESSION['horoscope']['midpoints'])) {
+                        $midpointCalculator = new \Tijd\Calculation\MidpointCalculator();
+                        $_SESSION['horoscope']['midpoints'] = [
+                            'input' => ['timestamp' => time()],
+                            'all' => $midpointCalculator->calculateAllMidpoints($_SESSION['horoscope']['core']),
+                        ];
+                    }
+                    
+                    // Lazy: sorteren alleen bij eerste keer
+                    if (!isset($_SESSION['horoscope']['midpoints']['by_sign'])) {
+                        $midpoints = $_SESSION['horoscope']['midpoints']['all']['midpoints'];
+                        
+                        // Filter alleen de echte midpunten (geen separators)
+                        $realMidpoints = array_filter($midpoints, fn($mp) => !isset($mp['separator']));
+                        
+                        // Sorteren op normalized longitude
+                        usort($realMidpoints, fn($a, $b) => $a['normalized'] - $b['normalized']);
+                        
+                        // Lege rijen tussen tekens invoegen
+                        $sorted = [];
+                        $lastSign = -1;
+                        foreach ($realMidpoints as $mp) {
+                            $sign = (int) floor($mp['normalized'] / 30);
+                            if ($lastSign !== -1 && $sign !== $lastSign) {
+                                $sorted[] = ['separator' => true];
+                            }
+                            $sorted[] = $mp;
+                            $lastSign = $sign;
+                        }
+                        
+                        $_SESSION['horoscope']['midpoints']['by_sign'] = $sorted;
+                    }
+                    
+                    $currentTab = 'midpoints-sign';
+                    $midpointsResult = $_SESSION['horoscope']['midpoints']['by_sign'];
+                }
+                break;
         }
     }
 }
@@ -1160,6 +1201,70 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                                 </tr>
                                             <?php endif; ?>
                                         <?php endfor; ?>
+                                    </table>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <p>Geen horoscoop data beschikbaar. Bereken eerst een horoscoop.</p>
+                        <?php endif; ?>
+                    </div>
+                </section>
+                
+                <section id="tab-midpoints-sign" class="tab-content tab-content--hidden">
+                    <div class="card card--large card--midpoints">
+                        <h2>Midpunten per Teken</h2>
+                        
+                        <?php if (isset($midpointsResult) && count($midpointsResult) > 0): ?>
+                            <div class="midpoints-container">
+                                <div class="midpoints-column midpoints-column--left">
+                                    <table>
+                                        <?php
+                                        // Zoek splitpunt: eerste lege rij na index 39
+                                        $splitPoint = 39;
+                                        for ($i = $splitPoint; $i < count($midpointsResult); $i++) {
+                                            if (isset($midpointsResult[$i]['separator']) && $midpointsResult[$i]['separator']) {
+                                                $splitPoint = $i + 1;
+                                                break;
+                                            }
+                                        }
+                                        
+                                        // Linker kolom
+                                        for ($i = 0; $i < $splitPoint; $i++):
+                                            $mp = $midpointsResult[$i];
+                                            if (isset($mp['separator']) && $mp['separator']): ?>
+                                                <tr class="midpoints-row--separator"><td colspan="2">&nbsp;</td></tr>
+                                            <?php else: ?>
+                                                <tr>
+                                                    <td>
+                                                        <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($mp['planet1_index']) ?></span> /
+                                                        <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($mp['planet2_index']) ?></span>
+                                                    </td>
+                                                    <td class="text-right"><?= \Tijd\Helpers\Formatter::formatLongitudeWithGlyph($mp['normalized']) ?></td>
+                                                </tr>
+                                            <?php endif;
+                                        endfor;
+                                        ?>
+                                    </table>
+                                </div>
+                                <div class="midpoints-column midpoints-column--right">
+                                    <table>
+                                        <?php
+                                        // Rechter kolom
+                                        for ($i = $splitPoint; $i < count($midpointsResult); $i++):
+                                            $mp = $midpointsResult[$i];
+                                            if (isset($mp['separator']) && $mp['separator']): ?>
+                                                <tr class="midpoints-row--separator"><td colspan="2">&nbsp;</td></tr>
+                                            <?php else: ?>
+                                                <tr>
+                                                    <td>
+                                                        <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($mp['planet1_index']) ?></span> /
+                                                        <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($mp['planet2_index']) ?></span>
+                                                    </td>
+                                                    <td class="text-right"><?= \Tijd\Helpers\Formatter::formatLongitudeWithGlyph($mp['normalized']) ?></td>
+                                                </tr>
+                                            <?php endif;
+                                        endfor;
+                                        ?>
                                     </table>
                                 </div>
                             </div>

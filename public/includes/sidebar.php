@@ -13,7 +13,8 @@ $resultItems = [
     'progressions' => 'Progressies',
     'progressions-list' => 'Progressie Events',
     'antiscia' => 'Spiegelpunten',
-    'midpoints-planet' => 'Midpunten',
+    'midpoints-planet' => 'MP per planeet',
+    'midpoints-sign' => 'MP per teken',
 ];
 
 $futureItems = [
