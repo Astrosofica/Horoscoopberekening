@@ -27,8 +27,8 @@ $midpointsGroup = [
     'midpoints-tree' => 'boompjes',
 ];
 
-$futureItems = [
-    'transits' => 'Transits',
+$transitsGroup = [
+    'transits' => 'vandaag',
 ];
 ?>
 <button class="mobile-menu-toggle" aria-label="Menu openen">&#9776;</button>
@@ -90,13 +90,14 @@ $futureItems = [
             <?php endforeach; ?>
         </div>
         
-        <div class="sidebar__separator"></div>
-        
         <div class="sidebar__section">
-            <?php foreach ($futureItems as $id => $label): ?>
-                <span class="sidebar__item sidebar__item--disabled" title="Binnenkort beschikbaar">
+            <div class="sidebar__section-title">Transits</div>
+            <?php foreach ($transitsGroup as $id => $label): ?>
+                <a href="#<?= $id ?>"
+                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>"
+                   data-tab="<?= $id ?>">
                     <?= $label ?>
-                </span>
+                </a>
             <?php endforeach; ?>
         </div>
     </nav>

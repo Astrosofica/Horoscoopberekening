@@ -19,6 +19,7 @@
 @import url('_progression.css');
 @import url('_antiscia.css');
 @import url('_midpoints.css');
+@import url('_transits.css');
 
 .tab-content--hidden {
     display: none !important;

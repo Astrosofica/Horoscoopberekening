@@ -43,6 +43,7 @@ use Tijd\Calculation\ParsFortuna;
 use Tijd\Calculation\HoroscopeCalculator;
 use Tijd\Calculation\ProgressionCalculator;
 use Tijd\Calculation\ProgressionEventCalculator;
+use Tijd\Calculation\TransitCalculator;
 use Tijd\Helpers\Formatter;
 use Tijd\Glyph\SymbolGlyph;
 
@@ -634,6 +635,23 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                     
                     $currentTab = 'midpoints-tree';
                     $treeResult = $_SESSION['horoscope']['midpoints']['tree'];
+                }
+                break;
+
+            case 'transits':
+                // LAZY: Huidige transit posities
+                if (isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
+                    if (!isset($_SESSION['horoscope']['transits']) || empty($_SESSION['horoscope']['transits'])) {
+                        $transitCalc = new TransitCalculator();
+                        $_SESSION['horoscope']['transits'] = $transitCalc->calculateCurrentTransits(
+                            $_SESSION['horoscope']['core']['houses']
+                        );
+                    }
+                    $transitsResult = $_SESSION['horoscope']['transits'];
+                    if ($result !== null) {
+                        $result['transits'] = $transitsResult;
+                    }
+                    $currentTab = 'transits';
                 }
                 break;
         }
@@ -1346,6 +1364,42 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                         <?php endif; ?>
                     </div>
                 </section>
+
+                <?php if (isset($result['transits'])): ?>
+                <section id="tab-transits" class="tab-content<?= $currentTab !== 'transits' ? ' tab-content--hidden' : '' ?>">
+                    <div class="card card--large card--transits">
+                        <h2>Transits — <?= date('d-m-Y H:i') ?></h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Planeet</th>
+                                    <th>Richting</th>
+                                    <th>Positie</th>
+                                    <th>Huis</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($result['transits']['planets'] as $name => $data): ?>
+                                <tr>
+                                    <td class="text-center">
+                                        <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByName($name) ?></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <?php if ($data['direction'] === 'R'): ?>
+                                            <span class="astro-glyph"><?= SymbolGlyph::getRetrogradeGlyph() ?></span>
+                                        <?php else: ?>
+                                            <?= $data['direction'] ?>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-center"><?= Formatter::formatLongitudeWithGlyph($data['longitude']) ?></td>
+                                    <td class="text-center"><?= $data['house'] ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <?php endif; ?>
             <?php endif; ?>
         </main>
     </div>
