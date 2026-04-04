@@ -1497,24 +1497,38 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                                     <h4>Tijdvak</h4>
                                     <div class="transit-datepicker">
                                         <label>Start:<br><input type="date" name="transit_start_date"
-                                            value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['start_date'] ?? '') : '' ?>"
+                                            value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['start_date'] ?? date('Y-01-01')) : '' ?>"
                                             required></label>
                                         <label>Eind:<br><input type="date" name="transit_end_date"
-                                            value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? '') : '' ?>"
+                                            value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? date('Y-12-31')) : '' ?>"
                                             required></label>
                                     </div>
-                                    <div class="transit-quickdates">
-                                        <button type="button" onclick="quickTransitCalendarYear()">Kalenderjaar</button>
-                                        <button type="button" onclick="quickTransitTwoYears()">Twee jaar</button>
+                                    <div class="section-divider"></div>
+                                    <div class="transit-sectie">
+                                        <h5>Selectie</h5>
+                                        <div class="transit-quickdates">
+                                            <button type="button" onclick="quickTransitCalendarYear()" class="transit-quickbtn">📅 Kalenderjaar</button>
+                                            <button type="button" onclick="quickTransitTwoYears()" class="transit-quickbtn">📅 Twee jaar</button>
+                                        </div>
                                     </div>
-                                    <div class="transit-options">
-                                        <label><input type="checkbox" name="include_house_ingress"
-                                            <?= (isset($transitEventsResult) && ($_SESSION['horoscope']['transit_events']['input']['include_house_ingress'] ?? false)) ? 'checked' : '' ?>> Huis ingress</label>
+                                    <div class="section-divider"></div>
+                                    <div class="transit-sectie">
+                                        <h5>Opties</h5>
+                                        <div class="transit-options">
+                                            <label class="transit-checkbox-label">
+                                                <input type="checkbox" name="include_house_ingress"
+                                                    <?= (isset($transitEventsResult) && ($_SESSION['horoscope']['transit_events']['input']['include_house_ingress'] ?? false)) ? 'checked' : '' ?>> Huis ingress
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="transit-column transit-column--planets">
                                     <h4>Transit</h4>
+                                    <label class="toggle-all">
+                                        <input type="checkbox" id="toggle-transit-planets"
+                                            onchange="toggleAllGroup('transit_planet[]', this.checked)"> Alle
+                                    </label>
                                     <?php
                                     $transitPlanetNames = [
                                         5 => 'Jupiter', 6 => 'Saturnus', 7 => 'Uranus', 8 => 'Neptunus', 9 => 'Pluto'

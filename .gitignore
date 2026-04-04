@@ -2,3 +2,4 @@
 var/
 vendor/
 *.Zone.Identifier
+.opencode/
