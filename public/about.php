@@ -21,7 +21,7 @@ $hasResult = false;
     <link rel="stylesheet" href="<?= $baseUrl ?>css/style.css">
     <link rel="stylesheet" href="<?= $baseUrl ?>css/_about.css">
 </head>
-<body>
+<body class="about-page">
 <div class="app-wrapper">
     <?php include __DIR__ . '/includes/header.php'; ?>
     

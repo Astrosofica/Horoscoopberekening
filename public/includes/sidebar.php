@@ -1,4 +1,5 @@
 <?php
+$isAboutPage = basename($_SERVER['SCRIPT_NAME']) === 'about.php';
 $hasResult = $hasResult ?? false;
 $currentTab = $currentTab ?? 'calculate';
 
@@ -39,7 +40,7 @@ $transitsGroup = [
     <nav class="sidebar__nav">
         <div class="sidebar__section">
             <?php foreach ($menuItems as $id => $label): ?>
-                <a href="#<?= $id ?>" 
+                <a href="<?= $isAboutPage ? 'index.php' : '#calculate' ?>" 
                    class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?>" 
                    data-tab="<?= $id ?>">
                     <?= $label ?>
@@ -51,7 +52,7 @@ $transitsGroup = [
         
         <div class="sidebar__section">
             <?php foreach ($resultItems as $id => $label): ?>
-                <a href="#<?= $id ?>" 
+                <a href="<?= $isAboutPage ? 'index.php?tab=' . $id : '#' . $id ?>" 
                    class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
                    data-tab="<?= $id ?>">
                     <?= $label ?>
@@ -62,7 +63,7 @@ $transitsGroup = [
         <div class="sidebar__section">
             <div class="sidebar__section-title">Transits</div>
             <?php foreach ($transitsGroup as $id => $label): ?>
-                <a href="#<?= $id ?>"
+                <a href="<?= $isAboutPage ? 'index.php?tab=' . $id : '#' . $id ?>"
                    class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>"
                    data-tab="<?= $id ?>">
                     <?= $label ?>
@@ -73,7 +74,7 @@ $transitsGroup = [
         <div class="sidebar__section">
             <div class="sidebar__section-title">Progressies</div>
             <?php foreach ($progressionsGroup as $id => $label): ?>
-                <a href="#<?= $id ?>" 
+                <a href="<?= $isAboutPage ? 'index.php?tab=' . $id : '#' . $id ?>" 
                    class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
                    data-tab="<?= $id ?>">
                     <?= $label ?>
@@ -84,7 +85,7 @@ $transitsGroup = [
         <div class="sidebar__section">
             <div class="sidebar__section-title">Midpunten</div>
             <?php foreach ($midpointsGroup as $id => $label): ?>
-                <a href="#<?= $id ?>" 
+                <a href="<?= $isAboutPage ? 'index.php?tab=' . $id : '#' . $id ?>" 
                    class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
                    data-tab="<?= $id ?>">
                     <?= $label ?>
@@ -94,7 +95,7 @@ $transitsGroup = [
         
         <div class="sidebar__section">
             <?php foreach ($antisciaGroup as $id => $label): ?>
-                <a href="#<?= $id ?>" 
+                <a href="<?= $isAboutPage ? 'index.php?tab=' . $id : '#' . $id ?>" 
                    class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
                    data-tab="<?= $id ?>">
                     <?= $label ?>

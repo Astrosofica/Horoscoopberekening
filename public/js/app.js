@@ -14,6 +14,13 @@ class TijdApp {
     bindEvents() {
         document.querySelectorAll('[data-tab]').forEach(el => {
             el.addEventListener('click', (e) => {
+                const href = el.getAttribute('href');
+                
+                // Laat absolute URLs (index.php?tab=...) ongemoeid
+                if (href && href.includes('index.php')) {
+                    return; // Browser navigeert normaal
+                }
+                
                 e.preventDefault();
                 const tab = el.getAttribute('data-tab');
                 if (!el.classList.contains('sidebar__item--disabled')) {
@@ -227,9 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Progression Events Form Helpers
 // =============================================================================
 
-function toggleAllGroup(name, toggleCheckbox) {
+function toggleAllGroup(name, checked) {
     const checkboxes = document.querySelectorAll(`input[name="${name}"]`);
-    checkboxes.forEach(cb => cb.checked = toggleCheckbox.checked);
+    checkboxes.forEach(cb => cb.checked = checked);
 }
 
 function checkToggleState(name, toggleId, totalCount) {
