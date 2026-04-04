@@ -60,10 +60,10 @@ $transitsGroup = [
         </div>
         
         <div class="sidebar__section">
-            <div class="sidebar__section-title">Progressies</div>
-            <?php foreach ($progressionsGroup as $id => $label): ?>
-                <a href="#<?= $id ?>" 
-                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
+            <div class="sidebar__section-title">Transits</div>
+            <?php foreach ($transitsGroup as $id => $label): ?>
+                <a href="#<?= $id ?>"
+                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>"
                    data-tab="<?= $id ?>">
                     <?= $label ?>
                 </a>
@@ -71,9 +71,10 @@ $transitsGroup = [
         </div>
         
         <div class="sidebar__section">
-            <?php foreach ($antisciaGroup as $id => $label): ?>
+            <div class="sidebar__section-title">Progressies</div>
+            <?php foreach ($progressionsGroup as $id => $label): ?>
                 <a href="#<?= $id ?>" 
-                   class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
+                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
                    data-tab="<?= $id ?>">
                     <?= $label ?>
                 </a>
@@ -92,10 +93,9 @@ $transitsGroup = [
         </div>
         
         <div class="sidebar__section">
-            <div class="sidebar__section-title">Transits</div>
-            <?php foreach ($transitsGroup as $id => $label): ?>
-                <a href="#<?= $id ?>"
-                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>"
+            <?php foreach ($antisciaGroup as $id => $label): ?>
+                <a href="#<?= $id ?>" 
+                   class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
                    data-tab="<?= $id ?>">
                     <?= $label ?>
                 </a>
