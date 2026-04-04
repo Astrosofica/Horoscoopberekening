@@ -144,6 +144,18 @@ class TijdApp {
             }
         }
         
+        // Lazy loading: reload bij eerste bezoek aan transits-list tab
+        if (tabId === 'transits-list' && pushState) {
+            const url = new URL(window.location.href);
+            const currentTab = url.searchParams.get('tab');
+            
+            if (currentTab !== 'transits-list') {
+                url.searchParams.set('tab', tabId);
+                window.location.href = url.toString();
+                return;
+            }
+        }
+        
         document.querySelectorAll('.tab-content').forEach(el => {
             el.classList.add('tab-content--hidden');
         });
@@ -288,4 +300,26 @@ function quickTwoYears() {
         `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}`;
     
     document.getElementById('quick-calyear').checked = false;
+}
+
+function quickTransitCalendarYear() {
+    const year = new Date().getFullYear();
+    document.querySelector('[name="transit_start_date"]').value = year + '-01-01';
+    document.querySelector('[name="transit_end_date"]').value = year + '-12-31';
+}
+
+function quickTransitTwoYears() {
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    
+    const startDate = new Date(now);
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    
+    const endDate = new Date(now);
+    endDate.setFullYear(endDate.getFullYear() + 1);
+    
+    document.querySelector('[name="transit_start_date"]').value =
+        `${startDate.getFullYear()}-${pad(startDate.getMonth() + 1)}-${pad(startDate.getDate())}`;
+    document.querySelector('[name="transit_end_date"]').value =
+        `${endDate.getFullYear()}-${pad(endDate.getMonth() + 1)}-${pad(endDate.getDate())}`;
 }

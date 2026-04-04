@@ -3,3 +3,119 @@
 .card--transits {
     padding: 1.5rem;
 }
+
+.card--transit-events {
+    padding: 1.25rem;
+}
+
+.card.card--large.card--transit-events {
+    padding: 1.25rem;
+}
+
+.transit-form-columns {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.transit-column {
+    flex: 1 1 calc(25% - 0.375rem);
+    min-width: 150px;
+    padding: 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+}
+
+.transit-column h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.95em;
+}
+
+.transit-column label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0.15rem 0;
+    font-size: 0.9em;
+}
+
+.transit-datepicker {
+    margin-bottom: 0.5rem;
+}
+
+.transit-datepicker label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.transit-datepicker input[type="date"] {
+    width: 100%;
+    padding: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+}
+
+.transit-quickdates {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.transit-quickdates button {
+    flex: 1;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8em;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    background: #f5f5f5;
+    cursor: pointer;
+}
+
+.transit-quickdates button:hover {
+    background: #e8e8e8;
+}
+
+.transit-options label {
+    font-size: 0.85em;
+}
+
+.transit-submit {
+    margin-top: 0.75rem;
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    background: #bad095;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+
+.transit-submit:hover {
+    background: #dde8ca;
+    border-color: darkolivegreen;
+}
+
+.transit-results {
+    margin-top: 1rem;
+    padding: 1rem;
+}
+
+.row--ingress td {
+    background-color: #f0f7ff;
+}
+
+@media (max-width: 900px) {
+    .transit-column {
+        flex: 1 1 calc(50% - 0.25rem);
+    }
+}
+
+@media (max-width: 600px) {
+    .transit-column {
+        flex: 1 1 100%;
+    }
+
+    .transit-form-columns {
+        gap: 0.5rem;
+    }
+}

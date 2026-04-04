@@ -44,6 +44,7 @@ use Tijd\Calculation\HoroscopeCalculator;
 use Tijd\Calculation\ProgressionCalculator;
 use Tijd\Calculation\ProgressionEventCalculator;
 use Tijd\Calculation\TransitCalculator;
+use Tijd\Calculation\TransitEventCalculator;
 use Tijd\Helpers\Formatter;
 use Tijd\Glyph\SymbolGlyph;
 
@@ -368,6 +369,66 @@ $_SESSION['horoscope']['progression_events'] = [
 }
 
 // ===========================================================================
+// POST HANDLER - Transit Events
+// ===========================================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])) {
+    if (!isset($_SESSION['horoscope']['core'])) {
+        $error = "Bereken eerst een horoscoop voordat je transits kunt bekijken.";
+    } else {
+        $transitStartDate = $_POST['transit_start_date'] ?? '';
+        $transitEndDate = $_POST['transit_end_date'] ?? '';
+        $transitPlanets = array_map('intval', $_POST['transit_planet'] ?? []);
+        $radixTargets = array_map('intval', $_POST['radix_target'] ?? []);
+        $transitAspects = array_map('intval', $_POST['transit_aspect'] ?? []);
+        $includeHouseIngress = isset($_POST['include_house_ingress']);
+
+        if (empty($transitStartDate) || empty($transitEndDate)) {
+            $error = "Start- en einddatum zijn verplicht.";
+        } elseif (strtotime($transitStartDate) > strtotime($transitEndDate)) {
+            $error = "Einddatum moet na startdatum liggen.";
+        } elseif (empty($transitPlanets) || empty($radixTargets) || empty($transitAspects)) {
+            $error = "Selecteer ten minste één transitplaneet, radixpunt en aspect.";
+        } else {
+            $radixData = [
+                'planets' => $_SESSION['horoscope']['core']['planets'],
+                'houses' => $_SESSION['horoscope']['core']['houses'],
+                'ascmc' => $_SESSION['horoscope']['core']['ascmc'],
+            ];
+
+            $transitEventCalc = new TransitEventCalculator();
+            $transitEvents = $transitEventCalc->findTransitEvents(
+                $radixData,
+                $radixData['houses'],
+                $transitPlanets,
+                $radixTargets,
+                $transitAspects,
+                $transitStartDate,
+                $transitEndDate,
+                $includeHouseIngress
+            );
+
+            $_SESSION['horoscope']['transit_events'] = [
+                'input' => [
+                    'start_date' => $transitStartDate,
+                    'end_date' => $transitEndDate,
+                    'transit_planets' => $transitPlanets,
+                    'radix_targets' => $radixTargets,
+                    'aspects' => $transitAspects,
+                    'include_house_ingress' => $includeHouseIngress,
+                ],
+                'results' => $transitEvents,
+            ];
+
+            $currentTab = 'transits-list';
+            $_SESSION['just_submitted_transits'] = true;
+
+            header('Location: ' . $_SERVER['REQUEST_URI']);
+            exit;
+        }
+    }
+}
+
+// ===========================================================================
 // TAB SWITCH LOGIC - Lazy Loading
 // ===========================================================================
 // Check of user een specifieke tab wil bekijken (?tab=aspects)
@@ -381,6 +442,11 @@ if (!isset($currentTab)) {
 if (isset($_SESSION['just_submitted_progressions'])) {
     $currentTab = 'progressions-list';
     // Marker wordt verwijderd in viewHoroscope blok
+}
+
+// Check of we net een transit submit hebben gedaan
+if (isset($_SESSION['just_submitted_transits'])) {
+    $currentTab = 'transits-list';
 }
 
 if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname'])) {
@@ -402,6 +468,7 @@ if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']
 if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') {
     // Check of we net een progression submit hebben gedaan
     $justDidProgression = isset($_SESSION['just_submitted_progressions']);
+    $justDidTransits = isset($_SESSION['just_submitted_transits']);
     
     // Reset lazy tabs bij laden opgeslagen horoscoop
     unset($_SESSION['horoscope']['aspects']);
@@ -411,8 +478,9 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
     $wheelData = $calculator->prepareWheelData($result);
     $_SESSION['wheel_data'] = $wheelData;
     
-    // Behoud progression_events als we net een submit hebben gedaan
+    // Behoud progression_events en transit_events als we net een submit hebben gedaan
     $existingProgressionEvents = $justDidProgression ? ($_SESSION['horoscope']['progression_events'] ?? null) : null;
+    $existingTransitEvents = $justDidTransits ? ($_SESSION['horoscope']['transit_events'] ?? null) : null;
     
     // Session structuur voor lazy loading
     $_SESSION['horoscope'] = [
@@ -445,9 +513,19 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
         unset($_SESSION['horoscope']['progression_events']);
     }
     
-    // Verwijder marker als die gezet was (tab is al gezet in tab switch logic)
+    // Herstel transit_events als we net een submit hadden
+    if ($existingTransitEvents !== null) {
+        $_SESSION['horoscope']['transit_events'] = $existingTransitEvents;
+    } else {
+        unset($_SESSION['horoscope']['transit_events']);
+    }
+    
+    // Verwijder markers als die gezet waren
     if ($justDidProgression) {
         unset($_SESSION['just_submitted_progressions']);
+    }
+    if ($justDidTransits) {
+        unset($_SESSION['just_submitted_transits']);
     }
 }
 
@@ -653,6 +731,14 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                     }
                     $currentTab = 'transits';
                 }
+                break;
+
+            case 'transits-list':
+                // Toon cached transit events als beschikbaar
+                if (isset($_SESSION['horoscope']['transit_events']['results'])) {
+                    $transitEventsResult = $_SESSION['horoscope']['transit_events']['results'];
+                }
+                $currentTab = 'transits-list';
                 break;
         }
     }
@@ -1400,6 +1486,136 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                     </div>
                 </section>
                 <?php endif; ?>
+
+                <section id="tab-transits-list" class="tab-content<?= $currentTab !== 'transits-list' ? ' tab-content--hidden' : '' ?>">
+                    <div class="card card--large card--transit-events">
+                        <h2>Transit Events</h2>
+
+                        <form method="POST" class="transit-form">
+                            <div class="transit-form-columns">
+                                <div class="transit-column transit-column--tijdvak">
+                                    <h4>Tijdvak</h4>
+                                    <div class="transit-datepicker">
+                                        <label>Start:<br><input type="date" name="transit_start_date"
+                                            value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['start_date'] ?? '') : '' ?>"
+                                            required></label>
+                                        <label>Eind:<br><input type="date" name="transit_end_date"
+                                            value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? '') : '' ?>"
+                                            required></label>
+                                    </div>
+                                    <div class="transit-quickdates">
+                                        <button type="button" onclick="quickTransitCalendarYear()">Kalenderjaar</button>
+                                        <button type="button" onclick="quickTransitTwoYears()">Twee jaar</button>
+                                    </div>
+                                    <div class="transit-options">
+                                        <label><input type="checkbox" name="include_house_ingress"
+                                            <?= (isset($transitEventsResult) && ($_SESSION['horoscope']['transit_events']['input']['include_house_ingress'] ?? false)) ? 'checked' : '' ?>> Huis ingress</label>
+                                    </div>
+                                </div>
+
+                                <div class="transit-column transit-column--planets">
+                                    <h4>Transit</h4>
+                                    <?php
+                                    $transitPlanetNames = [
+                                        5 => 'Jupiter', 6 => 'Saturnus', 7 => 'Uranus', 8 => 'Neptunus', 9 => 'Pluto'
+                                    ];
+                                    $savedTransitPlanets = isset($transitEventsResult)
+                                        ? ($_SESSION['horoscope']['transit_events']['input']['transit_planets'] ?? [])
+                                        : [];
+                                    foreach ($transitPlanetNames as $idx => $tName): ?>
+                                        <label>
+                                            <input type="checkbox" name="transit_planet[]" value="<?= $idx ?>"
+                                                <?= in_array($idx, $savedTransitPlanets) ? 'checked' : '' ?>>
+                                            <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($idx) ?></span>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <div class="transit-column transit-column--aspects">
+                                    <h4>Aspecten</h4>
+                                    <label class="toggle-all">
+                                        <input type="checkbox" id="toggle-transit-aspects"
+                                            onchange="toggleAllGroup('transit_aspect[]', this.checked)"> Alle
+                                    </label>
+                                    <?php
+                                    $savedTransitAspects = isset($transitEventsResult)
+                                        ? ($_SESSION['horoscope']['transit_events']['input']['aspects'] ?? [])
+                                        : [];
+                                    foreach ([0, 45, 60, 90, 120, 135, 150, 180] as $aspDeg): ?>
+                                        <label>
+                                            <input type="checkbox" name="transit_aspect[]" value="<?= $aspDeg ?>"
+                                                <?= in_array($aspDeg, $savedTransitAspects) ? 'checked' : '' ?>>
+                                            <span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($aspDeg) ?></span>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+
+                                <div class="transit-column transit-column--radix">
+                                    <h4>Radix</h4>
+                                    <label class="toggle-all">
+                                        <input type="checkbox" id="toggle-transit-radix"
+                                            onchange="toggleAllGroup('radix_target[]', this.checked)"> Alle
+                                    </label>
+                                    <?php
+                                    $savedRadixTargets = isset($transitEventsResult)
+                                        ? ($_SESSION['horoscope']['transit_events']['input']['radix_targets'] ?? [])
+                                        : [];
+                                    for ($i = 0; $i <= 12; $i++): ?>
+                                        <label>
+                                            <input type="checkbox" name="radix_target[]" value="<?= $i ?>"
+                                                <?= in_array($i, $savedRadixTargets) ? 'checked' : '' ?>>
+                                            <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($i) ?></span>
+                                        </label>
+                                    <?php endfor; ?>
+                                </div>
+                            </div>
+
+                            <button type="submit" name="calculate_transits" class="transit-submit">Bereken Transits</button>
+                        </form>
+                    </div>
+
+                    <?php if (isset($transitEventsResult) && count($transitEventsResult) > 0): ?>
+                    <div class="card card--large transit-results">
+                        <h4>Resultaten (<?= count($transitEventsResult) ?> events)</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Dir</th>
+                                    <th>Transit</th>
+                                    <th>Aspect</th>
+                                    <th>Radix</th>
+                                    <th>Transit Pos</th>
+                                    <th>Radix Pos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($transitEventsResult as $event): ?>
+                                <tr class="<?= $event['event_type'] === 'house_ingress' ? 'row--ingress' : '' ?>">
+                                    <td><?= date('d-m-Y', $event['timestamp']) ?></td>
+                                    <td><?= $event['direction'] ?></td>
+                                    <td class="text-center">
+                                        <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($event['tplanet']) ?></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($event['aspect']) ?></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="astro-glyph"><?= SymbolGlyph::getGlyphForTarget($event['rplanet']) ?></span>
+                                    </td>
+                                    <td class="text-center"><?= Formatter::formatLongitudeWithGlyph($event['tlong']) ?></td>
+                                    <td class="text-center"><?= Formatter::formatLongitudeWithGlyph($event['rlong']) ?></td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php elseif (isset($transitEventsResult)): ?>
+                    <div class="card card--large transit-results">
+                        <p>Geen transits gevonden in deze periode.</p>
+                    </div>
+                    <?php endif; ?>
+                </section>
             <?php endif; ?>
         </main>
     </div>

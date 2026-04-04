@@ -29,6 +29,7 @@ $midpointsGroup = [
 
 $transitsGroup = [
     'transits' => 'vandaag',
+    'transits-list' => 'lijst',
 ];
 ?>
 <button class="mobile-menu-toggle" aria-label="Menu openen">&#9776;</button>

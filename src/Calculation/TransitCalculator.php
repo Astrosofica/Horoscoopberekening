@@ -33,7 +33,13 @@ class TransitCalculator
         ?int $timestamp = null
     ): array {
         $timestamp = $timestamp ?? time();
-        $julianDay = $this->ephemeris->julianDayFromTimestamp($timestamp);
+
+        // julianDayFromTimestamp gebruikt date() wat server timezone respecteert.
+        // Voor huidige posities moeten we UTC gebruiken: corrigeer voor server offset.
+        $utcOffset = (int)date('Z');
+        $utcTimestamp = $timestamp - $utcOffset;
+
+        $julianDay = $this->ephemeris->julianDayFromTimestamp($utcTimestamp);
 
         // Sun t/m Pluto + Noordknoop
         $planets = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, SwissEphemeris::SE_TRUE_NODE];
