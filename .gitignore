@@ -3,3 +3,7 @@ var/
 vendor/
 *.Zone.Identifier
 .opencode/
+*.md
+reference/
+docs/
+test/
