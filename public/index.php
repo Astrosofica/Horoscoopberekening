@@ -1636,6 +1636,7 @@ if ($requestedTab === 'about') {
                     <?php endif; ?>
                 </section>
             <?php endif; ?>
+            <?php endif; ?>
             
             <section id="tab-about" class="tab-content<?= $currentTab !== 'about' ? ' tab-content--hidden' : '' ?>">
                 <div class="card card--large card--about">
@@ -1662,7 +1663,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
-            <?php endif; ?>
 
 <?php
 // DEBUG: Toon tab info (verwijder na testing)
