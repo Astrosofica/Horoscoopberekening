@@ -740,6 +740,10 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                 }
                 $currentTab = 'transits-list';
                 break;
+
+            case 'about':
+                $currentTab = 'about';
+                break;
         }
     }
 }
@@ -1631,6 +1635,12 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                     <?php endif; ?>
                 </section>
             <?php endif; ?>
+            
+            <section id="tab-about" class="tab-content<?= $currentTab !== 'about' ? ' tab-content--hidden' : '' ?>">
+                <div class="card card--large card--about">
+                    <?php include 'includes/about-content.php'; ?>
+                </div>
+            </section>
         </main>
     </div>
     

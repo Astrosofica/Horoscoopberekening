@@ -13,11 +13,11 @@ if (basename($scriptDir) === 'horoscope' || basename($scriptDir) === 'public') {
 <footer class="card card--footer">
     <p class="footer-text">
         <span class="footer-separator">|</span>
-        <a href="<?= $baseUrl ?>about.php" class="footer-link">Over</a>
+        <a href="<?= $baseUrl ?>index.php?tab=about" class="footer-link">Over</a>
         <span class="footer-separator">|</span>
-        <a href="<?= $baseUrl ?>about.php#privacy" class="footer-link">Privacy</a>
+        <a href="<?= $baseUrl ?>index.php?tab=about#privacy" class="footer-link">Privacy</a>
         <span class="footer-separator">|</span>
-        <a href="<?= $baseUrl ?>about.php#licenses" class="footer-link">Licenties</a>
+        <a href="<?= $baseUrl ?>index.php?tab=about#licenses" class="footer-link">Licenties</a>
         <span class="footer-separator">|</span><br>
          <?= APP_NAME ?> is een programma van <?= APP_AUTHOR ?>.
         <span class="footer-version">Versie <?= BUILD_VERSION ?> (<?= BUILD_DATE ?>)</span>
