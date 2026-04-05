@@ -246,6 +246,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                     $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
                     
                     // Session structuur voor lazy loading
+                    // Let: ascmc wordt apart opgeslagen voor calculators die dit verwachten
                     $_SESSION['horoscope'] = [
                         'input' => [
                             'firstname' => $firstname,
@@ -259,7 +260,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                             'timezone_id' => $timezoneId,
                             'utc_offset' => $timeResult['offset'],
                         ],
-                        'core' => $result,
+                        'core' => [
+                            'planets' => $result['planets'],
+                            'houses' => $result['houses']['houses'],
+                            'ascmc' => $result['houses']['ascmc'],
+                            'julian_day' => $result['julian_day'],
+                        ],
                         'aspects' => null, // Lazy loaded
                     ];
                     
@@ -544,6 +550,7 @@ if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION
     $core = $_SESSION['horoscope']['core'];
     $localTs = strtotime(($input['birth_date'] ?? '') . ' ' . ($input['birth_time'] ?? ''));
     
+    // Reconstructeer result array - houses structuur zoals template verwacht
     $result = [
         'name' => trim(($input['firstname'] ?? '') . ' ' . ($input['infix'] ?? '') . ' ' . ($input['lastname'] ?? '')),
         'firstname' => $input['firstname'] ?? '',
@@ -559,7 +566,10 @@ if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION
         'local_timestamp' => $localTs,
         'utc_timestamp' => $localTs - ($input['utc_offset'] ?? 0),
         'planets' => $core['planets'] ?? [],
-        'houses' => $core['houses'] ?? [],
+        'houses' => [
+            'houses' => $core['houses'] ?? [],
+            'ascmc' => $core['ascmc'] ?? [],
+        ],
         'julian_day' => $core['julian_day'] ?? null,
         // Lazy loaded data (kan null zijn)
         'aspects' => $_SESSION['horoscope']['aspects'] ?? null,
