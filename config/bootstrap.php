@@ -1,5 +1,11 @@
 <?php
 
+// Load composer autoloader FIRST (before session_start for unserialize)
+$autoloaderPath = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoloaderPath)) {
+    require_once $autoloaderPath;
+}
+
 // Session security settings (before session_start)
 ini_set('session.cookie_httponly', '1');
 ini_set('session.cookie_samesite', 'Strict');

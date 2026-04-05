@@ -561,7 +561,12 @@ if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION
         'planets' => $core['planets'] ?? [],
         'houses' => $core['houses'] ?? [],
         'julian_day' => $core['julian_day'] ?? null,
+        // Lazy loaded data (kan null zijn)
         'aspects' => $_SESSION['horoscope']['aspects'] ?? null,
+        'progressions' => $_SESSION['horoscope']['progressions'] ?? null,
+        'transits' => $_SESSION['horoscope']['transits'] ?? null,
+        'antiscia' => $_SESSION['horoscope']['antiscia'] ?? null,
+        'midpoints' => $_SESSION['horoscope']['midpoints'] ?? null,
     ];
 }
 
