@@ -59,9 +59,57 @@ $viewHoroscope = null;
 $result = null;
 $error = null;
 $editSlug = null;
+
+// Wis horoscoop session data
+if (isset($_GET['clear']) && $_GET['clear'] == '1') {
+    unset($_SESSION['horoscope']);
+    unset($_SESSION['wheel_data']);
+    $_SESSION['flash_success'] = 'Horoscoop gewist.';
+    header('Location: index.php');
+    exit;
+}
+
 $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
+
+// Formulier waarden - gebruik POST of session data (voor niet-opgeslagen horoscopen)
+$formValues = [
+    'firstname' => '',
+    'infix' => '',
+    'lastname' => '',
+    'location' => '',
+    'date' => '',
+    'time' => '',
+    'utc' => false,
+    'lmt' => false,
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
+    $formValues = [
+        'firstname' => $_POST['firstname'] ?? '',
+        'infix' => $_POST['infix'] ?? '',
+        'lastname' => $_POST['lastname'] ?? '',
+        'location' => $_POST['location'] ?? '',
+        'date' => $_POST['date'] ?? '',
+        'time' => $_POST['time'] ?? '',
+        'utc' => isset($_POST['time_correction_utc']),
+        'lmt' => isset($_POST['time_correction_lmt']),
+    ];
+} elseif (isset($_SESSION['horoscope']['input']) && !isset($_POST['save_horoscope'])) {
+    // Gebruik session data voor formulier (niet-opgeslagen horoscoop)
+    $input = $_SESSION['horoscope']['input'];
+    $formValues = [
+        'firstname' => $input['firstname'] ?? '',
+        'infix' => $input['infix'] ?? '',
+        'lastname' => $input['lastname'] ?? '',
+        'location' => $input['location_name'] ?? '',
+        'date' => $input['birth_date'] ?? '',
+        'time' => $input['birth_time'] ?? '',
+        'utc' => false,
+        'lmt' => false,
+    ];
+}
 
 if ($horoscopeSlug) {
     if ($isEdit) {
@@ -845,33 +893,33 @@ if ($requestedTab === 'about') {
                         <div class="form-row name-row">
                             <div class="form-group form-group--firstname">
                                 <label for="firstname">Voornaam</label>
-                                <input type="text" id="firstname" name="firstname" placeholder="" value="<?= htmlspecialchars($_POST['firstname'] ?? '') ?>"<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="text" id="firstname" name="firstname" placeholder="" value="<?= htmlspecialchars($formValues['firstname']) ?>"<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                             <div class="form-group form-group--infix">
                                 <label for="infix">Tussenv.</label>
-                                <input type="text" id="infix" name="infix" placeholder="" value="<?= htmlspecialchars($_POST['infix'] ?? '') ?>"<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="text" id="infix" name="infix" placeholder="" value="<?= htmlspecialchars($formValues['infix']) ?>"<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                             <div class="form-group form-group--lastname">
                                 <label for="lastname">Achternaam <span class="required">*</span></label>
-                                <input type="text" id="lastname" name="lastname" placeholder="" value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="text" id="lastname" name="lastname" placeholder="" value="<?= htmlspecialchars($formValues['lastname']) ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                         </div>
 
                         <div class="form-row half">
                             <div class="form-group">
                                 <label for="date">Datum</label>
-                                <input type="date" id="date" name="date" value="<?= htmlspecialchars($_POST['date'] ?? '') ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="date" id="date" name="date" value="<?= htmlspecialchars($formValues['date']) ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                             <div class="form-group">
                                 <label for="time">Tijd (lokaal)</label>
-                                <input type="time" id="time" name="time" value="<?= htmlspecialchars($_POST['time'] ?? '') ?>" step="1" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="time" id="time" name="time" value="<?= htmlspecialchars($formValues['time']) ?>" step="1" required<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                         </div>
 
                         <div class="form-row full">
                             <div class="form-group">
                                 <label for="location">Geboorteplaats</label>
-                                <input type="text" id="location" name="location" placeholder="Bijv. Amsterdam, Nederland" value="<?= htmlspecialchars($_POST['location'] ?? '') ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="text" id="location" name="location" placeholder="Bijv. Amsterdam, Nederland" value="<?= htmlspecialchars($formValues['location']) ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                         </div>
 
@@ -880,11 +928,11 @@ if ($requestedTab === 'about') {
                                 <label>Tijdcorrectie</label>
                                 <div class="checkbox-group">
                                     <label class="checkbox-label">
-                                        <input type="checkbox" name="time_correction_utc" value="1" <?= isset($_POST['time_correction_utc']) ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_lmt]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
+                                        <input type="checkbox" name="time_correction_utc" value="1" <?= $formValues['utc'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_lmt]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
                                         Ingevoerde tijd is UTC
                                     </label>
                                     <label class="checkbox-label">
-                                        <input type="checkbox" name="time_correction_lmt" value="1" <?= isset($_POST['time_correction_lmt']) ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_utc]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
+                                        <input type="checkbox" name="time_correction_lmt" value="1" <?= $formValues['lmt'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_utc]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
                                         Ingevoerde tijd is LMT/WPT
                                     </label>
                                 </div>
@@ -895,6 +943,9 @@ if ($requestedTab === 'about') {
                         <?php if (!$formDisabled): ?>
                         <div class="form-submit">
                             <button type="submit"><?= $mode === 'edit' ? 'Opnieuw berekenen' : 'Horoscoop berekenen' ?></button>
+                            <?php if (isset($_SESSION['horoscope']['core']) && !isset($_POST['save_horoscope'])): ?>
+                                <a href="?clear=1" class="btn btn--secondary" onclick="return confirm('Horoscoop wissen? Alle berekende data wordt verwijderd.');">Wis horoscoop</a>
+                            <?php endif; ?>
                         </div>
                         <?php else: ?>
                         <div class="form-submit">
