@@ -12,6 +12,9 @@ $resultItems = [
     'aspects' => 'Aspecten',
 ];
 
+// Verberg navigatie secties als er geen horoscoop is berekend
+$hideNavigation = !$hasResult;
+
 $progressionsGroup = [
     'progressions' => 'vandaag',
     'progressions-list' => 'lijst',
@@ -47,59 +50,65 @@ $transitsGroup = [
             <?php endforeach; ?>
         </div>
         
-        <div class="sidebar__separator"></div>
-        
-        <div class="sidebar__section">
-            <?php foreach ($resultItems as $id => $label): ?>
-                <a href="#<?= $id ?>" 
-                   class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
-                   data-tab="<?= $id ?>">
-                    <?= $label ?>
-                </a>
-            <?php endforeach; ?>
-        </div>
-        
-        <div class="sidebar__section">
-            <div class="sidebar__section-title">Transits</div>
-            <?php foreach ($transitsGroup as $id => $label): ?>
-                <a href="#<?= $id ?>"
-                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>"
-                   data-tab="<?= $id ?>">
-                    <?= $label ?>
-                </a>
-            <?php endforeach; ?>
-        </div>
-        
-        <div class="sidebar__section">
-            <div class="sidebar__section-title">Progressies</div>
-            <?php foreach ($progressionsGroup as $id => $label): ?>
-                <a href="#<?= $id ?>" 
-                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
-                   data-tab="<?= $id ?>">
-                    <?= $label ?>
-                </a>
-            <?php endforeach; ?>
-        </div>
-        
-        <div class="sidebar__section">
-            <div class="sidebar__section-title">Midpunten</div>
-            <?php foreach ($midpointsGroup as $id => $label): ?>
-                <a href="#<?= $id ?>" 
-                   class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
-                   data-tab="<?= $id ?>">
-                    <?= $label ?>
-                </a>
-            <?php endforeach; ?>
-        </div>
-        
-        <div class="sidebar__section">
-            <?php foreach ($antisciaGroup as $id => $label): ?>
-                <a href="#<?= $id ?>" 
-                   class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?><?= !$hasResult ? ' sidebar__item--disabled' : '' ?>" 
-                   data-tab="<?= $id ?>">
-                    <?= $label ?>
-                </a>
-            <?php endforeach; ?>
-        </div>
+        <?php if ($hideNavigation): ?>
+            <div class="sidebar__placeholder">
+                Bereken eerst een horoscoop om alle opties te zien
+            </div>
+        <?php else: ?>
+            <div class="sidebar__separator"></div>
+            
+            <div class="sidebar__section">
+                <?php foreach ($resultItems as $id => $label): ?>
+                    <a href="#<?= $id ?>" 
+                       class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?>" 
+                       data-tab="<?= $id ?>">
+                        <?= $label ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="sidebar__section">
+                <div class="sidebar__section-title">Transits</div>
+                <?php foreach ($transitsGroup as $id => $label): ?>
+                    <a href="#<?= $id ?>"
+                       class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?>"
+                       data-tab="<?= $id ?>">
+                        <?= $label ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="sidebar__section">
+                <div class="sidebar__section-title">Progressies</div>
+                <?php foreach ($progressionsGroup as $id => $label): ?>
+                    <a href="#<?= $id ?>" 
+                       class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?>" 
+                       data-tab="<?= $id ?>">
+                        <?= $label ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="sidebar__section">
+                <div class="sidebar__section-title">Midpunten</div>
+                <?php foreach ($midpointsGroup as $id => $label): ?>
+                    <a href="#<?= $id ?>" 
+                       class="sidebar__item sidebar__item--indent<?= $currentTab === $id ? ' sidebar__item--active' : '' ?>" 
+                       data-tab="<?= $id ?>">
+                        <?= $label ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+            
+            <div class="sidebar__section">
+                <?php foreach ($antisciaGroup as $id => $label): ?>
+                    <a href="#<?= $id ?>" 
+                       class="sidebar__item<?= $currentTab === $id ? ' sidebar__item--active' : '' ?>" 
+                       data-tab="<?= $id ?>">
+                        <?= $label ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </nav>
 </aside>

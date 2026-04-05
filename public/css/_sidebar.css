@@ -78,6 +78,17 @@
     margin: var(--spacing-md) 0;
 }
 
+.sidebar__placeholder {
+    text-align: center;
+    padding: var(--spacing-md) var(--spacing-sm);
+    color: var(--color-text-hint);
+    font-size: var(--font-size-sm);
+    font-style: italic;
+    border: 1px dashed var(--border-light);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-sm) 0;
+}
+
 .sidebar__item--indent {
     font-size: 0.9em;
 }
