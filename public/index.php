@@ -800,15 +800,15 @@ if ($requestedTab === 'about') {
                         <div class="form-row name-row">
                             <div class="form-group form-group--firstname">
                                 <label for="firstname">Voornaam</label>
-                                <input type="text" id="firstname" name="firstname" placeholder="Jan" value="<?= htmlspecialchars($_POST['firstname'] ?? '') ?>"<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="text" id="firstname" name="firstname" placeholder="" value="<?= htmlspecialchars($_POST['firstname'] ?? '') ?>"<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                             <div class="form-group form-group--infix">
                                 <label for="infix">Tussenv.</label>
-                                <input type="text" id="infix" name="infix" placeholder="van" value="<?= htmlspecialchars($_POST['infix'] ?? '') ?>"<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="text" id="infix" name="infix" placeholder="" value="<?= htmlspecialchars($_POST['infix'] ?? '') ?>"<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                             <div class="form-group form-group--lastname">
                                 <label for="lastname">Achternaam <span class="required">*</span></label>
-                                <input type="text" id="lastname" name="lastname" placeholder="Berg" value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="text" id="lastname" name="lastname" placeholder="" value="<?= htmlspecialchars($_POST['lastname'] ?? '') ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
                             </div>
                         </div>
 
