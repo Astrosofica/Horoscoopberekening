@@ -59,6 +59,9 @@ $viewHoroscope = null;
 $result = null;
 $error = null;
 $editSlug = null;
+$flashSuccess = $_SESSION['flash_success'] ?? null;
+$flashError = $_SESSION['flash_error'] ?? null;
+unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 if ($horoscopeSlug) {
     if ($isEdit) {
@@ -532,8 +535,35 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
 // ===========================================================================
 // TAB SWITCH LOGIC - Lazy Loading (vervolg)
 // ===========================================================================
-$hasResult = $result !== null;
+$hasResult = ($result !== null) || isset($_SESSION['horoscope']['core']);
 $formDisabled = ($mode === 'view');
+
+// Vul $result vanuit session voor template (alleen als session bestaat en $result null is)
+if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
+    $input = $_SESSION['horoscope']['input'];
+    $core = $_SESSION['horoscope']['core'];
+    $localTs = strtotime(($input['birth_date'] ?? '') . ' ' . ($input['birth_time'] ?? ''));
+    
+    $result = [
+        'name' => trim(($input['firstname'] ?? '') . ' ' . ($input['infix'] ?? '') . ' ' . ($input['lastname'] ?? '')),
+        'firstname' => $input['firstname'] ?? '',
+        'infix' => $input['infix'] ?? '',
+        'lastname' => $input['lastname'] ?? '',
+        'address' => $input['location_name'] ?? '',
+        'coords' => ['lat' => $input['latitude'] ?? 0, 'lng' => $input['longitude'] ?? 0],
+        'timezone' => $input['timezone_id'] ?? '',
+        'offset' => $input['utc_offset'] ?? 0,
+        'label' => 'UTC+' . round(($input['utc_offset'] ?? 0) / 3600),
+        'time_correction' => 'standard',
+        'source' => 'session',
+        'local_timestamp' => $localTs,
+        'utc_timestamp' => $localTs - ($input['utc_offset'] ?? 0),
+        'planets' => $core['planets'] ?? [],
+        'houses' => $core['houses'] ?? [],
+        'julian_day' => $core['julian_day'] ?? null,
+        'aspects' => $_SESSION['horoscope']['aspects'] ?? null,
+    ];
+}
 
 // Default tab bij resultaat is horoscope, tenzij andere tab gevraagd
 if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
@@ -971,7 +1001,7 @@ if ($requestedTab === 'about') {
 
                 <section id="tab-aspects" class="tab-content tab-content--hidden">
                     <div class="card card--aspects">
-                        <h4>Aspecten (<?= count($result['aspects']) ?> totaal)</h4>
+                        <h4>Aspecten (<?= count($result['aspects'] ?? []) ?> totaal)</h4>
                         <table>
                             <tr>
                                 <th>Planeet 1</th>
