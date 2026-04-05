@@ -9,15 +9,21 @@ $baseUrl = '';
 if (basename($scriptDir) === 'horoscope' || basename($scriptDir) === 'public') {
     $baseUrl = basename($scriptDir) === 'horoscope' ? '../' : '';
 }
+
+// Behoud bestaande query parameters (zoals h= slug) voor footer links
+$existingQuery = $_GET;
+unset($existingQuery['tab']); // Verwijder oude tab parameter
+$aboutQuery = array_merge($existingQuery, ['tab' => 'about']);
+$aboutUrl = $baseUrl . 'index.php?' . http_build_query($aboutQuery);
 ?>
 <footer class="card card--footer">
     <p class="footer-text">
         <span class="footer-separator">|</span>
-        <a href="<?= $baseUrl ?>index.php?tab=about" class="footer-link">Over</a>
+        <a href="<?= $aboutUrl ?>" class="footer-link">Over</a>
         <span class="footer-separator">|</span>
-        <a href="<?= $baseUrl ?>index.php?tab=about#privacy" class="footer-link">Privacy</a>
+        <a href="<?= $aboutUrl ?>#privacy" class="footer-link">Privacy</a>
         <span class="footer-separator">|</span>
-        <a href="<?= $baseUrl ?>index.php?tab=about#licenses" class="footer-link">Licenties</a>
+        <a href="<?= $aboutUrl ?>#licenses" class="footer-link">Licenties</a>
         <span class="footer-separator">|</span><br>
          <?= APP_NAME ?> is een programma van <?= APP_AUTHOR ?>.
         <span class="footer-version">Versie <?= BUILD_VERSION ?> (<?= BUILD_DATE ?>)</span>

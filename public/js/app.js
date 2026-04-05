@@ -60,7 +60,7 @@ class TijdApp {
     }
     
     switchTab(tabId, pushState = true) {
-        if (!this.hasResult && tabId !== 'calculate') {
+        if (!this.hasResult && tabId !== 'calculate' && tabId !== 'about') {
             return;
         }
         

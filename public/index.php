@@ -740,12 +740,13 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
                 }
                 $currentTab = 'transits-list';
                 break;
-
-            case 'about':
-                $currentTab = 'about';
-                break;
         }
     }
+}
+
+// About tab - altijd toegankelijk, geen resultaat vereist
+if ($requestedTab === 'about') {
+    $currentTab = 'about';
 }
 // ===========================================================================
 ?>
@@ -1648,11 +1649,13 @@ if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
 </div>
 
 <script src="js/app.js"></script>
-<?php if ($hasResult && $mode !== 'edit'): ?>
+<?php if (($hasResult && $mode !== 'edit') || $currentTab === 'about'): ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (window.tijdApp) {
+        <?php if ($hasResult && $mode !== 'edit'): ?>
         window.tijdApp.enableResultTabs();
+        <?php endif; ?>
         // Gebruik de tab die PHP al heeft bepaald
         window.tijdApp.switchTab('<?= $currentTab ?>', false);
     }
