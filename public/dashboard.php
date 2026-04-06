@@ -63,7 +63,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
     <div class="card card--large">
         <div class="card-header">
             <h2>Mijn Horoscopen</h2>
-            <a href="index.php" class="btn btn--primary">+ Nieuwe horoscoop</a>
+            <a href="index.php?new=1" class="btn btn--primary">+ Nieuwe horoscoop</a>
         </div>
 
         <?php if (empty($horoscopes)): ?>
