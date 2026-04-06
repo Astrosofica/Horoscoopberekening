@@ -74,6 +74,7 @@ class HoroscopeCalculator
                 'lng' => $horoscope->getLongitude()
             ],
             'address' => $horoscope->getFormattedAddress() ?? $horoscope->getLocationName(),
+            'location_name' => $horoscope->getLocationName(),
             'timezone' => $horoscope->getTimezoneId(),
             'planets' => $planetResult['planets'],
             'julian_day' => $planetResult['julian_day'],
