@@ -153,11 +153,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
         $error = "Achternaam is verplicht";
     } elseif (!empty($firstname) && !preg_match('/^[\p{L}\s\-\.\']+$/u', $firstname)) {
         $error = "Ongeldige voornaam";
-    } elseif (!empty($infix) && !preg_match('/^[\p{L}\s\-]+$/u', $infix)) {
+    } elseif (!empty($infix) && !preg_match('/^[\p{L}\s\-\']+/u', $infix)) {
         $error = "Ongeldig tussenvoegsel";
     } elseif (!preg_match('/^[\p{L}]+$/', $lastname)) {
         $error = "Ongeldige achternaam";
-    } elseif (!preg_match('/^[\p{L}\s\-\.,]+$/u', $location)) {
+    } elseif (!preg_match('/^[\p{L}\s\-\.,\']+$/u', $location)) {
         $error = "Ongeldige locatie";
     } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !strtotime($date)) {
         $error = "Ongeldige datum";
