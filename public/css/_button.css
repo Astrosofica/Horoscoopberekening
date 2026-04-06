@@ -8,6 +8,8 @@
     cursor: pointer;
     border: none;
     transition: background-color 0.2s, color 0.2s;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .btn--primary {
