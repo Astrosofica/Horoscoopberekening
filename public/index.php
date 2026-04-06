@@ -60,11 +60,20 @@ $result = null;
 $error = null;
 $editSlug = null;
 
-// Wis horoscoop session data
+// Wis horoscoop session data (via clear of new parameter)
 if (isset($_GET['clear']) && $_GET['clear'] == '1') {
     unset($_SESSION['horoscope']);
     unset($_SESSION['wheel_data']);
     $_SESSION['flash_success'] = 'Horoscoop gewist.';
+    header('Location: index.php');
+    exit;
+}
+
+// Start nieuwe horoscoop (vanaf dashboard) - geen flash message
+if (isset($_GET['new']) && $_GET['new'] == '1') {
+    unset($_SESSION['horoscope']);
+    unset($_SESSION['wheel_data']);
+    // user_id, user_email, email_verified blijven behouden (gebruiker blijft ingelogd)
     header('Location: index.php');
     exit;
 }
