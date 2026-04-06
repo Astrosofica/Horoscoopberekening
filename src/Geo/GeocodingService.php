@@ -47,6 +47,6 @@ class GeocodingService
 
     private function validateLocation(string $location): bool
     {
-        return (bool) preg_match('/^[\p{L}\s\-\.,]+$/u', $location);
+        return (bool) preg_match('/^[\p{L}\s\-\.,\']+$/u', $location);
     }
 }
