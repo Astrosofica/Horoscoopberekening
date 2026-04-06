@@ -66,7 +66,7 @@
         <ul class="about-list">
             <li><strong>Huizensysteem:</strong> Alleen Koch (meest gebruikt in westerse astrologie)</li>
             <li><strong>Planeten:</strong> Zon t/m Pluto + Noordknoop (geen asteroïden)</li>
-            <li><strong>Aspecten:</strong> 8 standaard aspecten (0°, 45°, 60°, 90°, 120°, 135°, 150°, 180°)</li>
+            <li><strong>Aspecten:</strong> 7 standaard aspecten (0°, 45°, 60°, 90°, 120°, 135°, 180°)</li>
             <li><strong>Ephemeris:</strong> Dagelijkse posities voor buitenplaneten (Jupiter-Pluto)</li>
         </ul>
     </section>

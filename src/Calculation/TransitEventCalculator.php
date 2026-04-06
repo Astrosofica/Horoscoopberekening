@@ -115,6 +115,12 @@ class TransitEventCalculator
             $positions[12] = (float) $radixHouses[10]['longitude'];
         }
 
+        for ($i = 1; $i <= 12; $i++) {
+            if (isset($radixHouses[$i]['longitude'])) {
+                $positions[39 + $i] = (float) $radixHouses[$i]['longitude'];
+            }
+        }
+
         return $positions;
     }
 
@@ -164,7 +170,7 @@ class TransitEventCalculator
             if (isset($radixHouses[$house]['longitude'])) {
                 $points[] = [
                     'long' => (float) $radixHouses[$house]['longitude'],
-                    'planet' => 100 + $house,
+                    'planet' => 39 + $house,
                     'aspect' => 0,
                     'event_type' => 'house_ingress',
                 ];

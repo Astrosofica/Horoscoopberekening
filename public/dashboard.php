@@ -22,7 +22,7 @@ if (!in_array($sort, $validSorts)) {
 }
 
 $totalHoroscopes = $horoscopeRepo->countByUserId($currentUser->getId());
-$perPage = 2; // aantal horoscopen per pagina
+$perPage = 6; // aantal horoscopen per pagina
 $totalPages = max(1, ceil($totalHoroscopes / $perPage));
 
 $page = (int)($_GET['page'] ?? 1);

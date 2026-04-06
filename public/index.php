@@ -593,8 +593,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])
             $error = "Start- en einddatum zijn verplicht.";
         } elseif (strtotime($transitStartDate) > strtotime($transitEndDate)) {
             $error = "Einddatum moet na startdatum liggen.";
-        } elseif (empty($transitPlanets) || empty($radixTargets) || empty($transitAspects)) {
-            $error = "Selecteer ten minste één transitplaneet, radixpunt en aspect.";
+        } elseif (empty($transitPlanets)) {
+            $error = "Selecteer ten minste één transitplaneet.";
+        } elseif (!$includeHouseIngress && (empty($radixTargets) || empty($transitAspects))) {
+            $error = "Selecteer radixpunten en aspecten, of vink huis ingress aan.";
         } else {
             $radixData = [
                 'planets' => $_SESSION['horoscope']['core']['planets'],
@@ -1263,6 +1265,7 @@ if ($requestedTab === 'about') {
                                 <th>Richting</th>
                             </tr>
                             <?php foreach ($result['progressions']['planets'] as $name => $data): ?>
+                                <?php if ($name === 'Chiron') continue; ?>
                                 <?php if ($name === 'Ascendant' || $name === 'MC'): ?>
                                     <tr class="row--axis">
                                         <td class="text-center"><?= htmlspecialchars($name) ?></td>
@@ -1348,7 +1351,7 @@ if ($requestedTab === 'about') {
                             <div class="progression-column progression-column--planets">
                                 <h4>Progressief</h4>
                                 <label class="toggle-all">
-                                    <input type="checkbox" id="toggle-progressive" onchange="toggleAllGroup('progressive_planet[]', this)" <?= $allProgressive ? 'checked' : '' ?>>
+                                    <input type="checkbox" id="toggle-progressive" onchange="toggleAllGroup('progressive_planet[]', this.checked)" <?= $allProgressive ? 'checked' : '' ?>>
                                     Alle
                                 </label>
                                 <?php for ($i = 0; $i <= 9; $i++): ?>
@@ -1362,14 +1365,14 @@ if ($requestedTab === 'about') {
                             <div class="progression-column progression-column--aspects">
                                 <h4>Aspecten</h4>
                                 <label class="toggle-all">
-                                    <input type="checkbox" id="toggle-aspects" onchange="toggleAllGroup('aspect_type[]', this)" <?= $allAspects ? 'checked' : '' ?>>
+                                    <input type="checkbox" id="toggle-aspects" onchange="toggleAllGroup('aspect_type[]', this.checked)" <?= $allAspects ? 'checked' : '' ?>>
                                     Alle
                                 </label>
                                 <?php 
-                                $aspectOptions = [0, 45, 60, 90, 120, 135, 150, 180];
+                                $aspectOptions = [0, 45, 60, 90, 120, 135, 180];
                                 foreach ($aspectOptions as $aspDeg): ?>
                                     <label>
-                                        <input type="checkbox" name="aspect_type[]" value="<?= $aspDeg ?>" onchange="checkToggleState('aspect_type[]', 'toggle-aspects', 8)" <?= in_array($aspDeg, $selAspects) ? 'checked' : '' ?>>
+                                        <input type="checkbox" name="aspect_type[]" value="<?= $aspDeg ?>" onchange="checkToggleState('aspect_type[]', 'toggle-aspects', 7)" <?= in_array($aspDeg, $selAspects) ? 'checked' : '' ?>>
                                         <span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($aspDeg) ?></span>
                                     </label>
                                 <?php endforeach; ?>
@@ -1378,7 +1381,7 @@ if ($requestedTab === 'about') {
                             <div class="progression-column progression-column--radix">
                                 <h4>Radix</h4>
                                 <label class="toggle-all">
-                                    <input type="checkbox" id="toggle-radix" onchange="toggleAllGroup('radix_target[]', this)" <?= $allRadix ? 'checked' : '' ?>>
+                                    <input type="checkbox" id="toggle-radix" onchange="toggleAllGroup('radix_target[]', this.checked)" <?= $allRadix ? 'checked' : '' ?>>
                                     Alle
                                 </label>
                                 <?php 
@@ -1446,7 +1449,9 @@ if ($requestedTab === 'about') {
                                         <td><span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($event['progressive_index']) ?></span></td>
                                         <td><span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($event['aspect']) ?></span></td>
                                         <td>
-                                            <?php if ($event['event_type'] === 'rd_transition'): ?>
+                                            <?php if ($event['radix_index'] >= 40 && $event['radix_index'] <= 51): ?>
+                                                <?= SymbolGlyph::getGlyphForTarget($event['radix_index']) ?>
+                                            <?php elseif ($event['event_type'] === 'rd_transition'): ?>
                                                 <?= htmlspecialchars($event['radix_target']) ?>
                                             <?php else: ?>
                                                 <span class="astro-glyph">
@@ -1742,6 +1747,10 @@ if ($requestedTab === 'about') {
                     <div class="card card--large card--transit-events">
                         <h2>Transit Events</h2>
 
+                        <?php if (isset($error)): ?>
+                            <p class="form-error"><?= htmlspecialchars($error) ?></p>
+                        <?php endif; ?>
+
                         <form method="POST" class="transit-form">
                             <div class="transit-form-columns">
                                 <div class="transit-column transit-column--tijdvak">
@@ -1790,6 +1799,7 @@ if ($requestedTab === 'about') {
                                     foreach ($transitPlanetNames as $idx => $tName): ?>
                                         <label>
                                             <input type="checkbox" name="transit_planet[]" value="<?= $idx ?>"
+                                                onchange="checkToggleState('transit_planet[]', 'toggle-transit-planets', 5)"
                                                 <?= in_array($idx, $savedTransitPlanets) ? 'checked' : '' ?>>
                                             <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($idx) ?></span>
                                         </label>
@@ -1806,9 +1816,10 @@ if ($requestedTab === 'about') {
                                     $savedTransitAspects = isset($transitEventsResult)
                                         ? ($_SESSION['horoscope']['transit_events']['input']['aspects'] ?? [])
                                         : [];
-                                    foreach ([0, 45, 60, 90, 120, 135, 150, 180] as $aspDeg): ?>
+                                    foreach ([0, 45, 60, 90, 120, 135, 180] as $aspDeg): ?>
                                         <label>
                                             <input type="checkbox" name="transit_aspect[]" value="<?= $aspDeg ?>"
+                                                onchange="checkToggleState('transit_aspect[]', 'toggle-transit-aspects', 7)"
                                                 <?= in_array($aspDeg, $savedTransitAspects) ? 'checked' : '' ?>>
                                             <span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($aspDeg) ?></span>
                                         </label>
@@ -1828,6 +1839,7 @@ if ($requestedTab === 'about') {
                                     for ($i = 0; $i <= 12; $i++): ?>
                                         <label>
                                             <input type="checkbox" name="radix_target[]" value="<?= $i ?>"
+                                                onchange="checkToggleState('radix_target[]', 'toggle-transit-radix', 13)"
                                                 <?= in_array($i, $savedRadixTargets) ? 'checked' : '' ?>>
                                             <span class="astro-glyph"><?= SymbolGlyph::getPlanetGlyphByIndex($i) ?></span>
                                         </label>
@@ -1866,7 +1878,11 @@ if ($requestedTab === 'about') {
                                         <span class="astro-glyph"><?= SymbolGlyph::getAspectGlyph($event['aspect']) ?></span>
                                     </td>
                                     <td class="text-center">
-                                        <span class="astro-glyph"><?= SymbolGlyph::getGlyphForTarget($event['rplanet']) ?></span>
+                                        <?php if ($event['rplanet'] >= 40 && $event['rplanet'] <= 51): ?>
+                                            <?= SymbolGlyph::getGlyphForTarget($event['rplanet']) ?>
+                                        <?php else: ?>
+                                            <span class="astro-glyph"><?= SymbolGlyph::getGlyphForTarget($event['rplanet']) ?></span>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="text-center"><?= Formatter::formatLongitudeWithGlyph($event['tlong']) ?></td>
                                     <td class="text-center"><?= Formatter::formatLongitudeWithGlyph($event['rlong']) ?></td>

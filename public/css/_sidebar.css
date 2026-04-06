@@ -103,7 +103,7 @@
     display: none;
     position: fixed;
     top: 12px;
-    left: var(--spacing-md);
+    right: var(--spacing-md);
     z-index: 1001;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -132,7 +132,7 @@
     
     .sidebar {
         position: fixed;
-        left: -200px;
+        left: -220px;  /* -200px width + 20px extra voor border + shadow overflow */
         top: 0;
         z-index: 1000;
         width: 200px;
