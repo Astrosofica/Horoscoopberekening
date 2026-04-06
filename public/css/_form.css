@@ -123,8 +123,18 @@
 }
 
 .form-error {
-    color: var(--color-danger);
+    background: var(--bg-error);
+    color: #8b5a5a;
+    border: 1px solid var(--border-error);
+    border-left: 4px solid #ef4444;
+    padding: 1rem;
     margin-top: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    font-weight: 500;
+}
+
+.form-error::before {
+    content: "⚠️ ";
 }
 
 .intro-text {
