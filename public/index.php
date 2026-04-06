@@ -591,6 +591,7 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
 // ===========================================================================
 $hasResult = ($result !== null) || isset($_SESSION['horoscope']['core']);
 $formDisabled = ($mode === 'view');
+$hasSessionHoroscope = isset($_SESSION['horoscope']['core']) && !$formDisabled;
 
 // Vul $result vanuit session voor template (alleen als session bestaat en $result null is)
 if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
@@ -942,9 +943,20 @@ if ($requestedTab === 'about') {
 
                         <?php if (!$formDisabled): ?>
                         <div class="form-submit">
-                            <button type="submit"><?= $mode === 'edit' ? 'Opnieuw berekenen' : 'Horoscoop berekenen' ?></button>
-                            <?php if (isset($_SESSION['horoscope']['core']) && !isset($_POST['save_horoscope'])): ?>
-                                <a href="?clear=1" class="btn btn--secondary" onclick="return confirm('Horoscoop wissen? Alle berekende data wordt verwijderd.');">Wis horoscoop</a>
+                            <button type="submit">
+                                <?php if ($mode === 'edit'): ?>
+                                    Opnieuw berekenen
+                                <?php elseif ($hasSessionHoroscope): ?>
+                                    Herbereken horoscoop
+                                <?php else: ?>
+                                    Horoscoop berekenen
+                                <?php endif; ?>
+                            </button>
+                            <?php if ($hasSessionHoroscope): ?>
+                                <a href="?clear=1" class="btn btn--danger btn--full-width" 
+                                   onclick="return confirm('Nieuwe horoscoop berekenen? Huidige gegevens worden gewis.');">
+                                    Bereken nieuwe horoscoop
+                                </a>
                             <?php endif; ?>
                         </div>
                         <?php else: ?>
