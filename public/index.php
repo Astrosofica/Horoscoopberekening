@@ -82,7 +82,32 @@ $flashSuccess = $_SESSION['flash_success'] ?? null;
 $flashError = $_SESSION['flash_error'] ?? null;
 unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
-// Formulier waarden - gebruik POST of session data (voor niet-opgeslagen horoscopen)
+// ===========================================================================
+// LAAD OPSGESLAGEN HOROSCOOP (indien ?h=slug parameter)
+// ===========================================================================
+if ($horoscopeSlug) {
+    if ($isEdit) {
+        $mode = 'edit';
+        $editSlug = $horoscopeSlug;
+    } else {
+        $mode = 'view';
+    }
+    
+    if ($isLoggedIn) {
+        $horoscopeRepo = new HoroscopeRepository();
+        $viewHoroscope = $horoscopeRepo->findBySlugAndUserId($horoscopeSlug, $currentUser->getId());
+        
+        if (!$viewHoroscope) {
+            $_SESSION['flash_error'] = 'Horoscoop niet gevonden.';
+            header('Location: dashboard.php');
+            exit;
+        }
+    }
+}
+
+// ===========================================================================
+// FORMULIER WAARDEN - gebruik POST, session, of database data
+// ===========================================================================
 $formValues = [
     'firstname' => '',
     'infix' => '',
@@ -105,8 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'utc' => isset($_POST['time_correction_utc']),
         'lmt' => isset($_POST['time_correction_lmt']),
     ];
-} elseif (isset($_SESSION['horoscope']['input']) && !isset($_POST['save_horoscope'])) {
+} elseif (isset($_SESSION['horoscope']['input']) && !isset($_POST['save_horoscope']) && !$viewHoroscope) {
     // Gebruik session data voor formulier (niet-opgeslagen horoscoop)
+    // MAAR NIET als er een opgeslagen horoscoop wordt geladen ($viewHoroscope bestaat)
     $input = $_SESSION['horoscope']['input'];
     $formValues = [
         'firstname' => $input['firstname'] ?? '',
@@ -118,26 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'utc' => false,
         'lmt' => false,
     ];
-}
-
-if ($horoscopeSlug) {
-    if ($isEdit) {
-        $mode = 'edit';
-        $editSlug = $horoscopeSlug;
-    } else {
-        $mode = 'view';
-    }
-    
-    if ($isLoggedIn) {
-        $horoscopeRepo = new HoroscopeRepository();
-        $viewHoroscope = $horoscopeRepo->findBySlugAndUserId($horoscopeSlug, $currentUser->getId());
-        
-        if (!$viewHoroscope) {
-            $_SESSION['flash_error'] = 'Horoscoop niet gevonden.';
-            header('Location: dashboard.php');
-            exit;
-        }
-    }
 }
 
 // ===========================================================================
