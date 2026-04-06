@@ -161,6 +161,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'utc' => false,
         'lmt' => false,
     ];
+} elseif (!empty($_POST['lastname'])) {
+    // Gebruik $_POST data (gevuld met database data voor edit/view mode)
+    $formValues = [
+        'firstname' => $_POST['firstname'] ?? '',
+        'infix' => $_POST['infix'] ?? '',
+        'lastname' => $_POST['lastname'] ?? '',
+        'location' => $_POST['location'] ?? '',
+        'date' => $_POST['date'] ?? '',
+        'time' => $_POST['time'] ?? '',
+        'utc' => isset($_POST['time_correction_utc']),
+        'lmt' => isset($_POST['time_correction_lmt']),
+    ];
 }
 
 // ===========================================================================
