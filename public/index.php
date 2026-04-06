@@ -105,6 +105,23 @@ if ($horoscopeSlug) {
     }
 }
 
+// Vul $_POST met database data voor edit/view mode (voordat formValues wordt gezet)
+if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname'])) {
+    $_POST['firstname'] = $viewHoroscope->getFirstname();
+    $_POST['infix'] = $viewHoroscope->getInfix();
+    $_POST['lastname'] = $viewHoroscope->getLastname();
+    $_POST['date'] = $viewHoroscope->getBirthDate();
+    $_POST['time'] = $viewHoroscope->getBirthTime();
+    $_POST['location'] = $viewHoroscope->getLocationName();
+    
+    $tc = $viewHoroscope->getTimeCorrection();
+    if ($tc === 'utc') {
+        $_POST['time_correction_utc'] = '1';
+    } elseif ($tc === 'lmt') {
+        $_POST['time_correction_lmt'] = '1';
+    }
+}
+
 // ===========================================================================
 // FORMULIER WAARDEN - gebruik POST, session, of database data
 // ===========================================================================
@@ -520,22 +537,6 @@ if (isset($_SESSION['just_submitted_progressions'])) {
 // Check of we net een transit submit hebben gedaan
 if (isset($_SESSION['just_submitted_transits'])) {
     $currentTab = 'transits-list';
-}
-
-if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname'])) {
-    $_POST['firstname'] = $viewHoroscope->getFirstname();
-    $_POST['infix'] = $viewHoroscope->getInfix();
-    $_POST['lastname'] = $viewHoroscope->getLastname();
-    $_POST['date'] = $viewHoroscope->getBirthDate();
-    $_POST['time'] = $viewHoroscope->getBirthTime();
-    $_POST['location'] = $viewHoroscope->getLocationName();
-    
-    $tc = $viewHoroscope->getTimeCorrection();
-    if ($tc === 'utc') {
-        $_POST['time_correction_utc'] = '1';
-    } elseif ($tc === 'lmt') {
-        $_POST['time_correction_lmt'] = '1';
-    }
 }
 
 if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') {
