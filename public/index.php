@@ -176,9 +176,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
 }
 
 // ===========================================================================
+// POST HANDLER - Edit mode: direct opslaan
+// ===========================================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_edit']) && $mode === 'edit' && $viewHoroscope) {
+    $firstname = trim($_POST['firstname'] ?? '');
+    $infix = trim($_POST['infix'] ?? '');
+    $lastname = trim($_POST['lastname'] ?? '');
+    $location = trim($_POST['location'] ?? '');
+    $date = $_POST['date'] ?? '';
+    $time = $_POST['time'] ?? '';
+    
+    // Validation (hergebruik bestaande logica)
+    if (empty($lastname)) {
+        $error = "Achternaam is verplicht";
+    } elseif (!empty($firstname) && !preg_match('/^[\p{L}\s\-\.\']+$/u', $firstname)) {
+        $error = "Ongeldige voornaam";
+    } elseif (!empty($infix) && !preg_match('/^[\p{L}\s\-\']+/u', $infix)) {
+        $error = "Ongeldig tussenvoegsel";
+    } elseif (!preg_match('/^[\p{L}]+$/', $lastname)) {
+        $error = "Ongeldige achternaam";
+    } elseif (!preg_match('/^[\p{L}\s\-\.,\']+$/u', $location)) {
+        $error = "Ongeldige locatie";
+    } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !strtotime($date)) {
+        $error = "Ongeldige datum";
+    } elseif (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $time)) {
+        $error = "Ongeldige tijd";
+    }
+    
+    if (!isset($error)) {
+        // Geocoding (hergebruik bestaande logica)
+        $geoService = new GeocodingService(GOOGLE_API_KEY);
+        $geoResult = $geoService->geocode($location);
+        
+        if (isset($geoResult['error'])) {
+            $error = $geoResult['error'];
+        } else {
+            $lat = $geoResult['lat'];
+            $lng = $geoResult['lng'];
+            $timestamp = strtotime("$date $time");
+            
+            // Timezone lookup
+            $isUtc = isset($_POST['time_correction_utc']);
+            $isLmt = isset($_POST['time_correction_lmt']);
+            $timeCorrection = null;
+            if ($isUtc) $timeCorrection = 'utc';
+            if ($isLmt) $timeCorrection = 'lmt';
+            
+            if ($isUtc) {
+                $utcOffset = 0;
+                $timezoneId = '';
+                $offsetSource = 'manual';
+                $offsetLabel = 'UTC';
+            } elseif ($isLmt) {
+                $utcOffset = (int) round($lng * 240);
+                $timezoneId = '';
+                $offsetSource = 'lmt';
+                $offsetLabel = 'LMT';
+            } else {
+                $tzResult = $geoService->getTimezoneId($lat, $lng, $timestamp);
+                
+                if (isset($tzResult['error'])) {
+                    $error = $tzResult['error'];
+                } else {
+                    $astroTime = new AstroTime($tzResult['timezoneId'], $lng);
+                    $timeResult = $astroTime->getOffset($timestamp);
+                    $utcOffset = $timeResult['offset'];
+                    $timezoneId = $tzResult['timezoneId'];
+                    $offsetSource = $timeResult['source'];
+                    $offsetLabel = $timeResult['label'];
+                }
+            }
+            
+            if (!isset($error)) {
+                // Update horoscope entity
+                $viewHoroscope->setFirstname($firstname ?: null);
+                $viewHoroscope->setInfix($infix ?: null);
+                $viewHoroscope->setLastname($lastname);
+                $viewHoroscope->setBirthDate($date);
+                $viewHoroscope->setBirthTime($time);
+                $viewHoroscope->setLocationName($location);
+                $viewHoroscope->setLatitude($lat);
+                $viewHoroscope->setLongitude($lng);
+                $viewHoroscope->setTimezoneId($timezoneId);
+                $viewHoroscope->setUtcOffset($utcOffset);
+                $viewHoroscope->setTimeCorrection($timeCorrection);
+                $viewHoroscope->setOffsetSource($offsetSource);
+                $viewHoroscope->setOffsetLabel($offsetLabel);
+                $viewHoroscope->setFormattedAddress($geoResult['address']);
+                
+                // Save to database
+                $horoscopeRepo = new HoroscopeRepository();
+                $horoscopeRepo->update($viewHoroscope);
+                
+                // Redirect to dashboard
+                $_SESSION['flash_success'] = 'Horoscoop bijgewerkt.';
+                header('Location: dashboard.php');
+                exit;
+            }
+        }
+    }
+    
+    // Bij error: blijf op formulier, toon error message
+    // FormValues worden hieronder al gezet met de geposte data
+}
+
+// ===========================================================================
 // POST HANDLER - New calculation form submission
 // ===========================================================================
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isset($_POST['save_horoscope'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isset($_POST['save_horoscope']) && !isset($_POST['save_edit'])) {
     $firstname = trim($_POST['firstname'] ?? '');
     $infix = trim($_POST['infix'] ?? '');
     $lastname = trim($_POST['lastname'] ?? '');
@@ -973,20 +1078,23 @@ if ($requestedTab === 'about') {
 
                         <?php if (!$formDisabled): ?>
                         <div class="form-submit">
-                            <button type="submit">
-                                <?php if ($mode === 'edit'): ?>
-                                    Opnieuw berekenen
-                                <?php elseif ($hasSessionHoroscope): ?>
-                                    Herbereken horoscoop
-                                <?php else: ?>
-                                    Horoscoop berekenen
+                            <?php if ($mode === 'edit'): ?>
+                                <button type="submit" name="save_edit" value="1">Wijzigingen opslaan</button>
+                                <a href="dashboard.php" class="btn btn--secondary btn--full-width">Annuleren</a>
+                            <?php else: ?>
+                                <button type="submit">
+                                    <?php if ($hasSessionHoroscope): ?>
+                                        Herbereken horoscoop
+                                    <?php else: ?>
+                                        Horoscoop berekenen
+                                    <?php endif; ?>
+                                </button>
+                                <?php if ($hasSessionHoroscope): ?>
+                                    <a href="?clear=1" class="btn btn--danger btn--full-width" 
+                                       onclick="return confirm('Nieuwe horoscoop berekenen? Huidige gegevens worden gewis.');">
+                                        Bereken nieuwe horoscoop
+                                    </a>
                                 <?php endif; ?>
-                            </button>
-                            <?php if ($hasSessionHoroscope): ?>
-                                <a href="?clear=1" class="btn btn--danger btn--full-width" 
-                                   onclick="return confirm('Nieuwe horoscoop berekenen? Huidige gegevens worden gewis.');">
-                                    Bereken nieuwe horoscoop
-                                </a>
                             <?php endif; ?>
                         </div>
                         <?php else: ?>
