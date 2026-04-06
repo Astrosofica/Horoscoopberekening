@@ -55,8 +55,7 @@ $transitsGroup = [
             <div class="sidebar__placeholder">
                 <?php if ($mode === 'edit'): ?>
                     Je bewerkt een horoscoop.<br><br>
-                    Klik op "Berekenen" om de wijzigingen te zien.<br><br>
-                    Klik op "Opslaan" om de wijzigingen definitief te maken.
+                    Pas de gegevens aan en klik op "Wijzigingen opslaan".
                 <?php else: ?>
                     Bereken eerst een horoscoop om alle opties te zien
                 <?php endif; ?>
