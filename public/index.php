@@ -277,6 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                         'time_correction' => $timeCorrection,
                         'coords' => ['lat' => $lat, 'lng' => $lng],
                         'address' => $geoResult['address'],
+                        'location_name' => $location,
                         'timezone' => $timezoneId,
                         'planets' => $planetResult['planets'],
                         'julian_day' => $planetResult['julian_day'],
@@ -615,6 +616,7 @@ if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION
         'infix' => $input['infix'] ?? '',
         'lastname' => $input['lastname'] ?? '',
         'address' => $input['location_name'] ?? '',
+        'location_name' => $input['location_name'] ?? '',
         'coords' => ['lat' => $input['latitude'] ?? 0, 'lng' => $input['longitude'] ?? 0],
         'timezone' => $input['timezone_id'] ?? '',
         'offset' => $input['utc_offset'] ?? 0,
@@ -997,7 +999,7 @@ if ($requestedTab === 'about') {
                                 <input type="hidden" name="lastname" value="<?= htmlspecialchars($result['lastname'] ?? '') ?>">
                                 <input type="hidden" name="birth_date" value="<?= htmlspecialchars(date('Y-m-d', $result['local_timestamp'])) ?>">
                                 <input type="hidden" name="birth_time" value="<?= htmlspecialchars(date('H:i:s', $result['local_timestamp'])) ?>">
-                                <input type="hidden" name="location_name" value="<?= htmlspecialchars($_POST['location'] ?? '') ?>">
+                                <input type="hidden" name="location_name" value="<?= htmlspecialchars($result['location_name'] ?? $result['address'] ?? '') ?>">
                                 <input type="hidden" name="latitude" value="<?= $result['coords']['lat'] ?>">
                                 <input type="hidden" name="longitude" value="<?= $result['coords']['lng'] ?>">
                                 <input type="hidden" name="timezone_id" value="<?= htmlspecialchars($result['timezone']) ?>">
