@@ -1,6 +1,7 @@
 <?php
 $hasResult = $hasResult ?? false;
 $currentTab = $currentTab ?? 'calculate';
+$mode = $mode ?? 'new';
 
 $menuItems = [
     'calculate' => 'Invoer',
@@ -12,8 +13,8 @@ $resultItems = [
     'aspects' => 'Aspecten',
 ];
 
-// Verberg navigatie secties als er geen horoscoop is berekend
-$hideNavigation = !$hasResult;
+// Verberg navigatie secties als er geen horoscoop is berekend OF in edit mode
+$hideNavigation = !$hasResult || $mode === 'edit';
 
 $progressionsGroup = [
     'progressions' => 'vandaag',
@@ -52,7 +53,13 @@ $transitsGroup = [
         
         <?php if ($hideNavigation): ?>
             <div class="sidebar__placeholder">
-                Bereken eerst een horoscoop om alle opties te zien
+                <?php if ($mode === 'edit'): ?>
+                    Je bewerkt een horoscoop.<br><br>
+                    Klik op "Berekenen" om de wijzigingen te zien.<br><br>
+                    Klik op "Opslaan" om de wijzigingen definitief te maken.
+                <?php else: ?>
+                    Bereken eerst een horoscoop om alle opties te zien
+                <?php endif; ?>
             </div>
         <?php else: ?>
             <div class="sidebar__separator"></div>
