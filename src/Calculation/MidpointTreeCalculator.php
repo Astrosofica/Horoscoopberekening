@@ -5,7 +5,7 @@ namespace Tijd\Calculation;
 class MidpointTreeCalculator
 {
     private const DOMINANT_ASPECTS = [0, 45, 90, 135, 180];
-    private const ASPECT_ORB = 1.2;
+    private const ASPECT_ORB = 1.25;
     private const TOTAL_PLANETS = 13; // 0-12
 
     /**

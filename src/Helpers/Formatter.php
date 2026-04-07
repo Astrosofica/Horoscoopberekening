@@ -301,7 +301,7 @@ class Formatter
     }
     
     /**
-     * Formatteer een orb in graden naar DMS-notatie
+     * Formatteer een orb in graden naar DMS-notatie (absolute waarde)
      * 
      * @param float $orb Orb in decimale graden
      * @return string Formaat: "1° 23' 45\""
@@ -315,6 +315,27 @@ class Formatter
         $second = (int) floor(($rest - $minute) * 60);
         
         return sprintf("%d°%02d'%02d\"", $degree, $minute, $second);
+    }
+    
+    /**
+     * Formatteer een orb met + of - sign (voor applying/separating)
+     * 
+     * - negatieve orb = applying (intensiteit groeit)
+     * - positieve orb = separating (intensiteit vermindert)
+     * 
+     * @param float $orb Orb in decimale graden
+     * @return string Formaat: "+1° 23' 45\"" of "-1° 23' 45\""
+     */
+    public static function formatOrbWithSign(float $orb): string
+    {
+        $sign = $orb >= 0 ? '+' : '-';
+        $orb = abs($orb);
+        $degree = (int) floor($orb);
+        $rest = ($orb - $degree) * 60;
+        $minute = (int) floor($rest);
+        $second = (int) floor(($rest - $minute) * 60);
+        
+        return sprintf("%s%d°%02d'%02d\"", $sign, $degree, $minute, $second);
     }
     
     /**

@@ -1694,7 +1694,7 @@ if ($requestedTab === 'about') {
                                                 <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getAspectGlyph($aspect['aspect_degrees']) ?></span>
                                             </td>
                                             <td class="text-right">
-                                                Orb: <?= \Tijd\Helpers\Formatter::formatOrb(abs($aspect['orb'])) ?>
+                                                Orb: <?= \Tijd\Helpers\Formatter::formatOrbWithSign($aspect['orb']) ?>
                                                 <?= $aspect['exact'] ? '<strong>**</strong>' : '' ?>
                                             </td>
                                         </tr>
