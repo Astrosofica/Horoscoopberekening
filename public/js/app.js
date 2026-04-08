@@ -530,10 +530,19 @@ class DateTimeInput {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if page has result (from PHP template)
+    const hasResultElement = document.querySelector('[data-has-result]');
+    const hasResult = hasResultElement ? hasResultElement.dataset.hasResult === 'true' : false;
+    
     window.tijdApp = new TijdApp();
     
+    // Sync hasResult state if page already has result
+    if (hasResult) {
+        window.tijdApp.enableResultTabs();
+    }
+    
     // Initialize DateTimeInput for birth form
-    if (document.getElementById('date_display') && document.getElementById('date')) {
+    if (document.getElementById('date_display') && document.getElementById('time')) {
         new DateTimeInput('date_display', 'date', 'birth');
     }
     

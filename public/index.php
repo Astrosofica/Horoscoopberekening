@@ -767,8 +767,12 @@ if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION
 }
 
 // Default tab bij resultaat is horoscope, tenzij andere tab gevraagd
-if ($hasResult && $mode !== 'edit' && $currentTab !== 'progressions-list') {
-    $currentTab = 'horoscope';
+if ($hasResult && $mode !== 'edit') {
+    // Alleen op horoscope zetten als we niet al op een lazy tab zitten
+    $lazyTabs = ['progressions-list', 'transits-list', 'aspects', 'progressions', 'antiscia', 'midpoints-planet', 'midpoints-sign', 'midpoints-tree', 'transits'];
+    if (!in_array($currentTab, $lazyTabs)) {
+        $currentTab = 'horoscope';
+    }
     
     // Lazy tabs worden hieronder verwerkt
     if ($requestedTab) {
@@ -993,7 +997,7 @@ if ($requestedTab === 'about') {
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 </head>
-<body>
+<body data-has-result="<?= $hasResult ? 'true' : 'false' ?>">
 <div class="app-wrapper">
     <header class="card card--header card--header--app">
         <div class="header-content">
