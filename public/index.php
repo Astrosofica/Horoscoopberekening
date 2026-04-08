@@ -653,12 +653,13 @@ if (!isset($currentTab)) {
 // Check of we net een progression submit hebben gedaan (moet VÓÓR viewHoroscope blok!)
 if (isset($_SESSION['just_submitted_progressions'])) {
     $currentTab = 'progressions-list';
-    // Marker wordt verwijderd in viewHoroscope blok
+    unset($_SESSION['just_submitted_progressions']);
 }
 
 // Check of we net een transit submit hebben gedaan
 if (isset($_SESSION['just_submitted_transits'])) {
     $currentTab = 'transits-list';
+    unset($_SESSION['just_submitted_transits']);
 }
 
 if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') {
