@@ -440,7 +440,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                         'planets' => $planetsForWheel
                     ];
                     
-// Behoud progression_events als die al bestaat
+// Verwijder oude progression/transit markers bij nieuwe horoscoop
+                    unset($_SESSION['just_submitted_progressions'], $_SESSION['just_submitted_transits']);
+                    
+                    // Behoud progression_events als die al bestaat
                     $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
                     
                     // Session structuur voor lazy loading
