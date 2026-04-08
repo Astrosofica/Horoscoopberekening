@@ -226,8 +226,309 @@ class TijdApp {
     }
 }
 
+class DateTimeInput {
+    constructor(displayElementId, hiddenElementId, type = 'birth') {
+        this.displayElement = document.getElementById(displayElementId);
+        this.hiddenElement = document.getElementById(hiddenElementId);
+        this.type = type;
+        this.isDate = displayElementId.includes('date');
+        this.isTime = displayElementId.includes('time');
+        
+        this.validRange = this.getValidRange();
+        this.errorElement = null;
+        this.hintElement = null;
+        
+        this.init();
+    }
+    
+    getValidRange() {
+        switch(this.type) {
+            case 'transit': return { minYear: 1930, maxYear: 2039 };
+            case 'birth': return { minYear: 1800, maxYear: 2100 };
+            case 'progression': return { minYear: 1800, maxYear: 2100 };
+            default: return { minYear: 1800, maxYear: 2100 };
+        }
+    }
+    
+    init() {
+        this.createFeedbackElements();
+        this.convertInitialValue();
+        this.bindEvents();
+    }
+    
+    cleanNumbers(value) {
+        return value.replace(/[^\d]/g, '');
+    }
+    
+    createFeedbackElements() {
+        const parent = this.displayElement.closest('.form-group');
+        
+        if (!parent) return;
+        
+        this.errorElement = parent.querySelector('.form-hint-inline--error');
+        if (!this.errorElement) {
+            this.errorElement = document.createElement('div');
+            this.errorElement.className = 'form-hint-inline form-hint-inline--error';
+            this.errorElement.style.display = 'none';
+            parent.appendChild(this.errorElement);
+        }
+        
+        this.hintElement = parent.querySelector('.form-hint-inline--hint');
+        if (!this.hintElement) {
+            this.hintElement = document.createElement('div');
+            this.hintElement.className = 'form-hint-inline form-hint-inline--hint';
+            this.hintElement.style.display = 'none';
+            parent.appendChild(this.hintElement);
+        }
+    }
+    
+    convertInitialValue() {
+        const value = this.hiddenElement.value;
+        if (!value) return;
+        
+        if (this.isDate) {
+            const [y, m, d] = value.split('-');
+            this.displayElement.value = `${d}-${m}-${y}`;
+        }
+        
+        if (this.isTime) {
+            this.displayElement.value = value;
+        }
+    }
+    
+    bindEvents() {
+        this.displayElement.addEventListener('input', this.onInput.bind(this));
+        this.displayElement.addEventListener('blur', this.onBlur.bind(this));
+    }
+    
+    onInput(e) {
+        let value = e.target.value;
+        
+        value = this.cleanNumbers(value);
+        
+        if (this.isDate && value.length > 8) value = value.slice(0, 8);
+        if (this.isTime && value.length > 6) value = value.slice(0, 6);
+        
+        let formatted;
+        
+        if (this.isDate) {
+            let d = value.slice(0, 2);
+            let m = value.slice(2, 4);
+            let y = value.slice(4, 8);
+            
+            formatted = d;
+            if (m) formatted += '-' + m;
+            if (y) formatted += '-' + y;
+        }
+        
+        if (this.isTime) {
+            let h = value.slice(0, 2);
+            let m = value.slice(2, 4);
+            let s = value.slice(4, 6);
+            
+            formatted = h;
+            if (m) formatted += ':' + m;
+            if (s) formatted += ':' + s;
+        }
+        
+        e.target.value = formatted;
+        
+        this.hideFeedback();
+        this.showHint(value);
+    }
+    
+    isValidDate(str) {
+        const parts = str.split('-');
+        if (parts.length !== 3) return false;
+        
+        let [d, m, y] = parts.map(Number);
+        
+        if (!d || !m || !y) return false;
+        if (y < this.validRange.minYear || y > this.validRange.maxYear) {
+            return false;
+        }
+        
+        const date = new Date(y, m - 1, d);
+        
+        return date.getFullYear() === y &&
+               date.getMonth() === m - 1 &&
+               date.getDate() === d;
+    }
+    
+    isValidTime(str) {
+        const parts = str.split(':');
+        if (parts.length < 2) return false;
+        
+        let [h, m, s = 0] = parts.map(Number);
+        
+        return h >= 0 && h <= 23 &&
+               m >= 0 && m <= 59 &&
+               s >= 0 && s <= 59;
+    }
+    
+    onBlur(e) {
+        const value = e.target.value;
+        
+        let isValid;
+        let errorMessage;
+        
+        if (this.isDate) {
+            isValid = this.isValidDate(value);
+            
+            if (!isValid) {
+                if (value.replace(/-/g, '').length < 8) {
+                    errorMessage = "Voer 8 cijfers in (DD-MM-JJJJ of DDMJJJJJ)";
+                } else {
+                    const parts = value.split('-');
+                    if (parts.length !== 3) {
+                        errorMessage = "Ongeldige datum format";
+                    } else {
+                        let [d, m, y] = parts.map(Number);
+                        
+                        if (y < this.validRange.minYear || y > this.validRange.maxYear) {
+                            errorMessage = `Jaar moet tussen ${this.validRange.minYear}-${this.validRange.maxYear} liggen`;
+                        } else if (m < 1 || m > 12) {
+                            errorMessage = "Maand moet 1-12 zijn";
+                        } else if (d < 1 || d > 31) {
+                            errorMessage = "Dag moet 1-31 zijn";
+                        } else {
+                            errorMessage = "Ongeldige datum (bijv. 31 februari)";
+                        }
+                    }
+                }
+            }
+            
+            if (isValid) {
+                this.normalizeDate(value);
+            }
+        }
+        
+        if (this.isTime) {
+            isValid = this.isValidTime(value);
+            
+            if (!isValid) {
+                const digits = value.replace(/:/g, '').length;
+                if (digits < 4) {
+                    errorMessage = "Voer 4-6 cijfers in (UUMM of UU:MM:SS)";
+                } else {
+                    errorMessage = "Ongeldige tijd (uur 0-23, min 0-59)";
+                }
+            }
+            
+            if (isValid) {
+                this.normalizeTime(value);
+            }
+        }
+        
+        if (isValid) {
+            this.showValid();
+            this.hideHint();
+        } else {
+            this.showError(errorMessage);
+        }
+    }
+    
+    normalizeDate(str) {
+        let [d, m, y] = str.split('-');
+        
+        d = d.padStart(2, '0');
+        m = m.padStart(2, '0');
+        
+        const serverFormat = `${y}-${m}-${d}`;
+        
+        this.hiddenElement.value = serverFormat;
+        
+        const displayFormat = `${d}-${m}-${y}`;
+        this.displayElement.value = displayFormat;
+    }
+    
+    normalizeTime(str) {
+        let parts = str.split(':');
+        let [h, m, s = '00'] = parts;
+        
+        h = h.padStart(2, '0');
+        m = m.padStart(2, '0');
+        s = s.padStart(2, '0');
+        
+        const normalized = `${h}:${m}:${s}`;
+        
+        this.hiddenElement.value = normalized;
+        this.displayElement.value = normalized;
+    }
+    
+    showError(message) {
+        if (this.errorElement) {
+            this.errorElement.textContent = message;
+            this.errorElement.style.display = 'block';
+        }
+        if (this.hintElement) {
+            this.hintElement.style.display = 'none';
+        }
+    }
+    
+    showValid() {
+        if (this.errorElement) {
+            this.errorElement.style.display = 'none';
+        }
+    }
+    
+    showHint(value) {
+        if (!this.hintElement) return;
+        
+        const length = value.length;
+        
+        if (this.isDate) {
+            if (length < 2) {
+                this.hintElement.textContent = "Voer dag in (2 cijfers)";
+                this.hintElement.style.display = 'block';
+            } else if (length < 4) {
+                this.hintElement.textContent = "Voer maand in (2 cijfers)";
+                this.hintElement.style.display = 'block';
+            } else if (length < 8) {
+                this.hintElement.textContent = "Voer jaar in (4 cijfers)";
+                this.hintElement.style.display = 'block';
+            } else {
+                this.hintElement.style.display = 'none';
+            }
+        }
+        
+        if (this.isTime) {
+            if (length < 2) {
+                this.hintElement.textContent = "Voer uur in (2 cijfers)";
+                this.hintElement.style.display = 'block';
+            } else if (length < 4) {
+                this.hintElement.textContent = "Voer minuten in (2 cijfers)";
+                this.hintElement.style.display = 'block';
+            } else {
+                this.hintElement.style.display = 'none';
+            }
+        }
+    }
+    
+    hideHint() {
+        if (this.hintElement) {
+            this.hintElement.style.display = 'none';
+        }
+    }
+    
+    hideFeedback() {
+        if (this.errorElement) {
+            this.errorElement.style.display = 'none';
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     window.tijdApp = new TijdApp();
+    
+    // Initialize DateTimeInput for birth form
+    if (document.getElementById('date_display') && document.getElementById('date')) {
+        new DateTimeInput('date_display', 'date', 'birth');
+    }
+    
+    if (document.getElementById('time_display') && document.getElementById('time')) {
+        new DateTimeInput('time_display', 'time', 'birth');
+    }
 });
 
 // =============================================================================

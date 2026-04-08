@@ -91,6 +91,27 @@
     margin-top: 6px;
 }
 
+.form-hint-inline {
+    font-size: var(--font-size-sm);
+    margin-top: 6px;
+    line-height: 1.4;
+}
+
+.form-hint-inline--error {
+    color: var(--color-danger);
+    display: none;
+}
+
+.form-hint-inline--hint {
+    color: var(--color-text-hint);
+    display: none;
+}
+
+.form-hint-inline--valid {
+    color: var(--color-success);
+    display: none;
+}
+
 .form-submit {
     margin-top: var(--spacing-sm);
 }

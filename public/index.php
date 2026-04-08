@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_edit']) && $mode === 'edit' && $viewHoroscope) {
     $firstname = trim($_POST['firstname'] ?? '');
     $infix = trim($_POST['infix'] ?? '');
-    $lastname = trim($_POST['lastname'] ?? '');
+    $lastname = preg_replace('/\s+/', ' ', trim($_POST['lastname'] ?? ''));
     $location = trim($_POST['location'] ?? '');
     $date = $_POST['date'] ?? '';
     $time = $_POST['time'] ?? '';
@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_edit']) && $mode
         $error = "Ongeldige voornaam";
     } elseif (!empty($infix) && !preg_match('/^[\p{L}\s\-\']+/u', $infix)) {
         $error = "Ongeldig tussenvoegsel";
-    } elseif (!preg_match('/^[\p{L}]+$/', $lastname)) {
+    } elseif (!preg_match('/^[\p{L}\s\-\']+$/u', $lastname)) {
         $error = "Ongeldige achternaam";
     } elseif (!preg_match('/^[\p{L}\s\-\.,\']+$/u', $location)) {
         $error = "Ongeldige locatie";
@@ -286,7 +286,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_edit']) && $mode
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isset($_POST['save_horoscope']) && !isset($_POST['save_edit'])) {
     $firstname = trim($_POST['firstname'] ?? '');
     $infix = trim($_POST['infix'] ?? '');
-    $lastname = trim($_POST['lastname'] ?? '');
+    $lastname = preg_replace('/\s+/', ' ', trim($_POST['lastname'] ?? ''));
     $location = trim($_POST['location'] ?? '');
     $date = $_POST['date'] ?? '';
     $time = $_POST['time'] ?? '';
@@ -304,7 +304,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
         $error = "Ongeldige voornaam";
     } elseif (!empty($infix) && !preg_match('/^[\p{L}\s\-\']+/u', $infix)) {
         $error = "Ongeldig tussenvoegsel";
-    } elseif (!preg_match('/^[\p{L}]+$/', $lastname)) {
+    } elseif (!preg_match('/^[\p{L}\s\-\']+$/u', $lastname)) {
         $error = "Ongeldige achternaam";
     } elseif (!preg_match('/^[\p{L}\s\-\.,\']+$/u', $location)) {
         $error = "Ongeldige locatie";
@@ -1049,12 +1049,14 @@ if ($requestedTab === 'about') {
 
                         <div class="form-row half">
                             <div class="form-group">
-                                <label for="date">Datum</label>
-                                <input type="date" id="date" name="date" value="<?= htmlspecialchars($formValues['date']) ?>" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <label for="date_display">Datum</label>
+                                <input type="text" id="date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="hidden" id="date" name="date" value="<?= htmlspecialchars($formValues['date']) ?>">
                             </div>
                             <div class="form-group">
-                                <label for="time">Tijd (lokaal)</label>
-                                <input type="time" id="time" name="time" value="<?= htmlspecialchars($formValues['time']) ?>" step="1" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <label for="time_display">Tijd (lokaal)</label>
+                                <input type="text" id="time_display" inputmode="numeric" placeholder="HH:MM:SS" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <input type="hidden" id="time" name="time" value="<?= htmlspecialchars($formValues['time']) ?>">
                             </div>
                         </div>
 
