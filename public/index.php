@@ -1329,8 +1329,18 @@ if ($requestedTab === 'about') {
                             <div class="progression-column progression-column--tijdvak">
                                 <h4>Tijdvak</h4>
                                 <div class="progression-datepicker">
-                                    <label>Start:<br><input type="date" name="prog_start_date" id="prog_start_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['start_date'] ?? date('Y-01-01')) ?>"></label>
-                                    <label>Eind:<br><input type="date" name="prog_end_date" id="prog_end_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['end_date'] ?? date('Y-12-31')) ?>"></label>
+                                    <label>Start:<br>
+                                        <input type="text" name="prog_start_date_display" id="prog_start_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" value="" autocomplete="off">
+                                        <input type="hidden" name="prog_start_date" id="prog_start_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['start_date'] ?? date('Y-01-01')) ?>">
+                                        <div class="form-hint-inline form-hint-inline--error"></div>
+                                        <div class="form-hint-inline form-hint-inline--hint"></div>
+                                    </label>
+                                    <label>Eind:<br>
+                                        <input type="text" name="prog_end_date_display" id="prog_end_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" value="" autocomplete="off">
+                                        <input type="hidden" name="prog_end_date" id="prog_end_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['end_date'] ?? date('Y-12-31')) ?>">
+                                        <div class="form-hint-inline form-hint-inline--error"></div>
+                                        <div class="form-hint-inline form-hint-inline--hint"></div>
+                                    </label>
                                 </div>
                                 <div class="section-divider"></div>
                                 <div class="progression-sectie">
@@ -1759,16 +1769,26 @@ if ($requestedTab === 'about') {
 
                         <form method="POST" class="transit-form">
                             <div class="transit-form-columns">
-                                <div class="transit-column transit-column--tijdvak">
-                                    <h4>Tijdvak</h4>
-                                    <div class="transit-datepicker">
-                                        <label>Start:<br><input type="date" name="transit_start_date"
-                                            value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['start_date'] ?? date('Y-01-01')) : '' ?>"
-                                            required></label>
-                                        <label>Eind:<br><input type="date" name="transit_end_date"
-                                            value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? date('Y-12-31')) : '' ?>"
-                                            required></label>
-                                    </div>
+                                    <div class="transit-column transit-column--tijdvak">
+                                        <h4>Tijdvak</h4>
+                                        <div class="transit-datepicker">
+                                            <label>Start:<br>
+                                                <input type="text" name="transit_start_date_display" id="transit_start_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ"
+                                                    value="<?= isset($transitEventsResult) && isset($_SESSION['horoscope']['transit_events']['input']['start_date']) ? htmlspecialchars(date('d-m-Y', strtotime($_SESSION['horoscope']['transit_events']['input']['start_date']))) : '' ?>">
+                                                <input type="hidden" name="transit_start_date" id="transit_start_date"
+                                                    value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['start_date'] ?? date('Y-01-01')) : '' ?>">
+                                                <div class="form-hint-inline form-hint-inline--error"></div>
+                                                <div class="form-hint-inline form-hint-inline--hint"></div>
+                                            </label>
+                                            <label>Eind:<br>
+                                                <input type="text" name="transit_end_date_display" id="transit_end_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ"
+                                                    value="<?= isset($transitEventsResult) && isset($_SESSION['horoscope']['transit_events']['input']['end_date']) ? htmlspecialchars(date('d-m-Y', strtotime($_SESSION['horoscope']['transit_events']['input']['end_date']))) : '' ?>">
+                                                <input type="hidden" name="transit_end_date" id="transit_end_date"
+                                                    value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? date('Y-12-31')) : '' ?>">
+                                                <div class="form-hint-inline form-hint-inline--error"></div>
+                                                <div class="form-hint-inline form-hint-inline--hint"></div>
+                                            </label>
+                                        </div>
                                     <div class="section-divider"></div>
                                     <div class="transit-sectie">
                                         <h5>Selectie</h5>
