@@ -494,9 +494,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
 // POST HANDLER - Progression Events Form
 // ===========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progressions'])) {
-    // Debug naar bestand
-    file_put_contents(__DIR__ . '/../var/log/debug.log', date('Y-m-d H:i:s') . " POST received\n", FILE_APPEND);
-    file_put_contents(__DIR__ . '/../var/log/debug.log', "POST data: " . json_encode($_POST) . "\n", FILE_APPEND);
+    // Check voor saved horoscope: populate session if missing
+    if (!isset($_SESSION['horoscope']['core']) && $viewHoroscope) {
+        $calculator = new HoroscopeCalculator();
+        $calcResult = $calculator->calculate($viewHoroscope);
+        $_SESSION['horoscope'] = [
+            'input' => [
+                'firstname' => $viewHoroscope->getFirstname(),
+                'infix' => $viewHoroscope->getInfix(),
+                'lastname' => $viewHoroscope->getLastname(),
+                'birth_date' => $viewHoroscope->getBirthDate(),
+                'birth_time' => $viewHoroscope->getBirthTime(),
+                'location_name' => $viewHoroscope->getLocationName(),
+                'latitude' => $viewHoroscope->getLatitude(),
+                'longitude' => $viewHoroscope->getLongitude(),
+                'timezone_id' => $viewHoroscope->getTimezoneId(),
+                'utc_offset' => $viewHoroscope->getUtcOffset(),
+                'time_correction' => $viewHoroscope->getTimeCorrection(),
+                'offset_source' => $viewHoroscope->getOffsetSource(),
+                'offset_label' => $viewHoroscope->getOffsetLabel(),
+            ],
+            'core' => [
+                'planets' => $calcResult['planets'],
+                'houses' => $calcResult['houses']['houses'],
+                'ascmc' => $calcResult['houses']['ascmc'],
+                'julian_day' => $calcResult['julian_day'],
+            ],
+            'aspects' => null,
+        ];
+        error_log("[Tijd] POST Handler - Populated session from viewHoroscope for saved horoscope");
+    }
     
     if (!isset($_SESSION['horoscope']['core'])) {
         $error = "Eerst een horoscoop berekenen voordat progressies kunnen worden berekend.";
@@ -587,6 +614,37 @@ $_SESSION['horoscope']['progression_events'] = [
 // POST HANDLER - Transit Events
 // ===========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])) {
+    // Check voor saved horoscope: populate session if missing
+    if (!isset($_SESSION['horoscope']['core']) && $viewHoroscope) {
+        $calculator = new HoroscopeCalculator();
+        $calcResult = $calculator->calculate($viewHoroscope);
+        $_SESSION['horoscope'] = [
+            'input' => [
+                'firstname' => $viewHoroscope->getFirstname(),
+                'infix' => $viewHoroscope->getInfix(),
+                'lastname' => $viewHoroscope->getLastname(),
+                'birth_date' => $viewHoroscope->getBirthDate(),
+                'birth_time' => $viewHoroscope->getBirthTime(),
+                'location_name' => $viewHoroscope->getLocationName(),
+                'latitude' => $viewHoroscope->getLatitude(),
+                'longitude' => $viewHoroscope->getLongitude(),
+                'timezone_id' => $viewHoroscope->getTimezoneId(),
+                'utc_offset' => $viewHoroscope->getUtcOffset(),
+                'time_correction' => $viewHoroscope->getTimeCorrection(),
+                'offset_source' => $viewHoroscope->getOffsetSource(),
+                'offset_label' => $viewHoroscope->getOffsetLabel(),
+            ],
+            'core' => [
+                'planets' => $calcResult['planets'],
+                'houses' => $calcResult['houses']['houses'],
+                'ascmc' => $calcResult['houses']['ascmc'],
+                'julian_day' => $calcResult['julian_day'],
+            ],
+            'aspects' => null,
+        ];
+        error_log("[Tijd] POST Handler - Populated session from viewHoroscope for saved horoscope (transit)");
+    }
+    
     if (!isset($_SESSION['horoscope']['core'])) {
         $error = "Bereken eerst een horoscoop voordat je transits kunt bekijken.";
     } else {
@@ -668,21 +726,17 @@ if (isset($_SESSION['just_submitted_transits'])) {
 }
 
 if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Check of we net een progression submit hebben gedaan
-    $justDidProgression = isset($_SESSION['just_submitted_progressions']);
-    $justDidTransits = isset($_SESSION['just_submitted_transits']);
-    
     // Reset lazy tabs bij laden opgeslagen horoscoop
     unset($_SESSION['horoscope']['aspects']);
+    
+    // BEHOUD progression_events en transit_events (ongeacht marker status)
+    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
+    $existingTransitEvents = $_SESSION['horoscope']['transit_events'] ?? null;
     
     $calculator = new HoroscopeCalculator();
     $result = $calculator->calculate($viewHoroscope);
     $wheelData = $calculator->prepareWheelData($result);
     $_SESSION['wheel_data'] = $wheelData;
-    
-    // Behoud progression_events en transit_events als we net een submit hebben gedaan
-    $existingProgressionEvents = $justDidProgression ? ($_SESSION['horoscope']['progression_events'] ?? null) : null;
-    $existingTransitEvents = $justDidTransits ? ($_SESSION['horoscope']['transit_events'] ?? null) : null;
     
     // Session structuur voor lazy loading
     $_SESSION['horoscope'] = [
@@ -710,28 +764,18 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
         'aspects' => null, // Lazy loaded
     ];
     
-    // Herstel progression_events als we net een submit hadden
+    // Herstel progression_events indien die bestond
     if ($existingProgressionEvents !== null) {
         $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
-    } else {
-        // Verwijder progression_events bij normaal laden opgeslagen horoscoop
-        unset($_SESSION['horoscope']['progression_events']);
     }
     
-    // Herstel transit_events als we net een submit hadden
+    // Herstel transit_events indien die bestond
     if ($existingTransitEvents !== null) {
         $_SESSION['horoscope']['transit_events'] = $existingTransitEvents;
-    } else {
-        unset($_SESSION['horoscope']['transit_events']);
     }
     
-    // Verwijder markers als die gezet waren
-    if ($justDidProgression) {
-        unset($_SESSION['just_submitted_progressions']);
-    }
-    if ($justDidTransits) {
-        unset($_SESSION['just_submitted_transits']);
-    }
+    // Verwijder eenmalige redirect markers
+    unset($_SESSION['just_submitted_progressions'], $_SESSION['just_submitted_transits']);
 }
 
 // ===========================================================================
