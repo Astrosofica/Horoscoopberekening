@@ -66,97 +66,13 @@ class TijdApp {
         
         // Lazy loading: reload bij eerste bezoek aan aspecten tab
         // zodat server de data kan berekenen
-        if (tabId === 'aspects' && pushState) {
-            // Check of we al een page reload nodig hebben
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            // Alleen reload als we niet al op de aspecten tab zijn
-            if (currentTab !== 'aspects') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
+        const lazyReloadTabs = ['aspects', 'progressions', 'antiscia', 'midpoints-planet', 'midpoints-sign', 'midpoints-tree', 'transits', 'transits-list'];
         
-        // Lazy loading: reload bij eerste bezoek aan progressies tab
-        if (tabId === 'progressions' && pushState) {
+        if (lazyReloadTabs.includes(tabId) && pushState) {
             const url = new URL(window.location.href);
             const currentTab = url.searchParams.get('tab');
             
-            if (currentTab !== 'progressions') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan antiscia tab
-        if (tabId === 'antiscia' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'antiscia') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan midpoints-planet tab
-        if (tabId === 'midpoints-planet' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'midpoints-planet') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan midpoints-sign tab
-        if (tabId === 'midpoints-sign' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'midpoints-sign') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan midpoints-tree tab
-        if (tabId === 'midpoints-tree' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'midpoints-tree') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan transits tab
-        if (tabId === 'transits' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'transits') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan transits-list tab
-        if (tabId === 'transits-list' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'transits-list') {
+            if (currentTab !== tabId) {
                 url.searchParams.set('tab', tabId);
                 window.location.href = url.toString();
                 return;
@@ -578,21 +494,18 @@ function checkToggleState(name, toggleId, totalCount) {
     document.getElementById(toggleId).checked = (checkedCount === totalCount);
 }
 
-function quickCalendarYear() {
+function quickDateCalendarYear(prefix) {
     const year = new Date().getFullYear();
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
     
-    // Update hidden fields (server format)
-    document.getElementById('prog_start_date').value = startDate;
-    document.getElementById('prog_end_date').value = endDate;
-    
-    // Update display fields (user format DD-MM-YYYY)
-    document.getElementById('prog_start_date_display').value = `01-01-${year}`;
-    document.getElementById('prog_end_date_display').value = `31-12-${year}`;
+    document.getElementById(`${prefix}_start_date`).value = startDate;
+    document.getElementById(`${prefix}_end_date`).value = endDate;
+    document.getElementById(`${prefix}_start_date_display`).value = `01-01-${year}`;
+    document.getElementById(`${prefix}_end_date_display`).value = `31-12-${year}`;
 }
 
-function quickTwoYears() {
+function quickDateTwoYears(prefix, uncheckId) {
     const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
     
@@ -610,15 +523,30 @@ function quickTwoYears() {
     const endMonth = pad(endDate.getMonth() + 1);
     const endDay = pad(endDate.getDate());
     
-    // Update hidden fields (server format YYYY-MM-DD)
-    document.getElementById('prog_start_date').value = `${startYear}-${startMonth}-${startDay}`;
-    document.getElementById('prog_end_date').value = `${endYear}-${endMonth}-${endDay}`;
+    document.getElementById(`${prefix}_start_date`).value = `${startYear}-${startMonth}-${startDay}`;
+    document.getElementById(`${prefix}_end_date`).value = `${endYear}-${endMonth}-${endDay}`;
+    document.getElementById(`${prefix}_start_date_display`).value = `${startDay}-${startMonth}-${startYear}`;
+    document.getElementById(`${prefix}_end_date_display`).value = `${endDay}-${endMonth}-${endYear}`;
     
-    // Update display fields (user format DD-MM-YYYY)
-    document.getElementById('prog_start_date_display').value = `${startDay}-${startMonth}-${startYear}`;
-    document.getElementById('prog_end_date_display').value = `${endDay}-${endMonth}-${endYear}`;
-    
-    document.getElementById('quick-calyear').checked = false;
+    if (uncheckId) {
+        document.getElementById(uncheckId).checked = false;
+    }
+}
+
+function quickCalendarYear() {
+    quickDateCalendarYear('prog');
+}
+
+function quickTwoYears() {
+    quickDateTwoYears('prog', 'quick-calyear');
+}
+
+function quickTransitCalendarYear() {
+    quickDateCalendarYear('transit');
+}
+
+function quickTransitTwoYears() {
+    quickDateTwoYears('transit', null);
 }
 
 function toggleDominantAspects() {
@@ -644,47 +572,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
-function quickTransitCalendarYear() {
-    const year = new Date().getFullYear();
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
-    
-    // Update hidden fields (server format)
-    document.getElementById('transit_start_date').value = startDate;
-    document.getElementById('transit_end_date').value = endDate;
-    
-    // Update display fields (user format DD-MM-YYYY)
-    document.getElementById('transit_start_date_display').value = `01-01-${year}`;
-    document.getElementById('transit_end_date_display').value = `31-12-${year}`;
-}
-
-function quickTransitTwoYears() {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    
-    const startDate = new Date(now);
-    startDate.setFullYear(startDate.getFullYear() - 1);
-    
-    const endDate = new Date(now);
-    endDate.setFullYear(endDate.getFullYear() + 1);
-    
-    const startYear = startDate.getFullYear();
-    const startMonth = pad(startDate.getMonth() + 1);
-    const startDay = pad(startDate.getDate());
-    
-    const endYear = endDate.getFullYear();
-    const endMonth = pad(endDate.getMonth() + 1);
-    const endDay = pad(endDate.getDate());
-    
-    // Update hidden fields (server format YYYY-MM-DD)
-    document.getElementById('transit_start_date').value = `${startYear}-${startMonth}-${startDay}`;
-    document.getElementById('transit_end_date').value = `${endYear}-${endMonth}-${endDay}`;
-    
-    // Update display fields (user format DD-MM-YYYY)
-    document.getElementById('transit_start_date_display').value = `${startDay}-${startMonth}-${startYear}`;
-    document.getElementById('transit_end_date_display').value = `${endDay}-${endMonth}-${endYear}`;
-}
 
 function toggleAdvancedSettings() {
     const content = document.getElementById('advanced-settings-content');
