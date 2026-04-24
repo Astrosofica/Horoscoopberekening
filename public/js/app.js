@@ -374,15 +374,11 @@ class DateTimeInput {
     onBlur(e) {
         const value = e.target.value;
         
-        console.log('[DateTimeInput] onBlur called for', this.displayElement.id, 'with value:', value);
-        
         let isValid;
         let errorMessage;
         
         if (this.isDate) {
             isValid = this.isValidDate(value);
-            
-            console.log('[DateTimeInput] isValidDate result:', isValid, 'for value:', value);
             
             if (!isValid) {
                 if (value.replace(/-/g, '').length < 8) {
@@ -428,8 +424,6 @@ class DateTimeInput {
                 this.normalizeTime(value);
             }
         }
-        
-        console.log('[DateTimeInput] isValid:', isValid, 'errorMessage:', errorMessage);
         
         if (isValid) {
             this.showValid();
