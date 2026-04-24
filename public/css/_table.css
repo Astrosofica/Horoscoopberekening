@@ -32,21 +32,6 @@
     background-color: var(--bg-hover);
 }
 
-.table-header--blue {
-    background: var(--color-primary);
-    color: white;
-}
-
-.table-header--purple {
-    background: var(--color-accent);
-    color: white;
-}
-
-.table-header--orange {
-    background: var(--color-warning);
-    color: white;
-}
-
 /* Default: geen speciale achtergrond voor dominante aspecten */
 .row--dominant {
     /* Geen background-color - gebruikt standaard rij kleur */
@@ -85,10 +70,6 @@
 
 .aspecten-toggle-label input[type="checkbox"] {
     cursor: pointer;
-}
-
-.dashboard-table {
-    display: none;
 }
 
 .horoscope-list {
