@@ -691,3 +691,37 @@ function quickTransitTwoYears() {
     document.getElementById('transit_start_date_display').value = `${startDay}-${startMonth}-${startYear}`;
     document.getElementById('transit_end_date_display').value = `${endDay}-${endMonth}-${endYear}`;
 }
+
+function toggleAdvancedSettings() {
+    const content = document.getElementById('advanced-settings-content');
+    const toggle = document.querySelector('.advanced-settings__toggle');
+    
+    if (content.classList.contains('visible')) {
+        content.classList.remove('visible');
+        toggle.classList.remove('active');
+        localStorage.setItem('advancedSettingsOpen', 'false');
+    } else {
+        content.classList.add('visible');
+        toggle.classList.add('active');
+        localStorage.setItem('advancedSettingsOpen', 'true');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const content = document.getElementById('advanced-settings-content');
+    const toggle = document.querySelector('.advanced-settings__toggle');
+    
+    if (!content || !toggle) return;
+    
+    // If PHP already set it open (has visible class), don't override
+    if (content.classList.contains('visible')) {
+        return;
+    }
+    
+    // Otherwise, check localStorage
+    const saved = localStorage.getItem('advancedSettingsOpen');
+    if (saved === 'true') {
+        content.classList.add('visible');
+        toggle.classList.add('active');
+    }
+});

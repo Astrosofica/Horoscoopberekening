@@ -157,7 +157,7 @@ class HoroscopeRepository
         $stmt = $this->db->prepare(
             'UPDATE horoscopes SET 
                 firstname = ?, infix = ?, lastname = ?, birth_date = ?, birth_time = ?, location_name = ?,
-                latitude = ?, longitude = ?, timezone_id = ?, utc_offset = ?,
+                latitude = ?, longitude = ?, timezone_id = ?, utc_offset = ?, time_correction = ?,
                 offset_source = ?, offset_label = ?, formatted_address = ?, house_system = ?
             WHERE id = ? AND user_id = ?'
         );
@@ -173,6 +173,7 @@ class HoroscopeRepository
             $horoscope->getLongitude(),
             $horoscope->getTimezoneId(),
             $horoscope->getUtcOffset(),
+            $horoscope->getTimeCorrection(),
             $horoscope->getOffsetSource(),
             $horoscope->getOffsetLabel(),
             $horoscope->getFormattedAddress(),

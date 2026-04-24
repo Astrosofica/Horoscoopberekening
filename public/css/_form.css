@@ -240,3 +240,61 @@
         display: none !important;
     }
 }
+
+.advanced-settings {
+    margin-top: var(--spacing-lg);
+}
+
+.advanced-settings__toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-input);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.advanced-settings__toggle:hover {
+    background: var(--bg-hover);
+    border-color: var(--color-primary);
+}
+
+.advanced-settings__title {
+    font-weight: 600;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-base);
+}
+
+.advanced-settings__icon {
+    color: var(--color-text-muted);
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.advanced-settings__toggle.active .advanced-settings__icon {
+    transform: rotate(180deg);
+}
+
+.advanced-settings__content {
+    display: none;
+    padding-top: var(--spacing-lg);
+}
+
+.advanced-settings__content.visible {
+    display: block;
+}
+
+.warning-text {
+    color: #8b5a5a;
+    background: var(--bg-error);
+    border: 1px solid var(--border-error);
+    border-radius: var(--border-radius);
+    padding: 8px 12px;
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}

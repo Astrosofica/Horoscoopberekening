@@ -158,8 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'location' => $input['location_name'] ?? '',
         'date' => $input['birth_date'] ?? '',
         'time' => $input['birth_time'] ?? '',
-        'utc' => false,
-        'lmt' => false,
+        'utc' => ($input['time_correction'] ?? null) === 'utc',
+        'lmt' => ($input['time_correction'] ?? null) === 'lmt',
     ];
 } elseif (!empty($_POST['lastname'])) {
     // Gebruik $_POST data (gevuld met database data voor edit/view mode)
@@ -174,6 +174,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'lmt' => isset($_POST['time_correction_lmt']),
     ];
 }
+
+$advancedSettingsOpen = $formValues['utc'] || $formValues['lmt'];
 
 // ===========================================================================
 // POST HANDLER - Edit mode: direct opslaan
@@ -230,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_edit']) && $mode
             } elseif ($isLmt) {
                 $utcOffset = (int) round($lng * 240);
                 $timezoneId = '';
-                $offsetSource = 'lmt';
+                $offsetSource = 'manual';
                 $offsetLabel = 'LMT';
             } else {
                 $tzResult = $geoService->getTimezoneId($lat, $lng, $timestamp);
@@ -347,7 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                 $utcTimestamp = $timestamp - $lmtOffset;
                 $timeResult = [
                     'offset' => $lmtOffset,
-                    'source' => 'lmt',
+                    'source' => 'manual',
                     'label' => 'LMT'
                 ];
                 $timezoneId = '';
@@ -460,6 +462,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                             'longitude' => $lng,
                             'timezone_id' => $timezoneId,
                             'utc_offset' => $timeResult['offset'],
+                            'time_correction' => $timeCorrection,
+                            'offset_source' => $timeResult['source'],
+                            'offset_label' => $timeResult['label'],
                         ],
                         'core' => [
                             'planets' => $result['planets'],
@@ -692,6 +697,9 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
             'longitude' => $viewHoroscope->getLongitude(),
             'timezone_id' => $viewHoroscope->getTimezoneId(),
             'utc_offset' => $viewHoroscope->getUtcOffset(),
+            'time_correction' => $viewHoroscope->getTimeCorrection(),
+            'offset_source' => $viewHoroscope->getOffsetSource(),
+            'offset_label' => $viewHoroscope->getOffsetLabel(),
         ],
         'core' => [
             'planets' => $result['planets'],
@@ -750,9 +758,9 @@ if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION
         'coords' => ['lat' => $input['latitude'] ?? 0, 'lng' => $input['longitude'] ?? 0],
         'timezone' => $input['timezone_id'] ?? '',
         'offset' => $input['utc_offset'] ?? 0,
-        'label' => 'UTC+' . round(($input['utc_offset'] ?? 0) / 3600),
-        'time_correction' => 'standard',
-        'source' => 'session',
+        'label' => $input['offset_label'] ?? 'UTC+' . round(($input['utc_offset'] ?? 0) / 3600),
+        'time_correction' => $input['time_correction'] ?? null,
+        'source' => $input['offset_source'] ?? 'session',
         'local_timestamp' => $localTs,
         'utc_timestamp' => $localTs - ($input['utc_offset'] ?? 0),
         'planets' => $core['planets'] ?? [],
@@ -1075,20 +1083,29 @@ if ($requestedTab === 'about') {
                             </div>
                         </div>
 
-                        <div class="form-row full">
-                            <div class="form-group">
-                                <label>Tijdcorrectie</label>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" name="time_correction_utc" value="1" <?= $formValues['utc'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_lmt]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
-                                        Ingevoerde tijd is UTC
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" name="time_correction_lmt" value="1" <?= $formValues['lmt'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_utc]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
-                                        Ingevoerde tijd is LMT/WPT
-                                    </label>
+                        <div class="advanced-settings">
+                            <button type="button" class="advanced-settings__toggle<?= $advancedSettingsOpen ? ' active' : '' ?>" onclick="toggleAdvancedSettings()">
+                                <span class="advanced-settings__title">Geavanceerde instellingen</span>
+                                <span class="advanced-settings__icon">▼</span>
+                            </button>
+                            <div class="advanced-settings__content<?= $advancedSettingsOpen ? ' visible' : '' ?>" id="advanced-settings-content">
+                                <div class="form-row full">
+                                    <div class="form-group">
+                                        <label>Tijdcorrectie</label>
+                                        <p class="warning-text">⚠ Alleen gebruiken als je handmatig een tijd hebt omgerekend</p>
+                                        <div class="checkbox-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" name="time_correction_utc" value="1" <?= $formValues['utc'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_lmt]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
+                                                Ingevoerde tijd is UTC
+                                            </label>
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" name="time_correction_lmt" value="1" <?= $formValues['lmt'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_utc]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
+                                                Ingevoerde tijd is LMT/WPT
+                                            </label>
+                                        </div>
+                                        <small class="form-hint">Vink aan als de ingevoerde tijd al UTC of Lokale Mean Time is.</small>
+                                    </div>
                                 </div>
-                                <small class="form-hint">Vink aan als de ingevoerde tijd al UTC of Lokale Mean Time is.</small>
                             </div>
                         </div>
 
