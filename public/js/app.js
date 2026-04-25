@@ -493,48 +493,45 @@ function checkToggleState(name, toggleId, totalCount) {
     document.getElementById(toggleId).checked = (checkedCount === totalCount);
 }
 
-function quickCalendarYear() {
+function quickDateRange(prefix, type) {
     const year = new Date().getFullYear();
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
-    
-    // Update hidden fields (server format)
-    document.getElementById('prog_start_date').value = startDate;
-    document.getElementById('prog_end_date').value = endDate;
-    
-    // Update display fields (user format DD-MM-YYYY)
-    document.getElementById('prog_start_date_display').value = `01-01-${year}`;
-    document.getElementById('prog_end_date_display').value = `31-12-${year}`;
-}
-
-function quickTwoYears() {
-    const now = new Date();
     const pad = (n) => String(n).padStart(2, '0');
     
-    const startDate = new Date(now);
-    startDate.setFullYear(startDate.getFullYear() - 1);
+    let startDate, endDate, startDisplay, endDisplay;
     
-    const endDate = new Date(now);
-    endDate.setFullYear(endDate.getFullYear() + 1);
+    if (type === 'calyear') {
+        startDate = `${year}-01-01`;
+        endDate = `${year}-12-31`;
+        startDisplay = `01-01-${year}`;
+        endDisplay = `31-12-${year}`;
+    } else if (type === 'twoyears') {
+        const now = new Date();
+        const startDateObj = new Date(now);
+        startDateObj.setFullYear(startDateObj.getFullYear() - 1);
+        
+        const endDateObj = new Date(now);
+        endDateObj.setFullYear(endDateObj.getFullYear() + 1);
+        
+        startDate = `${startDateObj.getFullYear()}-${pad(startDateObj.getMonth() + 1)}-${pad(startDateObj.getDate())}`;
+        endDate = `${endDateObj.getFullYear()}-${pad(endDateObj.getMonth() + 1)}-${pad(endDateObj.getDate())}`;
+        startDisplay = `${pad(startDateObj.getDate())}-${pad(startDateObj.getMonth() + 1)}-${startDateObj.getFullYear()}`;
+        endDisplay = `${pad(endDateObj.getDate())}-${pad(endDateObj.getMonth() + 1)}-${endDateObj.getFullYear()}`;
+        
+        if (prefix === 'prog') {
+            document.getElementById('quick-calyear').checked = false;
+        }
+    }
     
-    const startYear = startDate.getFullYear();
-    const startMonth = pad(startDate.getMonth() + 1);
-    const startDay = pad(startDate.getDate());
-    
-    const endYear = endDate.getFullYear();
-    const endMonth = pad(endDate.getMonth() + 1);
-    const endDay = pad(endDate.getDate());
-    
-    // Update hidden fields (server format YYYY-MM-DD)
-    document.getElementById('prog_start_date').value = `${startYear}-${startMonth}-${startDay}`;
-    document.getElementById('prog_end_date').value = `${endYear}-${endMonth}-${endDay}`;
-    
-    // Update display fields (user format DD-MM-YYYY)
-    document.getElementById('prog_start_date_display').value = `${startDay}-${startMonth}-${startYear}`;
-    document.getElementById('prog_end_date_display').value = `${endDay}-${endMonth}-${endYear}`;
-    
-    document.getElementById('quick-calyear').checked = false;
+    document.getElementById(`${prefix}_start_date`).value = startDate;
+    document.getElementById(`${prefix}_end_date`).value = endDate;
+    document.getElementById(`${prefix}_start_date_display`).value = startDisplay;
+    document.getElementById(`${prefix}_end_date_display`).value = endDisplay;
 }
+
+function quickCalendarYear() { quickDateRange('prog', 'calyear'); }
+function quickTwoYears() { quickDateRange('prog', 'twoyears'); }
+function quickTransitCalendarYear() { quickDateRange('transit', 'calyear'); }
+function quickTransitTwoYears() { quickDateRange('transit', 'twoyears'); }
 
 function toggleDominantAspects() {
     const checkbox = document.getElementById('toggle-dominant-aspects');
@@ -559,47 +556,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
-function quickTransitCalendarYear() {
-    const year = new Date().getFullYear();
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
-    
-    // Update hidden fields (server format)
-    document.getElementById('transit_start_date').value = startDate;
-    document.getElementById('transit_end_date').value = endDate;
-    
-    // Update display fields (user format DD-MM-YYYY)
-    document.getElementById('transit_start_date_display').value = `01-01-${year}`;
-    document.getElementById('transit_end_date_display').value = `31-12-${year}`;
-}
-
-function quickTransitTwoYears() {
-    const now = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    
-    const startDate = new Date(now);
-    startDate.setFullYear(startDate.getFullYear() - 1);
-    
-    const endDate = new Date(now);
-    endDate.setFullYear(endDate.getFullYear() + 1);
-    
-    const startYear = startDate.getFullYear();
-    const startMonth = pad(startDate.getMonth() + 1);
-    const startDay = pad(startDate.getDate());
-    
-    const endYear = endDate.getFullYear();
-    const endMonth = pad(endDate.getMonth() + 1);
-    const endDay = pad(endDate.getDate());
-    
-    // Update hidden fields (server format YYYY-MM-DD)
-    document.getElementById('transit_start_date').value = `${startYear}-${startMonth}-${startDay}`;
-    document.getElementById('transit_end_date').value = `${endYear}-${endMonth}-${endDay}`;
-    
-    // Update display fields (user format DD-MM-YYYY)
-    document.getElementById('transit_start_date_display').value = `${startDay}-${startMonth}-${startYear}`;
-    document.getElementById('transit_end_date_display').value = `${endDay}-${endMonth}-${endYear}`;
-}
 
 function toggleAdvancedSettings() {
     const content = document.getElementById('advanced-settings-content');
