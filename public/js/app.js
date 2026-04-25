@@ -64,99 +64,14 @@ class TijdApp {
             return;
         }
         
-        // Lazy loading: reload bij eerste bezoek aan aspecten tab
-        // zodat server de data kan berekenen
-        if (tabId === 'aspects' && pushState) {
-            // Check of we al een page reload nodig hebben
+        // Lazy loading: reload bij eerste bezoek aan lazy tabs
+        const lazyReloadTabs = ['aspects', 'progressions', 'antiscia',
+            'midpoints-planet', 'midpoints-sign', 'midpoints-tree',
+            'transits', 'transits-list'];
+
+        if (lazyReloadTabs.includes(tabId) && pushState) {
             const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            // Alleen reload als we niet al op de aspecten tab zijn
-            if (currentTab !== 'aspects') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan progressies tab
-        if (tabId === 'progressions' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'progressions') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan antiscia tab
-        if (tabId === 'antiscia' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'antiscia') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan midpoints-planet tab
-        if (tabId === 'midpoints-planet' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'midpoints-planet') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan midpoints-sign tab
-        if (tabId === 'midpoints-sign' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'midpoints-sign') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan midpoints-tree tab
-        if (tabId === 'midpoints-tree' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'midpoints-tree') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan transits tab
-        if (tabId === 'transits' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'transits') {
-                url.searchParams.set('tab', tabId);
-                window.location.href = url.toString();
-                return;
-            }
-        }
-        
-        // Lazy loading: reload bij eerste bezoek aan transits-list tab
-        if (tabId === 'transits-list' && pushState) {
-            const url = new URL(window.location.href);
-            const currentTab = url.searchParams.get('tab');
-            
-            if (currentTab !== 'transits-list') {
+            if (url.searchParams.get('tab') !== tabId) {
                 url.searchParams.set('tab', tabId);
                 window.location.href = url.toString();
                 return;
