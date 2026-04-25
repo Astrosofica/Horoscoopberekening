@@ -445,9 +445,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
 // Verwijder oude progression/transit markers bij nieuwe horoscoop
                     unset($_SESSION['just_submitted_progressions'], $_SESSION['just_submitted_transits']);
                     
-                    // Behoud progression_events als die al bestaat
-                    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
-                    
                     // Session structuur voor lazy loading
                     // Let: ascmc wordt apart opgeslagen voor calculators die dit verwachten
                     $_SESSION['horoscope'] = [
@@ -474,11 +471,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
                         ],
                         'aspects' => null, // Lazy loaded
                     ];
-                    
-                    // Herstel progression_events indien die bestond
-                    if ($existingProgressionEvents !== null) {
-                        $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
-                    }
                     
                     $mode = 'calculate';
                 } catch (\Exception $e) {
@@ -714,24 +706,26 @@ if (!isset($currentTab)) {
 }
 
 // Check of we net een progression submit hebben gedaan (moet VÓÓR viewHoroscope blok!)
-if (isset($_SESSION['just_submitted_progressions'])) {
+$justDidProgression = isset($_SESSION['just_submitted_progressions']);
+if ($justDidProgression) {
     $currentTab = 'progressions-list';
-    unset($_SESSION['just_submitted_progressions']);
 }
 
 // Check of we net een transit submit hebben gedaan
-if (isset($_SESSION['just_submitted_transits'])) {
+$justDidTransits = isset($_SESSION['just_submitted_transits']);
+if ($justDidTransits) {
     $currentTab = 'transits-list';
-    unset($_SESSION['just_submitted_transits']);
 }
 
 if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') {
     // Reset lazy tabs bij laden opgeslagen horoscoop
     unset($_SESSION['horoscope']['aspects']);
     
-    // BEHOUD progression_events en transit_events (ongeacht marker status)
-    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
-    $existingTransitEvents = $_SESSION['horoscope']['transit_events'] ?? null;
+    // BEHOUD progression_events (alleen na eigen submit, niet bij laden andere horoscoop)
+    $existingProgressionEvents = $justDidProgression ? ($_SESSION['horoscope']['progression_events'] ?? null) : null;
+    
+    // BEHOUD transit_events (zelfde logica)
+    $existingTransitEvents = $justDidTransits ? ($_SESSION['horoscope']['transit_events'] ?? null) : null;
     
     $calculator = new HoroscopeCalculator();
     $result = $calculator->calculate($viewHoroscope);
@@ -764,12 +758,12 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
         'aspects' => null, // Lazy loaded
     ];
     
-    // Herstel progression_events indien die bestond
+    // Herstel progression_events indien die bestond (na eigen submit)
     if ($existingProgressionEvents !== null) {
         $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
     }
     
-    // Herstel transit_events indien die bestond
+    // Herstel transit_events indien die bestond (na eigen submit)
     if ($existingTransitEvents !== null) {
         $_SESSION['horoscope']['transit_events'] = $existingTransitEvents;
     }
@@ -1391,7 +1385,7 @@ if ($requestedTab === 'about') {
                         
                         // Bepaal toggle states (afleiden uit selectie)
                         $allProgressive = count($selProg) === 10;
-                        $allAspects = count($selAspects) === 8;
+                        $allAspects = count($selAspects) === 7;
                         $allRadix = count($selRadix) === 13;
                         ?>
                         <form method="POST" class="progression-form">
@@ -1399,13 +1393,25 @@ if ($requestedTab === 'about') {
                                 <h4>Tijdvak</h4>
                                 <div class="progression-datepicker">
                                     <label>Start:<br>
-                                        <input type="text" name="prog_start_date_display" id="prog_start_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" value="" autocomplete="off">
+                                        <?php
+                                        $progStartDisplay = '';
+                                        if (isset($_SESSION['horoscope']['progression_events']['input']['start_date'])) {
+                                            $progStartDisplay = date('d-m-Y', strtotime($_SESSION['horoscope']['progression_events']['input']['start_date']));
+                                        }
+                                        ?>
+                                        <input type="text" name="prog_start_date_display" id="prog_start_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" value="<?= htmlspecialchars($progStartDisplay) ?>" autocomplete="off">
                                         <input type="hidden" name="prog_start_date" id="prog_start_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['start_date'] ?? date('Y-01-01')) ?>">
                                         <div class="form-hint-inline form-hint-inline--error"></div>
                                         <div class="form-hint-inline form-hint-inline--hint"></div>
                                     </label>
                                     <label>Eind:<br>
-                                        <input type="text" name="prog_end_date_display" id="prog_end_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" value="" autocomplete="off">
+                                        <?php
+                                        $progEndDisplay = '';
+                                        if (isset($_SESSION['horoscope']['progression_events']['input']['end_date'])) {
+                                            $progEndDisplay = date('d-m-Y', strtotime($_SESSION['horoscope']['progression_events']['input']['end_date']));
+                                        }
+                                        ?>
+                                        <input type="text" name="prog_end_date_display" id="prog_end_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" value="<?= htmlspecialchars($progEndDisplay) ?>" autocomplete="off">
                                         <input type="hidden" name="prog_end_date" id="prog_end_date" value="<?= htmlspecialchars($_SESSION['horoscope']['progression_events']['input']['end_date'] ?? date('Y-12-31')) ?>">
                                         <div class="form-hint-inline form-hint-inline--error"></div>
                                         <div class="form-hint-inline form-hint-inline--hint"></div>
