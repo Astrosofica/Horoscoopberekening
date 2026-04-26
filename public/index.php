@@ -579,13 +579,6 @@ $_SESSION['horoscope']['progression_events'] = [
                     'results' => $progEvents,
                 ];
                 
-                // Debug logging na POST
-                error_log("[Tijd] POST Handler - Saved progression_events: " . json_encode([
-                    'progressive_planets' => $progressivePlanets,
-                    'radix_targets' => $radixTargets,
-                    'aspects' => $aspects
-                ]));
-                
                 $progEventsResult = $progEvents;
                 $currentTab = 'progressions-list';
                 
@@ -731,13 +724,6 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
     
     $sameHoroscope = ($currentSlug === $viewHoroscope->getSlug());
     
-    // DEBUG: trace view block execution
-    $debugHasProgEvents = isset($_SESSION['horoscope']['progression_events']);
-    $debugProgResults = $debugHasProgEvents ? count($_SESSION['horoscope']['progression_events']['results'] ?? []) : 'N/A';
-    $debugHasTransitEvents = isset($_SESSION['horoscope']['transit_events']);
-    $debugSameSlug = $sameHoroscope ? 'YES' : 'NO';
-    error_log("[Tijd] VIEW BLOCK - START: mode=$mode, slug=" . ($viewHoroscope->getSlug() ?? 'null') . ", currentSlug=$currentSlug, sameHoroscope=$debugSameSlug, hasProgEvents=$debugHasProgEvents, progResults=$debugProgResults, hasTransitEvents=$debugHasTransitEvents");
-    
     // BEHOUD progression_events en transit_events alleen voor dezelfde horoscoop
     $existingProgressionEvents = $sameHoroscope ? ($_SESSION['horoscope']['progression_events'] ?? null) : null;
     $existingTransitEvents = $sameHoroscope ? ($_SESSION['horoscope']['transit_events'] ?? null) : null;
@@ -789,13 +775,6 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
     
     // Verwijder eenmalige redirect markers
     unset($_SESSION['just_submitted_progressions'], $_SESSION['just_submitted_transits']);
-    
-    // DEBUG: trace view block end state
-    $debugEndProgEvents = isset($_SESSION['horoscope']['progression_events']);
-    $debugEndProgResults = $debugEndProgEvents ? count($_SESSION['horoscope']['progression_events']['results'] ?? []) : 'N/A';
-    $debugEndTransitEvents = isset($_SESSION['horoscope']['transit_events']);
-    $debugEndTransitResults = $debugEndTransitEvents ? count($_SESSION['horoscope']['transit_events']['results'] ?? []) : 'N/A';
-    error_log("[Tijd] VIEW BLOCK - END: hasProgEvents=$debugEndProgEvents, progResults=$debugEndProgResults, hasTransitEvents=$debugEndTransitEvents, transitResults=$debugEndTransitResults");
 }
 
 // ===========================================================================
@@ -1401,14 +1380,6 @@ if ($requestedTab === 'about') {
                         // Haal resultaten uit session (na redirect)
                         $progEventsResult = $_SESSION['horoscope']['progression_events']['results'] ?? null;
                         
-                        // Debug logging
-                        error_log("[Tijd] Form Render - Reading progression_events: " . json_encode([
-                            'progressive_planets' => $selProg,
-                            'aspects' => $selAspects,
-                            'radix_targets' => $selRadix,
-                            'results_count' => count($progEventsResult ?? [])
-                        ]));
-                        
                         // Bepaal toggle states (afleiden uit selectie)
                         $allProgressive = count($selProg) === 10;
                         $allAspects = count($selAspects) === 7;
@@ -1868,6 +1839,21 @@ if ($requestedTab === 'about') {
                             <p class="form-error"><?= htmlspecialchars($error) ?></p>
                         <?php endif; ?>
 
+                        <?php
+                        // Haal huidige selecties direct uit session
+                        $savedTransitPlanets = $_SESSION['horoscope']['transit_events']['input']['transit_planets'] ?? [];
+                        $savedTransitAspects = $_SESSION['horoscope']['transit_events']['input']['aspects'] ?? [];
+                        $savedRadixTargets = $_SESSION['horoscope']['transit_events']['input']['radix_targets'] ?? [];
+                        
+                        // Haal resultaten uit session
+                        $transitEventsResult = $_SESSION['horoscope']['transit_events']['results'] ?? null;
+                        
+                        // Bepaal toggle states
+                        $allTransitPlanets = count($savedTransitPlanets) === 5;
+                        $allTransitAspects = count($savedTransitAspects) === 7;
+                        $allTransitRadix = count($savedRadixTargets) === 13;
+                        ?>
+
                         <form method="POST" class="transit-form">
                             <div class="transit-form-columns">
                                     <div class="transit-column transit-column--tijdvak">
@@ -1875,17 +1861,17 @@ if ($requestedTab === 'about') {
                                         <div class="transit-datepicker">
                                             <label>Start:<br>
                                                 <input type="text" name="transit_start_date_display" id="transit_start_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ"
-                                                    value="<?= isset($transitEventsResult) && isset($_SESSION['horoscope']['transit_events']['input']['start_date']) ? htmlspecialchars(date('d-m-Y', strtotime($_SESSION['horoscope']['transit_events']['input']['start_date']))) : '' ?>">
+                                                    value="<?= isset($_SESSION['horoscope']['transit_events']['input']['start_date']) ? htmlspecialchars(date('d-m-Y', strtotime($_SESSION['horoscope']['transit_events']['input']['start_date']))) : '' ?>">
                                                 <input type="hidden" name="transit_start_date" id="transit_start_date"
-                                                    value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['start_date'] ?? date('Y-01-01')) : '' ?>">
+                                                    value="<?= htmlspecialchars($_SESSION['horoscope']['transit_events']['input']['start_date'] ?? date('Y-01-01')) ?>">
                                                 <div class="form-hint-inline form-hint-inline--error"></div>
                                                 <div class="form-hint-inline form-hint-inline--hint"></div>
                                             </label>
                                             <label>Eind:<br>
                                                 <input type="text" name="transit_end_date_display" id="transit_end_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ"
-                                                    value="<?= isset($transitEventsResult) && isset($_SESSION['horoscope']['transit_events']['input']['end_date']) ? htmlspecialchars(date('d-m-Y', strtotime($_SESSION['horoscope']['transit_events']['input']['end_date']))) : '' ?>">
+                                                    value="<?= isset($_SESSION['horoscope']['transit_events']['input']['end_date']) ? htmlspecialchars(date('d-m-Y', strtotime($_SESSION['horoscope']['transit_events']['input']['end_date']))) : '' ?>">
                                                 <input type="hidden" name="transit_end_date" id="transit_end_date"
-                                                    value="<?= isset($transitEventsResult) ? ($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? date('Y-12-31')) : '' ?>">
+                                                    value="<?= htmlspecialchars($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? date('Y-12-31')) ?>">
                                                 <div class="form-hint-inline form-hint-inline--error"></div>
                                                 <div class="form-hint-inline form-hint-inline--hint"></div>
                                             </label>
@@ -1904,7 +1890,7 @@ if ($requestedTab === 'about') {
                                         <div class="transit-options">
                                             <label class="transit-checkbox-label">
                                                 <input type="checkbox" name="include_house_ingress"
-                                                    <?= (isset($transitEventsResult) && ($_SESSION['horoscope']['transit_events']['input']['include_house_ingress'] ?? false)) ? 'checked' : '' ?>> Huis ingress
+                                                    <?= ($_SESSION['horoscope']['transit_events']['input']['include_house_ingress'] ?? false) ? 'checked' : '' ?>> Huis ingress
                                             </label>
                                         </div>
                                     </div>
@@ -1914,15 +1900,12 @@ if ($requestedTab === 'about') {
                                     <h4>Transit</h4>
                                     <label class="toggle-all">
                                         <input type="checkbox" id="toggle-transit-planets"
-                                            onchange="toggleAllGroup('transit_planet[]', this.checked)"> Alle
+                                            onchange="toggleAllGroup('transit_planet[]', this.checked)" <?= $allTransitPlanets ? 'checked' : '' ?>> Alle
                                     </label>
                                     <?php
                                     $transitPlanetNames = [
                                         5 => 'Jupiter', 6 => 'Saturnus', 7 => 'Uranus', 8 => 'Neptunus', 9 => 'Pluto'
                                     ];
-                                    $savedTransitPlanets = isset($transitEventsResult)
-                                        ? ($_SESSION['horoscope']['transit_events']['input']['transit_planets'] ?? [])
-                                        : [];
                                     foreach ($transitPlanetNames as $idx => $tName): ?>
                                         <label>
                                             <input type="checkbox" name="transit_planet[]" value="<?= $idx ?>"
@@ -1937,12 +1920,9 @@ if ($requestedTab === 'about') {
                                     <h4>Aspecten</h4>
                                     <label class="toggle-all">
                                         <input type="checkbox" id="toggle-transit-aspects"
-                                            onchange="toggleAllGroup('transit_aspect[]', this.checked)"> Alle
+                                            onchange="toggleAllGroup('transit_aspect[]', this.checked)" <?= $allTransitAspects ? 'checked' : '' ?>> Alle
                                     </label>
                                     <?php
-                                    $savedTransitAspects = isset($transitEventsResult)
-                                        ? ($_SESSION['horoscope']['transit_events']['input']['aspects'] ?? [])
-                                        : [];
                                     foreach ([0, 45, 60, 90, 120, 135, 180] as $aspDeg): ?>
                                         <label>
                                             <input type="checkbox" name="transit_aspect[]" value="<?= $aspDeg ?>"
@@ -1957,12 +1937,9 @@ if ($requestedTab === 'about') {
                                     <h4>Radix</h4>
                                     <label class="toggle-all">
                                         <input type="checkbox" id="toggle-transit-radix"
-                                            onchange="toggleAllGroup('radix_target[]', this.checked)"> Alle
+                                            onchange="toggleAllGroup('radix_target[]', this.checked)" <?= $allTransitRadix ? 'checked' : '' ?>> Alle
                                     </label>
                                     <?php
-                                    $savedRadixTargets = isset($transitEventsResult)
-                                        ? ($_SESSION['horoscope']['transit_events']['input']['radix_targets'] ?? [])
-                                        : [];
                                     for ($i = 0; $i <= 12; $i++): ?>
                                         <label>
                                             <input type="checkbox" name="radix_target[]" value="<?= $i ?>"
