@@ -505,6 +505,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                 'time_correction' => $viewHoroscope->getTimeCorrection(),
                 'offset_source' => $viewHoroscope->getOffsetSource(),
                 'offset_label' => $viewHoroscope->getOffsetLabel(),
+                'slug' => $viewHoroscope->getSlug(),
             ],
             'core' => [
                 'planets' => $calcResult['planets'],
@@ -625,6 +626,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])
                 'time_correction' => $viewHoroscope->getTimeCorrection(),
                 'offset_source' => $viewHoroscope->getOffsetSource(),
                 'offset_label' => $viewHoroscope->getOffsetLabel(),
+                'slug' => $viewHoroscope->getSlug(),
             ],
             'core' => [
                 'planets' => $calcResult['planets'],
@@ -718,14 +720,23 @@ if ($justDidTransits) {
 }
 
 if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Check of we al dezelfde horoscoop in session hebben
+    $currentSlug = $_SESSION['horoscope']['input']['slug'] ?? null;
+    $sameHoroscope = ($currentSlug === $viewHoroscope->getSlug());
+    
+    // DEBUG: trace view block execution
+    $debugHasProgEvents = isset($_SESSION['horoscope']['progression_events']);
+    $debugProgResults = $debugHasProgEvents ? count($_SESSION['horoscope']['progression_events']['results'] ?? []) : 'N/A';
+    $debugHasTransitEvents = isset($_SESSION['horoscope']['transit_events']);
+    $debugSameSlug = $sameHoroscope ? 'YES' : 'NO';
+    error_log("[Tijd] VIEW BLOCK - START: mode=$mode, slug=" . ($viewHoroscope->getSlug() ?? 'null') . ", currentSlug=$currentSlug, sameHoroscope=$debugSameSlug, hasProgEvents=$debugHasProgEvents, progResults=$debugProgResults, hasTransitEvents=$debugHasTransitEvents");
+    
+    // BEHOUD progression_events en transit_events alleen voor dezelfde horoscoop
+    $existingProgressionEvents = $sameHoroscope ? ($_SESSION['horoscope']['progression_events'] ?? null) : null;
+    $existingTransitEvents = $sameHoroscope ? ($_SESSION['horoscope']['transit_events'] ?? null) : null;
+    
     // Reset lazy tabs bij laden opgeslagen horoscoop
     unset($_SESSION['horoscope']['aspects']);
-    
-    // BEHOUD progression_events (alleen na eigen submit, niet bij laden andere horoscoop)
-    $existingProgressionEvents = $justDidProgression ? ($_SESSION['horoscope']['progression_events'] ?? null) : null;
-    
-    // BEHOUD transit_events (zelfde logica)
-    $existingTransitEvents = $justDidTransits ? ($_SESSION['horoscope']['transit_events'] ?? null) : null;
     
     $calculator = new HoroscopeCalculator();
     $result = $calculator->calculate($viewHoroscope);
@@ -748,6 +759,7 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
             'time_correction' => $viewHoroscope->getTimeCorrection(),
             'offset_source' => $viewHoroscope->getOffsetSource(),
             'offset_label' => $viewHoroscope->getOffsetLabel(),
+            'slug' => $viewHoroscope->getSlug(),
         ],
         'core' => [
             'planets' => $result['planets'],
@@ -758,18 +770,25 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
         'aspects' => null, // Lazy loaded
     ];
     
-    // Herstel progression_events indien die bestond (na eigen submit)
+    // Herstel progression_events indien die bestond (zelfde horoscoop)
     if ($existingProgressionEvents !== null) {
         $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
     }
     
-    // Herstel transit_events indien die bestond (na eigen submit)
+    // Herstel transit_events indien die bestond (zelfde horoscoop)
     if ($existingTransitEvents !== null) {
         $_SESSION['horoscope']['transit_events'] = $existingTransitEvents;
     }
     
     // Verwijder eenmalige redirect markers
     unset($_SESSION['just_submitted_progressions'], $_SESSION['just_submitted_transits']);
+    
+    // DEBUG: trace view block end state
+    $debugEndProgEvents = isset($_SESSION['horoscope']['progression_events']);
+    $debugEndProgResults = $debugEndProgEvents ? count($_SESSION['horoscope']['progression_events']['results'] ?? []) : 'N/A';
+    $debugEndTransitEvents = isset($_SESSION['horoscope']['transit_events']);
+    $debugEndTransitResults = $debugEndTransitEvents ? count($_SESSION['horoscope']['transit_events']['results'] ?? []) : 'N/A';
+    error_log("[Tijd] VIEW BLOCK - END: hasProgEvents=$debugEndProgEvents, progResults=$debugEndProgResults, hasTransitEvents=$debugEndTransitEvents, transitResults=$debugEndTransitResults");
 }
 
 // ===========================================================================
