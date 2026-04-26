@@ -566,7 +566,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                     $_SESSION['horoscope']['input']['utc_offset']
                 );
                 
-$_SESSION['horoscope']['progression_events'] = [
+                // Bewaar transit_events indien aanwezig
+                $existingTransitEvents = $_SESSION['horoscope']['transit_events'] ?? null;
+                
+                $_SESSION['horoscope']['progression_events'] = [
                     'input' => [
                         'start_date' => $startDate,
                         'end_date' => $endDate,
@@ -578,6 +581,13 @@ $_SESSION['horoscope']['progression_events'] = [
                     ],
                     'results' => $progEvents,
                 ];
+                
+                // Herstel transit_events
+                if ($existingTransitEvents !== null) {
+                    $_SESSION['horoscope']['transit_events'] = $existingTransitEvents;
+                }
+                
+                error_log("[Tijd] POST Progression - Saved, hasTransit=" . (isset($_SESSION['horoscope']['transit_events']) ? 'true' : 'false'));
                 
                 $progEventsResult = $progEvents;
                 $currentTab = 'progressions-list';
@@ -669,6 +679,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])
                 $includeHouseIngress
             );
 
+            // Bewaar progression_events indien aanwezig
+            $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
+            
             $_SESSION['horoscope']['transit_events'] = [
                 'input' => [
                     'start_date' => $transitStartDate,
@@ -680,6 +693,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])
                 ],
                 'results' => $transitEvents,
             ];
+
+            // Herstel progression_events
+            if ($existingProgressionEvents !== null) {
+                $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
+            }
+
+            error_log("[Tijd] POST Transit - Saved, hasProg=" . (isset($_SESSION['horoscope']['progression_events']) ? 'true' : 'false'));
 
             $currentTab = 'transits-list';
             $_SESSION['just_submitted_transits'] = true;
@@ -723,6 +743,16 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
     }
     
     $sameHoroscope = ($currentSlug === $viewHoroscope->getSlug());
+    
+    // DEBUG
+    $debugBefore = [
+        'sameHoroscope' => $sameHoroscope,
+        'currentSlug' => $currentSlug,
+        'viewSlug' => $viewHoroscope->getSlug(),
+        'hasProg' => isset($_SESSION['horoscope']['progression_events']),
+        'hasTransit' => isset($_SESSION['horoscope']['transit_events']),
+    ];
+    error_log("[Tijd] VIEW BLOCK START: " . json_encode($debugBefore));
     
     // BEHOUD progression_events en transit_events alleen voor dezelfde horoscoop
     $existingProgressionEvents = $sameHoroscope ? ($_SESSION['horoscope']['progression_events'] ?? null) : null;
@@ -775,6 +805,13 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
     
     // Verwijder eenmalige redirect markers
     unset($_SESSION['just_submitted_progressions'], $_SESSION['just_submitted_transits']);
+    
+    // DEBUG
+    $debugAfter = [
+        'hasProg' => isset($_SESSION['horoscope']['progression_events']),
+        'hasTransit' => isset($_SESSION['horoscope']['transit_events']),
+    ];
+    error_log("[Tijd] VIEW BLOCK END: " . json_encode($debugAfter));
 }
 
 // ===========================================================================
