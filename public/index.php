@@ -722,6 +722,13 @@ if ($justDidTransits) {
 if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') {
     // Check of we al dezelfde horoscoop in session hebben
     $currentSlug = $_SESSION['horoscope']['input']['slug'] ?? null;
+    
+    // Migratie: als session core data heeft maar geen slug, voeg deze toe
+    if ($currentSlug === null && isset($_SESSION['horoscope']['core'])) {
+        $currentSlug = $viewHoroscope->getSlug();
+        $_SESSION['horoscope']['input']['slug'] = $currentSlug;
+    }
+    
     $sameHoroscope = ($currentSlug === $viewHoroscope->getSlug());
     
     // DEBUG: trace view block execution
