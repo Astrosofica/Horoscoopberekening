@@ -6,6 +6,7 @@ vendor/
 *.Zone.Identifier
 .opencode/
 *.md
+!README.md
 reference/
 docs/
 test/
