@@ -1,4 +1,4 @@
-# Tijd - Astrologische Horoscoop Calculator
+# Horoscoopberekening
 
 Een webapplicatie voor astrologische horoscoop berekeningen met Swiss Ephemeris.
 
