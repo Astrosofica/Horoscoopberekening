@@ -106,7 +106,9 @@ if ($horoscopeSlug) {
 }
 
 // Vul $_POST met database data voor edit/view mode (voordat formValues wordt gezet)
-if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname'])) {
+// MAAR NIET bij progression/transit form submissions (anders trigger main calculation!)
+if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']) 
+    && !isset($_POST['calculate_progressions']) && !isset($_POST['calculate_transits'])) {
     $_POST['firstname'] = $viewHoroscope->getFirstname();
     $_POST['infix'] = $viewHoroscope->getInfix();
     $_POST['lastname'] = $viewHoroscope->getLastname();
@@ -285,7 +287,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_edit']) && $mode
 // ===========================================================================
 // POST HANDLER - New calculation form submission
 // ===========================================================================
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isset($_POST['save_horoscope']) && !isset($_POST['save_edit'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isset($_POST['save_horoscope']) && !isset($_POST['save_edit']) 
+    && !isset($_POST['calculate_progressions']) && !isset($_POST['calculate_transits'])) {
     $firstname = trim($_POST['firstname'] ?? '');
     $infix = trim($_POST['infix'] ?? '');
     $lastname = preg_replace('/\s+/', ' ', trim($_POST['lastname'] ?? ''));
@@ -486,6 +489,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isse
 // POST HANDLER - Progression Events Form
 // ===========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progressions'])) {
+    // EERST: capture existing transit_events VOORDAT we session overwrite
+    $existingTransitEvents = $_SESSION['horoscope']['transit_events'] ?? null;
+    
     // Check voor saved horoscope: populate session if missing
     if (!isset($_SESSION['horoscope']['core']) && $viewHoroscope) {
         $calculator = new HoroscopeCalculator();
@@ -515,6 +521,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
             ],
             'aspects' => null,
         ];
+        // Herstel transit_events immediately na overwrite
+        if ($existingTransitEvents !== null) {
+            $_SESSION['horoscope']['transit_events'] = $existingTransitEvents;
+        }
         error_log("[Tijd] POST Handler - Populated session from viewHoroscope for saved horoscope");
     }
     
@@ -566,9 +576,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                     $_SESSION['horoscope']['input']['utc_offset']
                 );
                 
-                // Bewaar transit_events indien aanwezig
-                $existingTransitEvents = $_SESSION['horoscope']['transit_events'] ?? null;
-                
                 $_SESSION['horoscope']['progression_events'] = [
                     'input' => [
                         'start_date' => $startDate,
@@ -581,11 +588,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
                     ],
                     'results' => $progEvents,
                 ];
-                
-                // Herstel transit_events
-                if ($existingTransitEvents !== null) {
-                    $_SESSION['horoscope']['transit_events'] = $existingTransitEvents;
-                }
                 
                 error_log("[Tijd] POST Progression - Saved, hasTransit=" . (isset($_SESSION['horoscope']['transit_events']) ? 'true' : 'false'));
                 
@@ -610,6 +612,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_progression
 // POST HANDLER - Transit Events
 // ===========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])) {
+    // EERST: capture existing progression_events VOORDAT we session overwrite
+    $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
+    
     // Check voor saved horoscope: populate session if missing
     if (!isset($_SESSION['horoscope']['core']) && $viewHoroscope) {
         $calculator = new HoroscopeCalculator();
@@ -639,6 +644,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])
             ],
             'aspects' => null,
         ];
+        // Herstel progression_events immediately na overwrite
+        if ($existingProgressionEvents !== null) {
+            $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
+        }
         error_log("[Tijd] POST Handler - Populated session from viewHoroscope for saved horoscope (transit)");
     }
     
@@ -679,9 +688,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])
                 $includeHouseIngress
             );
 
-            // Bewaar progression_events indien aanwezig
-            $existingProgressionEvents = $_SESSION['horoscope']['progression_events'] ?? null;
-            
             $_SESSION['horoscope']['transit_events'] = [
                 'input' => [
                     'start_date' => $transitStartDate,
@@ -693,11 +699,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])
                 ],
                 'results' => $transitEvents,
             ];
-
-            // Herstel progression_events
-            if ($existingProgressionEvents !== null) {
-                $_SESSION['horoscope']['progression_events'] = $existingProgressionEvents;
-            }
 
             error_log("[Tijd] POST Transit - Saved, hasProg=" . (isset($_SESSION['horoscope']['progression_events']) ? 'true' : 'false'));
 
