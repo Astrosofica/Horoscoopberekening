@@ -12,3 +12,4 @@ docs/
 test/
 tests/
 open.sh
+.worktrees/
