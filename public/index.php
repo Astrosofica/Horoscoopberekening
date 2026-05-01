@@ -373,202 +373,51 @@ if ($hasResult && $mode !== 'edit') {
     if ($requestedTab) {
         switch ($requestedTab) {
             case 'aspects':
-                // LAZY: Aspecten tab - alleen berekenen als core data bestaat
-                if (isset($_SESSION['horoscope']['core'])) {
-                    // Al berekend? Gebruik cached result
-                    if (!isset($_SESSION['horoscope']['aspects']) || empty($_SESSION['horoscope']['aspects'])) {
-                        // Bereken aspecten
-                        $aspectCalculator = new AspectCalculator();
-                        
-                        // Planets filteren voor aspecten (zonder ParsFortuna)
-                        $planetsForAspects = [];
-                        foreach ($_SESSION['horoscope']['core']['planets'] as $name => $data) {
-                            if ($name === 'ParsFortuna') continue;
-                            if (isset($data['success']) && $data['success']) {
-                                $planetsForAspects[$name] = ['longitude' => $data['longitude']];
-                            }
-                        }
-                        
-                        // Houses structuur herbouwen zoals oorspronkelijk (met houses[1], houses[10], etc.)
-                        $housesForAspects = [
-                            'houses' => $_SESSION['horoscope']['core']['houses'],
-                            'ascmc' => $_SESSION['horoscope']['core']['ascmc'] ?? [],
-                        ];
-                        
-                        $_SESSION['horoscope']['aspects'] = $aspectCalculator->calculate(
-                            $planetsForAspects,
-                            $housesForAspects
-                        );
-                    }
-                    
-                    // Gebruik session data voor result
-                    $aspectResult = $_SESSION['horoscope']['aspects'];
-                    
-                    // Update result array voor template compatibility
-                    if ($result !== null) {
-                        $result['aspects'] = $aspectResult;
-                    }
-                    
-                    $currentTab = 'aspects';
+                $aspectResult = require_once __DIR__ . '/lazy/aspects.php';
+                if ($aspectResult && $result !== null) {
+                    $result['aspects'] = $aspectResult;
                 }
                 break;
-                
+            
             case 'progressions':
-                // LAZY: Progressies tab - alleen berekenen als core en input data bestaat
-                if (isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
-                    // Al berekend? Gebruik cached result
-                    if (!isset($_SESSION['horoscope']['progressions']) || empty($_SESSION['horoscope']['progressions'])) {
-                        // Bereken secundaire progressies voor vandaag
-                        $progCalculator = new ProgressionCalculator();
-                        
-                        $_SESSION['horoscope']['progressions'] = $progCalculator->calculateSecondaryProgressions(
-                            $_SESSION['horoscope']['core']['houses'],
-                            $_SESSION['horoscope']['input']['birth_date'],
-                            $_SESSION['horoscope']['input']['birth_time'],
-                            $_SESSION['horoscope']['input']['latitude'],
-                            $_SESSION['horoscope']['input']['longitude'],
-                            $_SESSION['horoscope']['input']['utc_offset']
-                        );
-                    }
-                    
-                    // Gebruik session data voor result
-                    $progressionsResult = $_SESSION['horoscope']['progressions'];
-                    
-                    // Update result array voor template compatibility
-                    if ($result !== null) {
-                        $result['progressions'] = $progressionsResult;
-                    }
-                    
-                    $currentTab = 'progressions';
+                $progressionsResult = require_once __DIR__ . '/lazy/progressions.php';
+                if ($progressionsResult && $result !== null) {
+                    $result['progressions'] = $progressionsResult;
                 }
                 break;
-                
+            
             case 'progressions-list':
-                // Show cached progression events if available
-                if (isset($_SESSION['horoscope']['progression_events']['results'])) {
-                    $progEventsResult = $_SESSION['horoscope']['progression_events']['results'];
-                }
-                $currentTab = 'progressions-list';
+                $progEventsResult = require_once __DIR__ . '/lazy/progressions-list.php';
                 break;
-                
+            
             case 'antiscia':
-                // Spiegelpunten (Jan de Jong) - alleen berekenen als core data bestaat
-                if (isset($_SESSION['horoscope']['core'])) {
-                    if (!isset($_SESSION['horoscope']['antiscia']) || empty($_SESSION['horoscope']['antiscia'])) {
-                        $mirrorCalculator = new \Tijd\Calculation\MirrorPointCalculator();
-                        $_SESSION['horoscope']['antiscia'] = $mirrorCalculator->calculate(
-                            $_SESSION['horoscope']['core']
-                        );
-                    }
-                    $result['antiscia'] = $_SESSION['horoscope']['antiscia'];
-                    $currentTab = 'antiscia';
+                $antisciaResult = require_once __DIR__ . '/lazy/antiscia.php';
+                if ($antisciaResult && $result !== null) {
+                    $result['antiscia'] = $antisciaResult;
                 }
                 break;
-                
+            
             case 'midpoints-planet':
-                // LAZY: Midpunten tab - alleen berekenen als core data bestaat
-                if (isset($_SESSION['horoscope']['core'])) {
-                    if (!isset($_SESSION['horoscope']['midpoints'])) {
-                        $midpointCalculator = new \Tijd\Calculation\MidpointCalculator();
-                        $_SESSION['horoscope']['midpoints'] = [
-                            'input' => ['timestamp' => time()],
-                            'all' => $midpointCalculator->calculateAllMidpoints($_SESSION['horoscope']['core']),
-                        ];
-                    }
-                    $currentTab = 'midpoints-planet';
-                    $midpointsResult = $_SESSION['horoscope']['midpoints']['all']['midpoints'];
-                }
+                $midpointsResult = require_once __DIR__ . '/lazy/midpoints-planet.php';
                 break;
-                
+            
             case 'midpoints-sign':
-                // LAZY: Midpunten per teken - sorteren op longitude
-                if (isset($_SESSION['horoscope']['core'])) {
-                    if (!isset($_SESSION['horoscope']['midpoints'])) {
-                        $midpointCalculator = new \Tijd\Calculation\MidpointCalculator();
-                        $_SESSION['horoscope']['midpoints'] = [
-                            'input' => ['timestamp' => time()],
-                            'all' => $midpointCalculator->calculateAllMidpoints($_SESSION['horoscope']['core']),
-                        ];
-                    }
-                    
-                    // Lazy: sorteren alleen bij eerste keer
-                    if (!isset($_SESSION['horoscope']['midpoints']['by_sign'])) {
-                        $midpoints = $_SESSION['horoscope']['midpoints']['all']['midpoints'];
-                        
-                        // Filter alleen de echte midpunten (geen separators)
-                        $realMidpoints = array_filter($midpoints, fn($mp) => !isset($mp['separator']));
-                        
-                        // Sorteren op normalized longitude
-                        usort($realMidpoints, fn($a, $b) => $a['normalized'] - $b['normalized']);
-                        
-                        // Lege rijen tussen tekens invoegen
-                        $sorted = [];
-                        $lastSign = -1;
-                        foreach ($realMidpoints as $mp) {
-                            $sign = (int) floor($mp['normalized'] / 30);
-                            if ($lastSign !== -1 && $sign !== $lastSign) {
-                                $sorted[] = ['separator' => true];
-                            }
-                            $sorted[] = $mp;
-                            $lastSign = $sign;
-                        }
-                        
-                        $_SESSION['horoscope']['midpoints']['by_sign'] = $sorted;
-                    }
-                    
-                    $currentTab = 'midpoints-sign';
-                    $midpointsResult = $_SESSION['horoscope']['midpoints']['by_sign'];
-                }
+                $midpointsResult = require_once __DIR__ . '/lazy/midpoints-sign.php';
                 break;
-                
+            
             case 'midpoints-tree':
-                // LAZY: Midpunten boompjes - aspecten tussen radix en midpunten
-                if (isset($_SESSION['horoscope']['core'])) {
-                    if (!isset($_SESSION['horoscope']['midpoints'])) {
-                        $midpointCalculator = new \Tijd\Calculation\MidpointCalculator();
-                        $_SESSION['horoscope']['midpoints'] = [
-                            'input' => ['timestamp' => time()],
-                            'all' => $midpointCalculator->calculateAllMidpoints($_SESSION['horoscope']['core']),
-                        ];
-                    }
-                    
-                    // Lazy: boompjes berekenen alleen bij eerste keer
-                    if (!isset($_SESSION['horoscope']['midpoints']['tree'])) {
-                        $treeCalculator = new \Tijd\Calculation\MidpointTreeCalculator();
-                        $_SESSION['horoscope']['midpoints']['tree'] = $treeCalculator->calculateTree(
-                            $_SESSION['horoscope']['core'],
-                            $_SESSION['horoscope']['midpoints']['all']['midpoints']
-                        );
-                    }
-                    
-                    $currentTab = 'midpoints-tree';
-                    $treeResult = $_SESSION['horoscope']['midpoints']['tree'];
-                }
+                $treeResult = require_once __DIR__ . '/lazy/midpoints-tree.php';
                 break;
-
+            
             case 'transits':
-                // LAZY: Huidige transit posities
-                if (isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
-                    if (!isset($_SESSION['horoscope']['transits']) || empty($_SESSION['horoscope']['transits'])) {
-                        $transitCalc = new TransitCalculator();
-                        $_SESSION['horoscope']['transits'] = $transitCalc->calculateCurrentTransits(
-                            $_SESSION['horoscope']['core']['houses']
-                        );
-                    }
-                    $transitsResult = $_SESSION['horoscope']['transits'];
-                    if ($result !== null) {
-                        $result['transits'] = $transitsResult;
-                    }
-                    $currentTab = 'transits';
+                $transitsResult = require_once __DIR__ . '/lazy/transits.php';
+                if ($transitsResult && $result !== null) {
+                    $result['transits'] = $transitsResult;
                 }
                 break;
-
+            
             case 'transits-list':
-                // Toon cached transit events als beschikbaar
-                if (isset($_SESSION['horoscope']['transit_events']['results'])) {
-                    $transitEventsResult = $_SESSION['horoscope']['transit_events']['results'];
-                }
-                $currentTab = 'transits-list';
+                $transitEventsResult = require_once __DIR__ . '/lazy/transits-list.php';
                 break;
         }
     }
