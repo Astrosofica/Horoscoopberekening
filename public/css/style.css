@@ -22,6 +22,7 @@
 @import url('_antiscia.css');
 @import url('_midpoints.css');
 @import url('_transits.css');
+@import url('_solaar.css');
 
 .tab-content--hidden {
     display: none !important;

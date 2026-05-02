@@ -1,0 +1,13 @@
+.card--solaar {
+    max-width: 480px;
+}
+
+.solaar-intro {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.solaar-form .form-row {
+    margin-bottom: 1.5rem;
+}
