@@ -92,7 +92,17 @@
                             onchange="toggleAllGroup('radix_target[]', this.checked)" <?= $allTransitRadix ? 'checked' : '' ?>> Alle
                     </label>
                     <?php
-                    for ($i = 0; $i <= 12; $i++): ?>
+                    for ($i = 0; $i <= 9; $i++): ?>
+                        <label>
+                            <input type="checkbox" name="radix_target[]" value="<?= $i ?>"
+                                onchange="checkToggleState('radix_target[]', 'toggle-transit-radix', 13)"
+                                <?= in_array($i, $savedRadixTargets) ? 'checked' : '' ?>>
+                            <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($i) ?></span>
+                        </label>
+                    <?php endfor; ?>
+                    <div class="section-divider"></div>
+                    <?php
+                    for ($i = 10; $i <= 12; $i++): ?>
                         <label>
                             <input type="checkbox" name="radix_target[]" value="<?= $i ?>"
                                 onchange="checkToggleState('radix_target[]', 'toggle-transit-radix', 13)"
