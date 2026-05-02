@@ -31,7 +31,7 @@ if (empty($lastname)) {
     $error = "Ongeldige voornaam";
 } elseif (!empty($infix) && !preg_match('/^[\p{L}\s\-\']+/u', $infix)) {
     $error = "Ongeldig tussenvoegsel";
-} elseif (!preg_match('/^[\p{L}\s\-\']+$/u', $lastname)) {
+    } elseif (!preg_match('/^[\p{L}\s\-\'\(\)]+$/u', $lastname)) {
     $error = "Ongeldige achternaam";
 } elseif (!preg_match('/^[\p{L}\s\-\.,\']+$/u', $location)) {
     $error = "Ongeldige locatie";
