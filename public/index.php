@@ -185,6 +185,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_edit']) && $mode
     
     // POST-Redirect-GET pattern
     if (!isset($error) && isset($_SESSION['flash_success'])) {
+        // Wis gecachte events — data is na edit niet meer geldig
+        unset($_SESSION['horoscope']['progression_events'], $_SESSION['horoscope']['transit_events']);
         header('Location: dashboard.php');
         exit;
     }
