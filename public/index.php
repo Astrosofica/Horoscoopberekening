@@ -62,6 +62,7 @@ $editSlug = null;
 if (isset($_GET['clear']) && $_GET['clear'] == '1') {
     unset($_SESSION['horoscope']);
     unset($_SESSION['wheel_data']);
+    unset($_SESSION['solaar_prefill']);
     $_SESSION['flash_success'] = 'Horoscoop gewist.';
     header('Location: index.php');
     exit;
@@ -71,6 +72,7 @@ if (isset($_GET['clear']) && $_GET['clear'] == '1') {
 if (isset($_GET['new']) && $_GET['new'] == '1') {
     unset($_SESSION['horoscope']);
     unset($_SESSION['wheel_data']);
+    unset($_SESSION['solaar_prefill']);
     // user_id, user_email, email_verified blijven behouden (gebruiker blijft ingelogd)
     header('Location: index.php');
     exit;
@@ -103,6 +105,11 @@ if ($horoscopeSlug) {
     }
 }
 
+// Cleanup solaar prefill bij laden saved horoscope
+if ($viewHoroscope) {
+    unset($_SESSION['solaar_prefill']);
+}
+
 // Vul $_POST met database data voor edit/view mode (voordat formValues wordt gezet)
 // MAAR NIET bij progression/transit form submissions (anders trigger main calculation!)
 if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']) 
@@ -125,19 +132,7 @@ if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']
 // ===========================================================================
 // SOLAAR PREFILL - solar return data in formulier
 // ===========================================================================
-$isSolaarPrefill = false;
-if (isset($_SESSION['solaar_prefill'])) {
-    $p = $_SESSION['solaar_prefill'];
-    $isSolaarPrefill = true;
-
-    // Populate $_POST zodat calculate-horoscope handler de solaar data kan gebruiken
-    $_POST['firstname'] = $p['firstname'];
-    $_POST['infix'] = $p['infix'];
-    $_POST['lastname'] = $p['lastname'];
-    $_POST['date'] = $p['birth_date'];
-    $_POST['time'] = $p['birth_time'];
-    $_POST['time_correction_utc'] = '1';
-}
+$isSolaarPrefill = isset($_SESSION['solaar_prefill']);
 
 // ===========================================================================
 // FORMULIER WAARDEN - gebruik POST, session, of database data
