@@ -1,10 +1,11 @@
 <section id="tab-progressions-list" class="tab-content<?= $currentTab !== 'progressions-list' ? ' tab-content--hidden' : '' ?>">
     <div class="card card--large card--progression-events">
         <h2>Progressie Events</h2>
-        <form method="POST" class="progression-form">
-            <div class="progression-column progression-column--tijdvak">
+        <form method="POST" class="events-form">
+            <div class="events-form-columns">
+            <div class="events-column events-column--tijdvak">
                 <h4>Tijdvak</h4>
-                <div class="progression-datepicker">
+                <div class="events-datepicker">
                     <label>Start:<br>
                         <?php
                         $progStartDisplay = '';
@@ -31,28 +32,28 @@
                     </label>
                 </div>
                 <div class="section-divider"></div>
-                <div class="progression-sectie">
+                <div class="events-sectie">
                     <h5>Selectie</h5>
-                    <div class="progression-quickdates">
-                        <button type="button" id="quick-calyear" onclick="quickCalendarYear()" class="progression-quickbtn">📅 Kalenderjaar</button>
-                        <button type="button" id="quick-twoyear" onclick="quickTwoYears()" class="progression-quickbtn">📅 Twee jaar</button>
+                    <div class="events-quickdates">
+                        <button type="button" id="quick-calyear" onclick="quickCalendarYear()" class="events-quickbtn">📅 Kalenderjaar</button>
+                        <button type="button" id="quick-twoyear" onclick="quickTwoYears()" class="events-quickbtn">📅 Twee jaar</button>
                     </div>
                 </div>
                 <div class="section-divider"></div>
-                <div class="progression-sectie">
+                <div class="events-sectie">
                     <h5>Opties</h5>
-                    <div class="progression-options">
-                        <label class="progression-checkbox-label">
+                    <div class="events-options">
+                        <label class="events-checkbox-label">
                             <input type="checkbox" name="include_house_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_house_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_house_ingress'] ? 'checked' : '' ?>> Huis ingress
                         </label>
-                        <label class="progression-checkbox-label">
+                        <label class="events-checkbox-label">
                             <input type="checkbox" name="include_sign_ingress" <?= isset($_SESSION['horoscope']['progression_events']['input']['include_sign_ingress']) && $_SESSION['horoscope']['progression_events']['input']['include_sign_ingress'] ? 'checked' : '' ?>> Teken ingress
                         </label>
                     </div>
                 </div>
             </div>
             
-            <div class="progression-column progression-column--planets">
+            <div class="events-column events-column--planets">
                 <h4>Progressief</h4>
                 <label class="toggle-all">
                     <input type="checkbox" id="toggle-progressive" onchange="toggleAllGroup('progressive_planet[]', this.checked)" <?= $allProgressive ? 'checked' : '' ?>>
@@ -66,7 +67,7 @@
                 <?php endfor; ?>
             </div>
             
-            <div class="progression-column progression-column--aspects">
+            <div class="events-column events-column--aspects">
                 <h4>Aspecten</h4>
                 <label class="toggle-all">
                     <input type="checkbox" id="toggle-aspects" onchange="toggleAllGroup('aspect_type[]', this.checked)" <?= $allAspects ? 'checked' : '' ?>>
@@ -82,7 +83,7 @@
                 <?php endforeach; ?>
             </div>
             
-            <div class="progression-column progression-column--radix">
+            <div class="events-column events-column--radix">
                 <h4>Radix</h4>
                 <label class="toggle-all">
                     <input type="checkbox" id="toggle-radix" onchange="toggleAllGroup('radix_target[]', this.checked)" <?= $allRadix ? 'checked' : '' ?>>
@@ -121,8 +122,9 @@
                     </label>
                 <?php endforeach; ?>
             </div>
+            </div>
             
-            <button type="submit" name="calculate_progressions" class="progression-submit">Bereken Progressie Events</button>
+            <button type="submit" name="calculate_progressions" class="events-submit">Bereken Progressie Events</button>
         </form>
         
         <?php if (isset($error)): ?>
@@ -131,7 +133,7 @@
     </div>
     
     <?php if (isset($progEventsResult) && count($progEventsResult) > 0): ?>
-    <div class="card card--large progression-results">
+    <div class="card card--large events-results">
         <h4>Resultaten (<?= count($progEventsResult) ?> events)</h4>
         <table>
             <thead>

@@ -6,11 +6,11 @@
             <p class="form-error"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
 
-        <form method="POST" class="transit-form">
-            <div class="transit-form-columns">
-                    <div class="transit-column transit-column--tijdvak">
+        <form method="POST" class="events-form">
+            <div class="events-form-columns">
+                    <div class="events-column events-column--tijdvak">
                         <h4>Tijdvak</h4>
-                        <div class="transit-datepicker">
+                        <div class="events-datepicker">
                             <label>Start:<br>
                                 <input type="text" name="transit_start_date_display" id="transit_start_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ"
                                     value="<?= isset($_SESSION['horoscope']['transit_events']['input']['start_date']) ? htmlspecialchars(date('d-m-Y', strtotime($_SESSION['horoscope']['transit_events']['input']['start_date']))) : '' ?>">
@@ -22,25 +22,25 @@
                             <label>Eind:<br>
                                 <input type="text" name="transit_end_date_display" id="transit_end_date_display" inputmode="numeric" placeholder="DD-MM-JJJJ"
                                     value="<?= isset($_SESSION['horoscope']['transit_events']['input']['end_date']) ? htmlspecialchars(date('d-m-Y', strtotime($_SESSION['horoscope']['transit_events']['input']['end_date']))) : '' ?>">
-                                <input type="hidden" name="transit_end_date" id="transit_end_date"
-                                    value="<?= htmlspecialchars($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? date('Y-12-31')) ?>">
-                                <div class="form-hint-inline form-hint-inline--error"></div>
-                                <div class="form-hint-inline form-hint-inline--hint"></div>
-                            </label>
-                        </div>
-                    <div class="section-divider"></div>
-                    <div class="transit-sectie">
-                        <h5>Selectie</h5>
-                        <div class="transit-quickdates">
-                            <button type="button" onclick="quickTransitCalendarYear()" class="transit-quickbtn">📅 Kalenderjaar</button>
-                            <button type="button" onclick="quickTransitTwoYears()" class="transit-quickbtn">📅 Twee jaar</button>
-                        </div>
-                    </div>
-                    <div class="section-divider"></div>
-                    <div class="transit-sectie">
-                        <h5>Opties</h5>
-                        <div class="transit-options">
-                            <label class="transit-checkbox-label">
+                <input type="hidden" name="transit_end_date" id="transit_end_date"
+                                                    value="<?= htmlspecialchars($_SESSION['horoscope']['transit_events']['input']['end_date'] ?? date('Y-12-31')) ?>">
+                                                <div class="form-hint-inline form-hint-inline--error"></div>
+                                                <div class="form-hint-inline form-hint-inline--hint"></div>
+                                            </label>
+                                        </div>
+                                    <div class="section-divider"></div>
+                                    <div class="events-sectie">
+                                        <h5>Selectie</h5>
+                                        <div class="events-quickdates">
+                                            <button type="button" onclick="quickTransitCalendarYear()" class="events-quickbtn">📅 Kalenderjaar</button>
+                                            <button type="button" onclick="quickTransitTwoYears()" class="events-quickbtn">📅 Twee jaar</button>
+                                        </div>
+                                    </div>
+                                    <div class="section-divider"></div>
+                                    <div class="events-sectie">
+                                        <h5>Opties</h5>
+                                        <div class="events-options">
+                                            <label class="events-checkbox-label">
                                 <input type="checkbox" name="include_house_ingress"
                                     <?= ($_SESSION['horoscope']['transit_events']['input']['include_house_ingress'] ?? false) ? 'checked' : '' ?>> Huis ingress
                             </label>
@@ -48,7 +48,7 @@
                     </div>
                 </div>
 
-                <div class="transit-column transit-column--planets">
+                <div class="events-column events-column--planets">
                     <h4>Transit</h4>
                     <label class="toggle-all">
                         <input type="checkbox" id="toggle-transit-planets"
@@ -68,7 +68,7 @@
                     <?php endforeach; ?>
                 </div>
 
-                <div class="transit-column transit-column--aspects">
+                <div class="events-column events-column--aspects">
                     <h4>Aspecten</h4>
                     <label class="toggle-all">
                         <input type="checkbox" id="toggle-transit-aspects"
@@ -85,7 +85,7 @@
                     <?php endforeach; ?>
                 </div>
 
-                <div class="transit-column transit-column--radix">
+                <div class="events-column events-column--radix">
                     <h4>Radix</h4>
                     <label class="toggle-all">
                         <input type="checkbox" id="toggle-transit-radix"
@@ -103,12 +103,12 @@
                 </div>
             </div>
 
-            <button type="submit" name="calculate_transits" class="transit-submit">Bereken Transits</button>
+            <button type="submit" name="calculate_transits" class="events-submit">Bereken Transits</button>
         </form>
     </div>
 
     <?php if (isset($transitEventsResult) && count($transitEventsResult) > 0): ?>
-    <div class="card card--large transit-results">
+    <div class="card card--large events-results">
         <h4>Resultaten (<?= count($transitEventsResult) ?> events)</h4>
         <table>
             <thead>
@@ -148,7 +148,7 @@
         </table>
     </div>
     <?php elseif (isset($transitEventsResult)): ?>
-    <div class="card card--large transit-results">
+    <div class="card card--large events-results">
         <p>Geen transits gevonden in deze periode.</p>
     </div>
     <?php endif; ?>
