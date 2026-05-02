@@ -67,7 +67,7 @@ class TijdApp {
         // Lazy loading: reload bij eerste bezoek aan lazy tabs
         const lazyReloadTabs = ['aspects', 'progressions', 'antiscia',
             'midpoints-planet', 'midpoints-sign', 'midpoints-tree',
-            'transits', 'transits-list'];
+            'transits', 'transits-list', 'solaar'];
 
         if (lazyReloadTabs.includes(tabId) && pushState) {
             const url = new URL(window.location.href);
