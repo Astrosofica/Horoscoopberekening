@@ -123,6 +123,23 @@ if (($isEdit || $mode === 'view') && $viewHoroscope && !isset($_POST['lastname']
 }
 
 // ===========================================================================
+// SOLAAR PREFILL - solar return data in formulier
+// ===========================================================================
+$isSolaarPrefill = false;
+if (isset($_SESSION['solaar_prefill'])) {
+    $p = $_SESSION['solaar_prefill'];
+    $isSolaarPrefill = true;
+
+    // Populate $_POST zodat calculate-horoscope handler de solaar data kan gebruiken
+    $_POST['firstname'] = $p['firstname'];
+    $_POST['infix'] = $p['infix'];
+    $_POST['lastname'] = $p['lastname'];
+    $_POST['date'] = $p['birth_date'];
+    $_POST['time'] = $p['birth_time'];
+    $_POST['time_correction_utc'] = '1';
+}
+
+// ===========================================================================
 // FORMULIER WAARDEN - gebruik POST, session, of database data
 // ===========================================================================
 $formValues = [
@@ -147,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'utc' => isset($_POST['time_correction_utc']),
         'lmt' => isset($_POST['time_correction_lmt']),
     ];
-} elseif (isset($_SESSION['horoscope']['input']) && !isset($_POST['save_horoscope']) && !$viewHoroscope) {
+} elseif (isset($_SESSION['horoscope']['input']) && !isset($_POST['save_horoscope']) && !$viewHoroscope && !$isSolaarPrefill) {
     // Gebruik session data voor formulier (niet-opgeslagen horoscoop)
     // MAAR NIET als er een opgeslagen horoscoop wordt geladen ($viewHoroscope bestaat)
     $input = $_SESSION['horoscope']['input'];
@@ -173,6 +190,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'utc' => isset($_POST['time_correction_utc']),
         'lmt' => isset($_POST['time_correction_lmt']),
     ];
+} elseif ($isSolaarPrefill) {
+    $p = $_SESSION['solaar_prefill'];
+    $formValues = [
+        'firstname' => $p['firstname'],
+        'infix' => $p['infix'],
+        'lastname' => $p['lastname'],
+        'location' => '',
+        'date' => $p['birth_date'],
+        'time' => $p['birth_time'],
+        'utc' => true,
+        'lmt' => false,
+    ];
 }
 
 $advancedSettingsOpen = $formValues['utc'] || $formValues['lmt'];
@@ -196,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_edit']) && $mode
 // POST HANDLER - New calculation form submission
 // ===========================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname']) && !isset($_POST['save_horoscope']) && !isset($_POST['save_edit']) 
-    && !isset($_POST['calculate_progressions']) && !isset($_POST['calculate_transits'])) {
+    && !isset($_POST['calculate_progressions']) && !isset($_POST['calculate_transits']) && !isset($_POST['calculate_solaar'])) {
     require_once __DIR__ . '/handlers/calculate-horoscope.php';
     
     // POST-Redirect-GET pattern
@@ -227,6 +256,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_transits'])
     
     // POST-Redirect-GET pattern
     if (!isset($error) && isset($_SESSION['just_submitted_transits'])) {
+        header('Location: ' . $_SERVER['REQUEST_URI']);
+        exit;
+    }
+}
+
+// ===========================================================================
+// POST HANDLER - Solaar (Solar Return zoeken)
+// ===========================================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_solaar'])) {
+    require_once __DIR__ . '/handlers/calculate-solaar.php';
+
+    // POST-Redirect-GET pattern
+    if (!isset($error)) {
         header('Location: ' . $_SERVER['REQUEST_URI']);
         exit;
     }
@@ -322,12 +364,12 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
 // ===========================================================================
 // TAB SWITCH LOGIC - Lazy Loading (vervolg)
 // ===========================================================================
-$hasResult = ($result !== null) || isset($_SESSION['horoscope']['core']);
+$hasResult = !$isSolaarPrefill && (($result !== null) || isset($_SESSION['horoscope']['core']));
 $formDisabled = ($mode === 'view');
 $hasSessionHoroscope = isset($_SESSION['horoscope']['core']) && !$formDisabled;
 
 // Vul $result vanuit session voor template (alleen als session bestaat en $result null is)
-if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
+if ($result === null && !$isSolaarPrefill && isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
     $input = $_SESSION['horoscope']['input'];
     $core = $_SESSION['horoscope']['core'];
     $localTs = strtotime(($input['birth_date'] ?? '') . ' ' . ($input['birth_time'] ?? ''));
@@ -366,7 +408,7 @@ if ($result === null && isset($_SESSION['horoscope']['core']) && isset($_SESSION
 // Default tab bij resultaat is horoscope, tenzij andere tab gevraagd
 if ($hasResult && $mode !== 'edit') {
     // Alleen op horoscope zetten als we niet al op een lazy tab zitten
-    $lazyTabs = ['progressions-list', 'transits-list', 'aspects', 'progressions', 'antiscia', 'midpoints-planet', 'midpoints-sign', 'midpoints-tree', 'transits'];
+    $lazyTabs = ['progressions-list', 'transits-list', 'aspects', 'progressions', 'antiscia', 'midpoints-planet', 'midpoints-sign', 'midpoints-tree', 'transits', 'solaar'];
     if (!in_array($currentTab, $lazyTabs)) {
         $currentTab = 'horoscope';
     }
@@ -420,6 +462,10 @@ if ($hasResult && $mode !== 'edit') {
             
             case 'transits-list':
                 $transitEventsResult = require_once __DIR__ . '/lazy/transits-list.php';
+                break;
+            
+            case 'solaar':
+                require_once __DIR__ . '/lazy/solaar.php';
                 break;
         }
     }
@@ -499,13 +545,13 @@ if ($requestedTab === 'about') {
 
                         <div class="form-row half">
                             <div class="form-group">
-                                <label for="date_display">Datum</label>
-                                <input type="text" id="date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <label for="date_display">Datum<?= $isSolaarPrefill ? ' <small>(UTC)</small>' : '' ?></label>
+                                <input type="text" id="date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" required<?= ($formDisabled || $isSolaarPrefill) ? ' readonly' : '' ?>>
                                 <input type="hidden" id="date" name="date" value="<?= htmlspecialchars($formValues['date']) ?>">
                             </div>
                             <div class="form-group">
-                                <label for="time_display">Tijd (lokaal)</label>
-                                <input type="text" id="time_display" inputmode="numeric" placeholder="HH:MM:SS" required<?= $formDisabled ? ' disabled' : '' ?>>
+                                <label for="time_display">Tijd<?= $isSolaarPrefill ? ' <small>(UTC)</small>' : ' (lokaal)' ?></label>
+                                <input type="text" id="time_display" inputmode="numeric" placeholder="HH:MM:SS" required<?= ($formDisabled || $isSolaarPrefill) ? ' readonly' : '' ?>>
                                 <input type="hidden" id="time" name="time" value="<?= htmlspecialchars($formValues['time']) ?>">
                             </div>
                         </div>
@@ -529,14 +575,17 @@ if ($requestedTab === 'about') {
                                         <p class="warning-text">⚠ Alleen gebruiken als je handmatig een tijd hebt omgerekend</p>
                                         <div class="checkbox-group">
                                             <label class="checkbox-label">
-                                                <input type="checkbox" name="time_correction_utc" value="1" <?= $formValues['utc'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_lmt]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
+                                                <input type="checkbox" name="time_correction_utc" value="1" <?= $formValues['utc'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_lmt]').checked = false;"<?= ($formDisabled || $isSolaarPrefill) ? ' disabled' : '' ?>>
                                                 Ingevoerde tijd is UTC
                                             </label>
                                             <label class="checkbox-label">
-                                                <input type="checkbox" name="time_correction_lmt" value="1" <?= $formValues['lmt'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_utc]').checked = false;"<?= $formDisabled ? ' disabled' : '' ?>>
+                                                <input type="checkbox" name="time_correction_lmt" value="1" <?= $formValues['lmt'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_utc]').checked = false;"<?= ($formDisabled || $isSolaarPrefill) ? ' disabled' : '' ?>>
                                                 Ingevoerde tijd is LMT/WPT
                                             </label>
                                         </div>
+                                        <?php if ($isSolaarPrefill): ?>
+                                        <input type="hidden" name="time_correction_utc" value="1">
+                                        <?php endif; ?>
                                         <small class="form-hint">Vink aan als de ingevoerde tijd al UTC of Lokale Mean Time is.</small>
                                     </div>
                                 </div>
@@ -571,11 +620,20 @@ if ($requestedTab === 'about') {
                         <?php endif; ?>
                     </form>
 
+                    <?php if ($isSolaarPrefill): ?>
+                    <div class="solaar-info">
+                        <p class="warning-text">De datum en tijd staan vast (Solar Return in UTC).</p>
+                        <p class="warning-text">Vul je huidige locatie in en klik op "Herbereken horoscoop".</p>
+                    </div>
+                    <?php endif; ?>
+
                     <?php if ($error): ?>
                         <p class="form-error"><?= htmlspecialchars($error) ?></p>
                     <?php endif; ?>
                 </div>
             </section>
+
+            <?php require_once __DIR__ . '/templates/solaar.php'; ?>
 
             <?php if ($result): ?>
                 <?php
