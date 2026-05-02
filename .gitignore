@@ -13,3 +13,4 @@ test/
 tests/
 open.sh
 .worktrees/
+graphify-out/
