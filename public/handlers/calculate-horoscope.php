@@ -192,6 +192,9 @@ if (!isset($error)) {
                 // Verwijder oude progression/transit markers bij nieuwe horoscoop
                 unset($_SESSION['just_submitted_progressions'], $_SESSION['just_submitted_transits']);
                 
+                // Preserve natal sun longitude across session overwrites (voor solaar)
+                $preservedNatalSunLon = $_SESSION['horoscope']['input']['natal_sun_longitude'] ?? null;
+
                 // Session structuur voor lazy loading
                 $_SESSION['horoscope'] = [
                     'input' => [
@@ -208,6 +211,7 @@ if (!isset($error)) {
                         'time_correction' => $timeCorrection,
                         'offset_source' => $timeResult['source'],
                         'offset_label' => $timeResult['label'],
+                        'natal_sun_longitude' => $preservedNatalSunLon,
                     ],
                     'core' => [
                         'planets' => $result['planets'],
@@ -218,6 +222,17 @@ if (!isset($error)) {
                     'aspects' => null, // Lazy loaded
                 ];
                 
+                // Store natal Sun longitude on first calculation (for future Solaar use)
+                if ($_SESSION['horoscope']['input']['natal_sun_longitude'] === null
+                    && isset($result['planets']['Sun']['longitude'])) {
+                    $_SESSION['horoscope']['input']['natal_sun_longitude'] = $result['planets']['Sun']['longitude'];
+                }
+                
+                // Cleanup solaar prefill na succesvolle solaar berekening
+                if (isset($_SESSION['solaar_prefill'])) {
+                    unset($_SESSION['solaar_prefill']);
+                }
+
                 $mode = 'calculate';
             } catch (\Exception $e) {
                 $error = "Berekening mislukt: " . $e->getMessage();
