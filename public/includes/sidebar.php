@@ -50,6 +50,22 @@ $transitsGroup = [
                 </a>
             <?php endforeach; ?>
         </div>
+
+        <?php
+        $hasNatalSun = isset($_SESSION['horoscope']['core']['planets']['Sun']['longitude'])
+            || isset($_SESSION['horoscope']['input']['natal_sun_longitude'])
+            || isset($_SESSION['solaar_prefill']);
+        ?>
+        <?php if ($hasNatalSun): ?>
+            <div class="sidebar__section">
+                <div class="sidebar__section-title">Solaar</div>
+                <a href="?tab=solaar"
+                   class="sidebar__item<?= $currentTab === 'solaar' ? ' sidebar__item--active' : '' ?>"
+                   data-tab="solaar">
+                    berekenen
+                </a>
+            </div>
+        <?php endif; ?>
         
         <?php if ($hideNavigation): ?>
             <div class="sidebar__placeholder">
