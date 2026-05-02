@@ -1010,67 +1010,7 @@ if ($requestedTab === 'about') {
                 </section>
                 <?php endif; ?>
                 
-                <section id="tab-midpoints-planet" class="tab-content tab-content--hidden">
-                    <div class="card card--large card--midpoints">
-                        <h2>Midpunten per Planeet</h2>
-                        
-                        <?php if (isset($midpointsResult) && count($midpointsResult) > 0): ?>
-                            <div class="midpoints-container">
-                                <div class="midpoints-column midpoints-column--left">
-                                    <table>
-                                        <?php
-                                        // Zoek splitpunt: eerste lege rij na index 39
-                                        $splitPoint = 39;
-                                        for ($i = $splitPoint; $i < count($midpointsResult); $i++) {
-                                            if (isset($midpointsResult[$i]['separator']) && $midpointsResult[$i]['separator']) {
-                                                $splitPoint = $i + 1;
-                                                break;
-                                            }
-                                        }
-                                        
-                                        // Linker kolom
-                                        for ($i = 0; $i < $splitPoint; $i++):
-                                            $mp = $midpointsResult[$i];
-                                            if (isset($mp['separator']) && $mp['separator']): ?>
-                                                <tr class="midpoints-row--separator"><td colspan="2">&nbsp;</td></tr>
-                                            <?php else: ?>
-                                                <tr>
-                                                    <td>
-                                                        <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($mp['planet1_index']) ?></span> /
-                                                        <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($mp['planet2_index']) ?></span>
-                                                    </td>
-                                                    <td class="text-right"><?= \Tijd\Helpers\Formatter::formatLongitudeWithGlyph($mp['normalized']) ?></td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        <?php endfor; ?>
-                                    </table>
-                                </div>
-                                <div class="midpoints-column midpoints-column--right">
-                                    <table>
-                                        <?php
-                                        // Rechter kolom
-                                        for ($i = $splitPoint; $i < count($midpointsResult); $i++):
-                                            $mp = $midpointsResult[$i];
-                                            if (isset($mp['separator']) && $mp['separator']): ?>
-                                                <tr class="midpoints-row--separator"><td colspan="2">&nbsp;</td></tr>
-                                            <?php else: ?>
-                                                <tr>
-                                                    <td>
-                                                        <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($mp['planet1_index']) ?></span> /
-                                                        <span class="astro-glyph"><?= \Tijd\Glyph\SymbolGlyph::getPlanetGlyphByIndex($mp['planet2_index']) ?></span>
-                                                    </td>
-                                                    <td class="text-right"><?= \Tijd\Helpers\Formatter::formatLongitudeWithGlyph($mp['normalized']) ?></td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        <?php endfor; ?>
-                                    </table>
-                                </div>
-                            </div>
-                        <?php else: ?>
-                            <p>Geen horoscoop data beschikbaar. Bereken eerst een horoscoop.</p>
-                        <?php endif; ?>
-                    </div>
-                </section>
+                <?php require_once __DIR__ . '/templates/midpoints-planet.php'; ?>
                 
                 <section id="tab-midpoints-sign" class="tab-content tab-content--hidden">
                     <div class="card card--large card--midpoints">
