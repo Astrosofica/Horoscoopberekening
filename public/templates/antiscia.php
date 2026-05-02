@@ -3,8 +3,8 @@
     <div class="card card--large card--antiscia">
         <h4>Spiegelpunten (Jan de Jong)</h4>
         
-        <div class="antiscia-container">
-            <div class="antiscia-column antiscia-column--points">
+        <div class="split-view-container">
+            <div class="split-view-column split-view-column--points">
                 <table>
                     <tr>
                         <th colspan="2">Spiegelpunten</th>
@@ -24,7 +24,7 @@
                 </table>
             </div>
             
-            <div class="antiscia-column antiscia-column--aspects">
+            <div class="split-view-column split-view-column--aspects">
                 <table>
                     <tr>
                         <th colspan="4">Aspecten spiegelpunten</th>

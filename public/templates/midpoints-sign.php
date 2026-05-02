@@ -3,8 +3,8 @@
         <h2>Midpunten per Teken</h2>
         
         <?php if (isset($midpointsResult) && count($midpointsResult) > 0): ?>
-            <div class="midpoints-container">
-                <div class="midpoints-column midpoints-column--left">
+            <div class="split-view-container">
+                <div class="split-view-column split-view-column--left">
                     <table>
                         <?php
                         $splitPoint = 39;
@@ -32,7 +32,7 @@
                         ?>
                     </table>
                 </div>
-                <div class="midpoints-column midpoints-column--right">
+                <div class="split-view-column split-view-column--right">
                     <table>
                         <?php
                         for ($i = $splitPoint; $i < count($midpointsResult); $i++):

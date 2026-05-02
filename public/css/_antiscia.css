@@ -1,71 +1,30 @@
-/* Override card--large padding voor antiscia */
-.card.card--large.card--antiscia {
-    padding: 1rem !important;
-}
+/* Antiscia-specific styles (split-view shared styles in _split-view.css) */
 
-.card.card--large.card--antiscia h4 {
+.card--antiscia h4 {
     font-size: 1.1rem;
     margin-bottom: 1rem;
 }
 
-.antiscia-container {
-    display: flex;
-    gap: 1rem;
-    width: 100%;
-}
-
-.antiscia-column {
-    border: 1px solid var(--color-border, #ddd);
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-}
-
-.antiscia-column--points {
+.split-view-column--points {
     flex: 0 0 35%;
     min-width: 180px;
 }
 
-.antiscia-column--aspects {
+.split-view-column--aspects {
     flex: 1;
     min-width: 250px;
 }
 
-.antiscia-column table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.antiscia-column td {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.9rem;
-}
-
-.antiscia-column--aspects td:nth-child(1),
-.antiscia-column--aspects td:nth-child(3) {
+.split-view-column--aspects td:nth-child(1),
+.split-view-column--aspects td:nth-child(3) {
     white-space: nowrap;
 }
 
-.antiscia-column--aspects td:nth-child(2) {
+.split-view-column--aspects td:nth-child(2) {
     text-align: center;
 }
 
-.antiscia-column--aspects td:nth-child(4) {
+.split-view-column--aspects td:nth-child(4) {
     text-align: right;
     white-space: nowrap;
-}
-
-.antiscia-column tr:hover td {
-    background-color: var(--bg-hover, #e0e0e0);
-}
-
-@media (max-width: 900px) {
-    .antiscia-container {
-        flex-wrap: wrap;
-    }
-    
-    .antiscia-column--points,
-    .antiscia-column--aspects {
-        flex: 0 0 100%;
-        max-width: 100%;
-    }
 }
