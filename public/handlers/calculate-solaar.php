@@ -71,13 +71,14 @@ $solaarTime = date('H:i:s', $solarReturnUtc);
 
 // 6. Build prefill data
 $natalInput = $_SESSION['horoscope']['input'];
+$natalFirstName = $natalInput['firstname'] ?? '';
 $natalInfix = $natalInput['infix'] ?? '';
 $natalLastName = $natalInput['lastname'] ?? '';
 
 $_SESSION['solaar_prefill'] = [
-    'firstname'       => 'Solaar',
+    'firstname'       => $natalFirstName,
     'infix'           => $natalInfix,
-    'lastname'        => $natalLastName,
+    'lastname'        => trim($natalLastName . ' (Solaar ' . $solaarYear . ')'),
     'birth_date'      => $solaarDate,
     'birth_time'      => $solaarTime,
     'location_name'   => '',
