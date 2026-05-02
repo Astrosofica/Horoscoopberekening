@@ -178,18 +178,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'utc' => ($input['time_correction'] ?? null) === 'utc',
         'lmt' => ($input['time_correction'] ?? null) === 'lmt',
     ];
-} elseif (!empty($_POST['lastname'])) {
-    // Gebruik $_POST data (gevuld met database data voor edit/view mode)
-    $formValues = [
-        'firstname' => $_POST['firstname'] ?? '',
-        'infix' => $_POST['infix'] ?? '',
-        'lastname' => $_POST['lastname'] ?? '',
-        'location' => $_POST['location'] ?? '',
-        'date' => $_POST['date'] ?? '',
-        'time' => $_POST['time'] ?? '',
-        'utc' => isset($_POST['time_correction_utc']),
-        'lmt' => isset($_POST['time_correction_lmt']),
-    ];
 } elseif ($isSolaarPrefill) {
     $p = $_SESSION['solaar_prefill'];
     $formValues = [
@@ -201,6 +189,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['lastname'])) {
         'time' => $p['birth_time'],
         'utc' => true,
         'lmt' => false,
+    ];
+} elseif (!empty($_POST['lastname'])) {
+    // Gebruik $_POST data (gevuld met database data voor edit/view mode)
+    $formValues = [
+        'firstname' => $_POST['firstname'] ?? '',
+        'infix' => $_POST['infix'] ?? '',
+        'lastname' => $_POST['lastname'] ?? '',
+        'location' => $_POST['location'] ?? '',
+        'date' => $_POST['date'] ?? '',
+        'time' => $_POST['time'] ?? '',
+        'utc' => isset($_POST['time_correction_utc']),
+        'lmt' => isset($_POST['time_correction_lmt']),
     ];
 }
 
@@ -269,7 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_solaar'])) 
 
     // POST-Redirect-GET pattern
     if (!isset($error)) {
-        header('Location: ' . $_SERVER['REQUEST_URI']);
+        header('Location: index.php');
         exit;
     }
 }
@@ -366,7 +366,7 @@ if ($mode === 'view' && $viewHoroscope && $_SERVER['REQUEST_METHOD'] === 'GET') 
 // ===========================================================================
 $hasResult = !$isSolaarPrefill && (($result !== null) || isset($_SESSION['horoscope']['core']));
 $formDisabled = ($mode === 'view');
-$hasSessionHoroscope = isset($_SESSION['horoscope']['core']) && !$formDisabled;
+$hasSessionHoroscope = !$isSolaarPrefill && isset($_SESSION['horoscope']['core']) && !$formDisabled;
 
 // Vul $result vanuit session voor template (alleen als session bestaat en $result null is)
 if ($result === null && !$isSolaarPrefill && isset($_SESSION['horoscope']['core']) && isset($_SESSION['horoscope']['input'])) {
@@ -623,7 +623,7 @@ if ($requestedTab === 'about') {
                     <?php if ($isSolaarPrefill): ?>
                     <div class="solaar-info">
                         <p class="warning-text">De datum en tijd staan vast (Solar Return in UTC).</p>
-                        <p class="warning-text">Vul je huidige locatie in en klik op "Herbereken horoscoop".</p>
+                        <p class="warning-text">Vul je huidige locatie in en klik op "Horoscoop berekenen".</p>
                     </div>
                     <?php endif; ?>
 
