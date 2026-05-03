@@ -82,6 +82,10 @@
     align-items: center;
 }
 
+.header-content h1 {
+    margin: 0;
+}
+
 .header-brand {
     /*font-size: var(--font-size-lg);
     font-weight: 700;*/
@@ -115,14 +119,12 @@
 }
 
 .header-sub {
-    padding-top: var(--spacing-sm);
-    margin-top: var(--spacing-sm);
-    border-top: 1px solid var(--border-color);
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-md);
 }
 
 .header-sub__name {
     color: var(--color-text-muted);
+    font-weight: 600;
 }
 
 .card--footer {
