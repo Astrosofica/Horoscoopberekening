@@ -85,12 +85,26 @@ if (!isset($error)) {
         
         if ($isUtc) {
             $utcTimestamp = $timestamp;
-            $timeResult = [
-                'offset' => 0,
-                'source' => 'manual',
-                'label' => 'UTC'
-            ];
-            $timezoneId = '';
+
+            // Tijdzone lookup voor lokale weergave (Solaar → normale horoscoop)
+            $tzResult = $geoService->getTimezoneId($lat, $lng, $utcTimestamp);
+            if (!isset($tzResult['error'])) {
+                $astroTime = new AstroTime($tzResult['timezoneId'], $lng);
+                $timeResult = $astroTime->getOffset($utcTimestamp);
+                $timezoneId = $tzResult['timezoneId'];
+                $localTimestamp = $utcTimestamp + $timeResult['offset'];
+                $date = date('Y-m-d', $localTimestamp);
+                $time = date('H:i:s', $localTimestamp);
+                $timeCorrection = null;
+            } else {
+                // fallback: blijf op UTC als tijdzone lookup faalt
+                $timeResult = [
+                    'offset' => 0,
+                    'source' => 'manual',
+                    'label' => 'UTC'
+                ];
+                $timezoneId = '';
+            }
         } elseif ($isLmt) {
             $lmtOffset = (int) round($lng * 240);
             $utcTimestamp = $timestamp - $lmtOffset;
@@ -175,6 +189,11 @@ if (!isset($error)) {
                     'local_timestamp' => $timestamp,
                     'utc_timestamp' => $utcTimestamp
                 ];
+
+                // Solaar: overschrijf local_timestamp met omgerekende lokale tijd
+                if ($isUtc && isset($localTimestamp)) {
+                    $result['local_timestamp'] = $localTimestamp;
+                }
 
                 $housePlanetMatcher = new HousePlanetMatcher();
                 $planetsForWheel = $housePlanetMatcher->match(
