@@ -264,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['calculate_solaar'])) 
 
     // POST-Redirect-GET pattern
     if (!isset($error)) {
-        header('Location: index.php');
+        header('Location: ' . $_SERVER['SCRIPT_NAME']);
         exit;
     }
 }
@@ -541,15 +541,22 @@ if ($requestedTab === 'about') {
                         <div class="form-row half">
                             <div class="form-group">
                                 <label for="date_display">Datum<?= $isSolaarPrefill ? ' <small>(UTC)</small>' : '' ?></label>
-                                <input type="text" id="date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" required<?= ($formDisabled || $isSolaarPrefill) ? ' readonly' : '' ?>>
+                                <input type="text" id="date_display" inputmode="numeric" placeholder="DD-MM-JJJJ" required<?= ($formDisabled || $isSolaarPrefill) ? ' disabled' : '' ?>>
                                 <input type="hidden" id="date" name="date" value="<?= htmlspecialchars($formValues['date']) ?>">
                             </div>
                             <div class="form-group">
                                 <label for="time_display">Tijd<?= $isSolaarPrefill ? ' <small>(UTC)</small>' : ' (lokaal)' ?></label>
-                                <input type="text" id="time_display" inputmode="numeric" placeholder="HH:MM:SS" required<?= ($formDisabled || $isSolaarPrefill) ? ' readonly' : '' ?>>
+                                <input type="text" id="time_display" inputmode="numeric" placeholder="HH:MM:SS" required<?= ($formDisabled || $isSolaarPrefill) ? ' disabled' : '' ?>>
                                 <input type="hidden" id="time" name="time" value="<?= htmlspecialchars($formValues['time']) ?>">
                             </div>
                         </div>
+
+                        <?php if ($isSolaarPrefill): ?>
+                        <div class="solaar-info">
+                            <p class="warning-text">De datum en tijd staan vast (UTC).</p>
+                            <p class="warning-text">Vul de huidige locatie in en klik op "Horoscoop berekenen".</p>
+                        </div>
+                        <?php endif; ?>
 
                         <div class="form-row full">
                             <div class="form-group">
@@ -567,7 +574,9 @@ if ($requestedTab === 'about') {
                                 <div class="form-row full">
                                     <div class="form-group">
                                         <label>Tijdcorrectie</label>
+                                        <?php if (!$isSolaarPrefill): ?>
                                         <p class="warning-text">⚠ Alleen gebruiken als je handmatig een tijd hebt omgerekend</p>
+                                        <?php endif; ?>
                                         <div class="checkbox-group">
                                             <label class="checkbox-label">
                                                 <input type="checkbox" name="time_correction_utc" value="1" <?= $formValues['utc'] ? 'checked' : '' ?> onchange="document.querySelector('input[name=time_correction_lmt]').checked = false;"<?= ($formDisabled || $isSolaarPrefill) ? ' disabled' : '' ?>>
@@ -581,7 +590,6 @@ if ($requestedTab === 'about') {
                                         <?php if ($isSolaarPrefill): ?>
                                         <input type="hidden" name="time_correction_utc" value="1">
                                         <?php endif; ?>
-                                        <small class="form-hint">Vink aan als de ingevoerde tijd al UTC of Lokale Mean Time is.</small>
                                     </div>
                                 </div>
                             </div>
@@ -614,13 +622,6 @@ if ($requestedTab === 'about') {
                         </div>
                         <?php endif; ?>
                     </form>
-
-                    <?php if ($isSolaarPrefill): ?>
-                    <div class="solaar-info">
-                        <p class="warning-text">De datum en tijd staan vast (Solar Return in UTC).</p>
-                        <p class="warning-text">Vul je huidige locatie in en klik op "Horoscoop berekenen".</p>
-                    </div>
-                    <?php endif; ?>
 
                     <?php if ($error): ?>
                         <p class="form-error"><?= htmlspecialchars($error) ?></p>
