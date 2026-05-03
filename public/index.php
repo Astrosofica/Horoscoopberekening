@@ -489,20 +489,7 @@ if ($requestedTab === 'about') {
     <header class="card card--header card--header--app">
         <div class="header-content">
             <h1><a href="index.php" class="header-brand"><?= APP_NAME ?></a></h1>
-        </div>
-        <?php
-        $headerName = $result['name'] ?? null;
-        if (!$headerName && isset($_SESSION['horoscope']['input'])) {
-            $i = $_SESSION['horoscope']['input'];
-            $headerName = trim(($i['firstname'] ?? '') . ' ' . ($i['infix'] ?? '') . ' ' . ($i['lastname'] ?? ''));
-        }
-        ?>
-        <?php if ($headerName || $isLoggedIn): ?>
-        <div class="header-sub">
-            <?php if ($headerName): ?>
-                <span class="header-sub__name"><?= htmlspecialchars($headerName) ?></span>
-            <?php endif; ?>
-            <nav class="header-sub__nav">
+            <nav class="header-nav">
                 <?php if ($isLoggedIn): ?>
                     <a href="dashboard.php">Dashboard</a>
                     <span class="header-user"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
@@ -512,6 +499,17 @@ if ($requestedTab === 'about') {
                     <a href="register.php">Registreren</a>
                 <?php endif; ?>
             </nav>
+        </div>
+        <?php
+        $headerName = $result['name'] ?? null;
+        if (!$headerName && isset($_SESSION['horoscope']['input'])) {
+            $i = $_SESSION['horoscope']['input'];
+            $headerName = trim(($i['firstname'] ?? '') . ' ' . ($i['infix'] ?? '') . ' ' . ($i['lastname'] ?? ''));
+        }
+        ?>
+        <?php if ($headerName): ?>
+        <div class="header-sub">
+            <span class="header-sub__name"><?= htmlspecialchars($headerName) ?></span>
         </div>
         <?php endif; ?>
     </header>
