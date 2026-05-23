@@ -387,11 +387,11 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
 
             if ($q > 0) {
                 if ($q == 1 or $q == 3 or $q == 6) {
-                    $aspect_color = $colors['green'];
+                    $aspect_color = $colors['aspect_green'] ?? $colors['green'];
                 } elseif ($q == 4 or $q == 2 or $q == 7 or $q == 8) {
-                    $aspect_color = $colors['red'];
+                    $aspect_color = $colors['aspect_red'] ?? $colors['red'];
                 } elseif ($q == 5) {
-                    $aspect_color = $colors['orange'];
+                    $aspect_color = $colors['aspect_orange'] ?? $colors['orange'];
                 }
 
                 $i_excluded = in_array($names[$i], $excluded_names);

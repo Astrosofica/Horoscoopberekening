@@ -94,6 +94,11 @@ $colors = [
     // Extra accenten voor differentiatie
     'lavender'      => imagecolorallocate($im, 165, 165, 175), // Stoffig grijs-blauw
     'light_blue'    => imagecolorallocate($im, 235, 240, 238), // Zeer lichte 'morning mist'
+
+    // Aspectlijnen (frissere kleuren voor betere zichtbaarheid)
+    'aspect_green'  => imagecolorallocate($im, 76, 175, 80),   // Conjunctie, driehoek, sextiel
+    'aspect_red'    => imagecolorallocate($im, 211, 47, 47),   // Oppositie, vierkant, semisquare, sesquiquadraat
+    'aspect_orange' => imagecolorallocate($im, 255, 152, 0),   // Inconjunct
 ];
 
 // Specific colors
