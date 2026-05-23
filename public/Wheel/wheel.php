@@ -145,8 +145,8 @@ draw_mc_line($im, $center_pt, $house_cusps, $radius, $inner_diameter_offset, $co
 // Put planets in chartwheel (also returns positions for aspect lines)
 $planet_data = draw_planets($im, $center_pt, $planets, $house_cusps, $radius, $inner_diameter_offset, $spacing, $colors);
 
-// Draw aspect lines if requested via query parameter
-if (isset($_GET['aspects']) && $_GET['aspects'] === '1') {
+// Draw aspect lines (if requested) with optional debug output
+if (isset($_GET['aspects']) && $_GET['aspects'] === '1' || isset($_GET['debug_aspects'])) {
     // Add Ascendant and MC for aspect calculation
     $aspect_planets = $planets;
     $aspect_angles = $planet_data['planet_angle'];
@@ -159,8 +159,21 @@ if (isset($_GET['aspects']) && $_GET['aspects'] === '1') {
     $aspect_planets[$mc_idx] = ['name' => 'MC', 'longitude' => $house_cusps[10], 'house' => 10, 'speed' => 0];
     $aspect_angles[$mc_idx] = $house_cusps[10];
 
+    $drawAspects = isset($_GET['aspects']) && $_GET['aspects'] === '1';
     $debug = isset($_GET['debug_aspects']);
-    draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $aspect_planets, $aspect_angles, $house_cusps[1], $colors, $debug);
+    $debug_log = draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $aspect_planets, $aspect_angles, $house_cusps[1], $colors, $drawAspects, $debug);
+}
+
+if (isset($_GET['debug_aspects'])) {
+    header('Content-Type: text/plain; charset=utf-8');
+    if (!empty($debug_log)) {
+        echo "=== Aspect Debug Output ===\n\n";
+        echo implode("\n", $debug_log) . "\n";
+    } else {
+        echo "=== Aspect Debug: No aspects found ===\n";
+        echo "(aspect lines not requested? add &aspects=1)\n";
+    }
+    exit();
 }
 
 // Output the image

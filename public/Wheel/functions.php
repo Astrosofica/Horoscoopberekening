@@ -336,7 +336,7 @@ function mysql_escape_mimic($inp) {
 }
 
 
-Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $planets, $planet_angle, $ascendant, $colors, $debug = false)
+Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $planets, $planet_angle, $ascendant, $colors, $draw = true, $debug = false)
 {
     $num_planets = count($planets);
     $last_planet_num = $num_planets - 1;
@@ -470,21 +470,23 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
                     continue;
                 }
 
-                $inner_r = $radius - $inner_diameter_offset;
-                $x1 = -$inner_r * cos(deg2rad($planet_angle[$i] - $ascendant));
-                $y1 = $inner_r * sin(deg2rad($planet_angle[$i] - $ascendant));
-                $x2 = -$inner_r * cos(deg2rad($planet_angle[$j] - $ascendant));
-                $y2 = $inner_r * sin(deg2rad($planet_angle[$j] - $ascendant));
+                if ($draw) {
+                    $inner_r = $radius - $inner_diameter_offset;
+                    $x1 = -$inner_r * cos(deg2rad($planet_angle[$i] - $ascendant));
+                    $y1 = $inner_r * sin(deg2rad($planet_angle[$i] - $ascendant));
+                    $x2 = -$inner_r * cos(deg2rad($planet_angle[$j] - $ascendant));
+                    $y2 = $inner_r * sin(deg2rad($planet_angle[$j] - $ascendant));
 
-                imageline($im, (int)($x1 + $center_pt), (int)($y1 + $center_pt), (int)($x2 + $center_pt), (int)($y2 + $center_pt), $aspect_color);
+                    imageline($im, (int)($x1 + $center_pt), (int)($y1 + $center_pt), (int)($x2 + $center_pt), (int)($y2 + $center_pt), $aspect_color);
+                }
             }
         }
     }
 
-    if ($debug and !empty($debug_log)) {
-        file_put_contents('/tmp/wheel_debug.log', implode(PHP_EOL, $debug_log) . PHP_EOL, FILE_APPEND);
-    }
-
     imagesetthickness($im, 1);
+
+    if ($debug) {
+        return $debug_log;
+    }
 }
 ?>
