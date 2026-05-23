@@ -74,7 +74,8 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
     </div>
 
     <div class="wheel-container">
-        <img src="../Wheel/wheel.php" alt="Astrologisch Radix">
+        <!-- TEMP: wheel_aspects.php gebruikt i.p.v. wheel.php voor aspectlijnen -->
+        <img src="../Wheel/wheel_aspects.php" alt="Astrologisch Radix">
     </div>
 
     <div class="houses-planets-container">

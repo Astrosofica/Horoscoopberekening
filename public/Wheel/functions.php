@@ -334,4 +334,84 @@ function mysql_escape_mimic($inp) {
 
     return $inp;
 }
+
+
+Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $planets, $planet_angle, $ascendant, $colors)
+{
+    $num_planets = count($planets);
+    $last_planet_num = $num_planets - 1;
+
+    $longitude = [];
+    $names = [];
+    foreach ($planets as $i => $planet) {
+        $longitude[$i] = $planet['longitude'];
+        $names[$i] = $planet['name'];
+    }
+
+    $excluded_names = ['Vertex', 'Lilith', 'POF', 'ParsFortuna', 'TNode', 'NorthNode', 'Chiron'];
+
+    imagesetthickness($im, 2);
+
+    for ($i = 0; $i <= $last_planet_num - 1; $i++) {
+        for ($j = $i + 1; $j <= $last_planet_num; $j++) {
+            $q = 0;
+            $da = abs($longitude[$i] - $longitude[$j]);
+
+            if ($da > 180) {
+                $da = 360 - $da;
+            }
+
+            if ($names[$i] == 'Sun' or $names[$i] == 'Moon' or $names[$j] == 'Sun' or $names[$j] == 'Moon') {
+                $orb = 8;
+            } else {
+                $orb = 6;
+            }
+
+            if ($da <= $orb) {
+                $q = 1;
+            } elseif (($da <= (45 + 2)) and ($da >= (45 - 2))) {
+                $q = 7;
+            } elseif (($da <= (60 + $orb)) and ($da >= (60 - $orb))) {
+                $q = 6;
+            } elseif (($da <= (90 + $orb)) and ($da >= (90 - $orb))) {
+                $q = 4;
+            } elseif (($da <= (120 + $orb)) and ($da >= (120 - $orb))) {
+                $q = 3;
+            } elseif (($da <= (135 + 2)) and ($da >= (135 - 2))) {
+                $q = 8;
+            } elseif (($da <= (150 + 3.5)) and ($da >= (150 - 3.5))) {
+                $q = 5;
+            } elseif ($da >= (180 - $orb)) {
+                $q = 2;
+            }
+
+            if ($q > 0) {
+                if ($q == 1 or $q == 3 or $q == 6) {
+                    $aspect_color = $colors['green'];
+                } elseif ($q == 4 or $q == 2 or $q == 7 or $q == 8) {
+                    $aspect_color = $colors['red'];
+                } elseif ($q == 5) {
+                    $aspect_color = $colors['orange'];
+                }
+
+                $i_excluded = in_array($names[$i], $excluded_names);
+                $j_excluded = in_array($names[$j], $excluded_names);
+
+                if ($q != 1 and ($i_excluded or $j_excluded)) {
+                    continue;
+                }
+
+                $inner_r = $radius - $inner_diameter_offset;
+                $x1 = -$inner_r * cos(deg2rad($planet_angle[$i] - $ascendant));
+                $y1 = $inner_r * sin(deg2rad($planet_angle[$i] - $ascendant));
+                $x2 = -$inner_r * cos(deg2rad($planet_angle[$j] - $ascendant));
+                $y2 = $inner_r * sin(deg2rad($planet_angle[$j] - $ascendant));
+
+                imageline($im, (int)($x1 + $center_pt), (int)($y1 + $center_pt), (int)($x2 + $center_pt), (int)($y2 + $center_pt), $aspect_color);
+            }
+        }
+    }
+
+    imagesetthickness($im, 1);
+}
 ?>
