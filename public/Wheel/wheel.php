@@ -147,7 +147,19 @@ $planet_data = draw_planets($im, $center_pt, $planets, $house_cusps, $radius, $i
 
 // Draw aspect lines if requested via query parameter
 if (isset($_GET['aspects']) && $_GET['aspects'] === '1') {
-    draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $planets, $planet_data['planet_angle'], $house_cusps[1], $colors);
+    // Add Ascendant and MC for aspect calculation
+    $aspect_planets = $planets;
+    $aspect_angles = $planet_data['planet_angle'];
+
+    $asc_idx = count($aspect_planets);
+    $aspect_planets[$asc_idx] = ['name' => 'Ascendant', 'longitude' => $house_cusps[1], 'house' => 1, 'speed' => 0];
+    $aspect_angles[$asc_idx] = $house_cusps[1];
+
+    $mc_idx = $asc_idx + 1;
+    $aspect_planets[$mc_idx] = ['name' => 'MC', 'longitude' => $house_cusps[10], 'house' => 10, 'speed' => 0];
+    $aspect_angles[$mc_idx] = $house_cusps[10];
+
+    draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $aspect_planets, $aspect_angles, $house_cusps[1], $colors);
 }
 
 // Output the image
