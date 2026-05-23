@@ -354,8 +354,6 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
 
     $aspect_names = [1=>'conjunctie', 7=>'semisquare', 6=>'sextiel', 4=>'vierkant', 3=>'driehoek', 8=>'sesquiquadraat', 5=>'inconjunct', 2=>'oppositie'];
 
-    $expected_from_signs = [0, 30, 60, 90, 120, 150, 180, 150, 120, 90, 60, 30];
-
     $aspect_angles = [1=>0, 7=>45, 6=>60, 4=>90, 3=>120, 8=>135, 5=>150, 2=>180];
 
     $debug_log = [];
@@ -408,13 +406,13 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
                     $aspect_color = $colors['aspect_orange'] ?? $colors['orange'];
                 }
 
-                // Out-of-sign check
+                // Out-of-sign check: bepaal waar planeet B zou staan bij exact aspect
                 $sign1 = (int)($longitude[$i] / 30);
                 $sign2 = (int)($longitude[$j] / 30);
-                $signDist = ($sign2 - $sign1 + 12) % 12;
-                $expectedAngle = $expected_from_signs[$signDist];
                 $actualAngle = $aspect_angles[$q];
-                $isOutOfSign = ($expectedAngle != $actualAngle);
+                $expectedSignFromI = (int)((($longitude[$i] + $actualAngle) % 360) / 30);
+                $expectedSignFromJ = (int)((($longitude[$j] + $actualAngle) % 360) / 30);
+                $isOutOfSign = ($expectedSignFromI != $sign2 && $expectedSignFromJ != $sign1);
 
                 // Bepaal gebruikte orb voor dit aspect
                 if ($q == 1) {
@@ -437,11 +435,12 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
 
                     if ($debug) {
                         $debug_log[] = sprintf(
-                            "[ASPECT_DEBUG] %s(%s°|%s %s) x %s(%s°|%s %s) da=%.1f° q=%d(%s) signs: %s→%s=%d exp=%d° out-of-sign=ja orb=%.1f° reduced=%.1f° → %s",
-                            $names[$i], round($longitude[$i], 1), $sign_names[$sign1], $sign1,
-                            $names[$j], round($longitude[$j], 1), $sign_names[$sign2], $sign2,
+                            "[ASPECT_DEBUG] %s(%s°|%s) x %s(%s°|%s) da=%.1f° q=%d(%s) +%d°→%s +%d°→%s out-of-sign=ja orb=%.1f° reduced=%.1f° → %s",
+                            $names[$i], round($longitude[$i], 1), $sign_names[$sign1],
+                            $names[$j], round($longitude[$j], 1), $sign_names[$sign2],
                             $da, $q, $aspect_names[$q],
-                            $sign_names[$sign1], $sign_names[$sign2], $signDist, $expectedAngle,
+                            (int)$actualAngle, $sign_names[$expectedSignFromI],
+                            (int)$actualAngle, $sign_names[$expectedSignFromJ],
                             $usedOrb, $reducedOrb,
                             $withinReduced ? "accept" : "SKIP"
                         );
@@ -452,11 +451,12 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
                     }
                 } elseif ($debug) {
                     $debug_log[] = sprintf(
-                        "[ASPECT_DEBUG] %s(%s°|%s %s) x %s(%s°|%s %s) da=%.1f° q=%d(%s) signs: %s→%s=%d exp=%d° → binnen teken → DRAW",
-                        $names[$i], round($longitude[$i], 1), $sign_names[$sign1], $sign1,
-                        $names[$j], round($longitude[$j], 1), $sign_names[$sign2], $sign2,
+                        "[ASPECT_DEBUG] %s(%s°|%s) x %s(%s°|%s) da=%.1f° q=%d(%s) +%d°→%s +%d°→%s → binnen teken → DRAW",
+                        $names[$i], round($longitude[$i], 1), $sign_names[$sign1],
+                        $names[$j], round($longitude[$j], 1), $sign_names[$sign2],
                         $da, $q, $aspect_names[$q],
-                        $sign_names[$sign1], $sign_names[$sign2], $signDist, $expectedAngle
+                        (int)$actualAngle, $sign_names[$expectedSignFromI],
+                        (int)$actualAngle, $sign_names[$expectedSignFromJ]
                     );
                 }
 
@@ -482,7 +482,7 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
     }
 
     if ($debug and !empty($debug_log)) {
-        error_log(implode(PHP_EOL, $debug_log));
+        file_put_contents('/tmp/wheel_debug.log', implode(PHP_EOL, $debug_log) . PHP_EOL, FILE_APPEND);
     }
 
     imagesetthickness($im, 1);
