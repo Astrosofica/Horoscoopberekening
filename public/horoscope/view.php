@@ -47,7 +47,7 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($result['name']) ?> - Horoscoopberekening</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=<?= BUILD_VERSION ?>">
 </head>
 <body>
 <div class="container">
@@ -74,8 +74,10 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
     </div>
 
     <div class="wheel-container">
-        <!-- TEMP: wheel_aspects.php gebruikt i.p.v. wheel.php voor aspectlijnen -->
-        <img src="../Wheel/wheel_aspects.php" alt="Astrologisch Radix">
+        <img src="../Wheel/wheel.php" alt="Astrologisch Radix" id="wheel-image">
+        <div class="wheel-toggle">
+            <a href="#" id="wheel-aspect-toggle">Toon aspectlijnen</a>
+        </div>
     </div>
 
     <div class="houses-planets-container">
@@ -153,5 +155,7 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
 
     <?php require_once __DIR__ . '/../includes/footer.php'; ?>
 </div>
+
+<script src="../js/app.js?v=<?= BUILD_VERSION ?>"></script>
 </body>
 </html>

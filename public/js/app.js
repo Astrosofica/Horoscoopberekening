@@ -590,3 +590,55 @@ document.addEventListener('DOMContentLoaded', function() {
         toggle.classList.add('active');
     }
 });
+// ===== Wheel Aspect Lines Toggle =====
+(function() {
+    function getSlug() {
+        return new URLSearchParams(window.location.search).get('h') || 'current';
+    }
+
+    function storageKey() {
+        return 'wheel_aspects_' + getSlug();
+    }
+
+    function applyState() {
+        const img = document.getElementById('wheel-image');
+        const link = document.getElementById('wheel-aspect-toggle');
+        if (!img || !link) return;
+
+        const saved = localStorage.getItem(storageKey());
+        if (saved === 'on' && !img.src.includes('wheel_aspects')) {
+            img.src = img.src.replace('wheel.php', 'wheel_aspects.php');
+            link.textContent = 'Verberg aspectlijnen';
+        } else if (saved !== 'on' && img.src.includes('wheel_aspects')) {
+            img.src = img.src.replace('wheel_aspects.php', 'wheel.php');
+            link.textContent = 'Toon aspectlijnen';
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        const link = e.target.closest('#wheel-aspect-toggle');
+        if (!link) return;
+        e.preventDefault();
+
+        const img = document.getElementById('wheel-image');
+        if (!img) return;
+
+        const isAspects = img.src.includes('wheel_aspects');
+
+        if (isAspects) {
+            img.src = img.src.replace('wheel_aspects.php', 'wheel.php');
+            link.textContent = 'Toon aspectlijnen';
+            localStorage.setItem(storageKey(), 'off');
+        } else {
+            img.src = img.src.replace('wheel.php', 'wheel_aspects.php');
+            link.textContent = 'Verberg aspectlijnen';
+            localStorage.setItem(storageKey(), 'on');
+        }
+    });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', applyState);
+    } else {
+        applyState();
+    }
+})();

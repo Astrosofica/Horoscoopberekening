@@ -478,7 +478,7 @@ if ($requestedTab === 'about') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $result ? htmlspecialchars($result['name']) . ' - ' : '' ?>Horoscoopberekening</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=<?= BUILD_VERSION ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -694,10 +694,12 @@ if ($requestedTab === 'about') {
                         </div>
                     </div>
 
-                    <div class="wheel-container">
-                        <!-- TEMP: wheel_aspects.php gebruikt i.p.v. wheel.php voor aspectlijnen -->
-                        <img src="./Wheel/wheel_aspects.php" alt="Astrologisch Radix">
-                    </div>
+                        <div class="wheel-container">
+                            <img src="./Wheel/wheel.php" alt="Astrologisch Radix" id="wheel-image">
+                            <div class="wheel-toggle">
+                                <a href="#" id="wheel-aspect-toggle">Toon aspectlijnen</a>
+                            </div>
+                        </div>
                 </section>
 
                 <section id="tab-planetshouses" class="tab-content tab-content--hidden">
@@ -809,7 +811,7 @@ if ($requestedTab === 'about') {
     <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </div>
 
-<script src="js/app.js"></script>
+<script src="js/app.js?v=<?= BUILD_VERSION ?>"></script>
 <?php if (($hasResult && $mode !== 'edit') || $currentTab === 'about'): ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

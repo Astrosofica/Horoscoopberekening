@@ -11,7 +11,8 @@
 
 .wheel-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     margin-bottom: var(--spacing-xxl);
 }
 
@@ -19,6 +20,22 @@
     max-width: 100%;
     height: auto;
     border-radius: 50%;
+}
+
+.wheel-toggle {
+    margin-top: var(--spacing-sm, 8px);
+}
+
+.wheel-toggle a {
+    color: var(--color-text);
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.wheel-toggle a:hover {
+    opacity: 1;
 }
 
 @media (max-width: 600px) {
