@@ -137,8 +137,13 @@ draw_house_spokes($im, $center_pt, $house_cusps, $radius, $inner_diameter_offset
 // Draw the MC (10th house) line and arrow
 draw_mc_line($im, $center_pt, $house_cusps, $radius, $inner_diameter_offset, $colors);
 
-// Put planets in chartwheel
-draw_planets($im, $center_pt, $planets, $house_cusps, $radius, $inner_diameter_offset, $spacing, $colors);
+// Put planets in chartwheel (also returns positions for aspect lines)
+$planet_data = draw_planets($im, $center_pt, $planets, $house_cusps, $radius, $inner_diameter_offset, $spacing, $colors);
+
+// Draw aspect lines if requested via query parameter
+if (isset($_GET['aspects']) && $_GET['aspects'] === '1') {
+    draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $planets, $planet_data['planet_angle'], $house_cusps[1], $colors);
+}
 
 // Output the image
 imagepng($im);
@@ -442,6 +447,11 @@ function draw_planets($im, $center_pt, $planets, $house_cusps, $radius, $inner_d
             imagettftext($im, 10, 0, (int)($xy[0] + $center_pt), (int)($xy[1] + $center_pt), $colors['red'], HAMBURG_FONT, chr(118));
         }
     }
+
+    return [
+        'planet_angle' => $planet_angle,
+        'sort_pos' => $sort_pos
+    ];
 }
 
 /**

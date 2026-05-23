@@ -600,17 +600,24 @@ document.addEventListener('DOMContentLoaded', function() {
         return 'wheel_aspects_' + getSlug();
     }
 
+    function setWheelUrl(img, on) {
+        const base = img.src.split('?')[0].replace(/wheel_aspects?\.php$/, 'wheel.php');
+        img.src = on ? base + '?aspects=1' : base;
+    }
+
     function applyState() {
         const img = document.getElementById('wheel-image');
         const link = document.getElementById('wheel-aspect-toggle');
         if (!img || !link) return;
 
+        const url = new URL(img.src, window.location.href);
         const saved = localStorage.getItem(storageKey());
-        if (saved === 'on' && !img.src.includes('wheel_aspects')) {
-            img.src = img.src.replace('wheel.php', 'wheel_aspects.php');
+
+        if (saved === 'on' && url.searchParams.get('aspects') !== '1') {
+            setWheelUrl(img, true);
             link.textContent = 'Verberg aspectlijnen';
-        } else if (saved !== 'on' && img.src.includes('wheel_aspects')) {
-            img.src = img.src.replace('wheel_aspects.php', 'wheel.php');
+        } else if (saved !== 'on' && url.searchParams.get('aspects') === '1') {
+            setWheelUrl(img, false);
             link.textContent = 'Toon aspectlijnen';
         }
     }
@@ -623,17 +630,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const img = document.getElementById('wheel-image');
         if (!img) return;
 
-        const isAspects = img.src.includes('wheel_aspects');
+        const url = new URL(img.src, window.location.href);
+        const isOn = url.searchParams.get('aspects') === '1';
 
-        if (isAspects) {
-            img.src = img.src.replace('wheel_aspects.php', 'wheel.php');
-            link.textContent = 'Toon aspectlijnen';
-            localStorage.setItem(storageKey(), 'off');
-        } else {
-            img.src = img.src.replace('wheel.php', 'wheel_aspects.php');
-            link.textContent = 'Verberg aspectlijnen';
-            localStorage.setItem(storageKey(), 'on');
-        }
+        setWheelUrl(img, !isOn);
+        link.textContent = isOn ? 'Toon aspectlijnen' : 'Verberg aspectlijnen';
+        localStorage.setItem(storageKey(), isOn ? 'off' : 'on');
     });
 
     if (document.readyState === 'loading') {
