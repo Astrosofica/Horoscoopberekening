@@ -362,26 +362,30 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
             }
 
             if ($names[$i] == 'Sun' or $names[$i] == 'Moon' or $names[$j] == 'Sun' or $names[$j] == 'Moon') {
-                $orb = 8;
+                $orb_conj = 7;
+                $orb_major = 6;
+                $orb_minor = 5;
             } else {
-                $orb = 6;
+                $orb_conj = 5;
+                $orb_major = 5;
+                $orb_minor = 4;
             }
 
-            if ($da <= $orb) {
+            if ($da <= $orb_conj) {
                 $q = 1;
             } elseif (($da <= (45 + 2)) and ($da >= (45 - 2))) {
                 $q = 7;
-            } elseif (($da <= (60 + $orb)) and ($da >= (60 - $orb))) {
+            } elseif (($da <= (60 + $orb_minor)) and ($da >= (60 - $orb_minor))) {
                 $q = 6;
-            } elseif (($da <= (90 + $orb)) and ($da >= (90 - $orb))) {
+            } elseif (($da <= (90 + $orb_major)) and ($da >= (90 - $orb_major))) {
                 $q = 4;
-            } elseif (($da <= (120 + $orb)) and ($da >= (120 - $orb))) {
+            } elseif (($da <= (120 + $orb_major)) and ($da >= (120 - $orb_major))) {
                 $q = 3;
             } elseif (($da <= (135 + 2)) and ($da >= (135 - 2))) {
                 $q = 8;
-            } elseif (($da <= (150 + 3.5)) and ($da >= (150 - 3.5))) {
+            } elseif (($da <= (150 + 2.5)) and ($da >= (150 - 2.5))) {
                 $q = 5;
-            } elseif ($da >= (180 - $orb)) {
+            } elseif ($da >= (180 - $orb_major)) {
                 $q = 2;
             }
 
