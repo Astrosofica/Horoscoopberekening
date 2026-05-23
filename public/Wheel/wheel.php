@@ -159,7 +159,8 @@ if (isset($_GET['aspects']) && $_GET['aspects'] === '1') {
     $aspect_planets[$mc_idx] = ['name' => 'MC', 'longitude' => $house_cusps[10], 'house' => 10, 'speed' => 0];
     $aspect_angles[$mc_idx] = $house_cusps[10];
 
-    draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $aspect_planets, $aspect_angles, $house_cusps[1], $colors);
+    $debug = isset($_GET['debug_aspects']);
+    draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $aspect_planets, $aspect_angles, $house_cusps[1], $colors, $debug);
 }
 
 // Output the image

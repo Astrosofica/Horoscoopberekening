@@ -336,7 +336,7 @@ function mysql_escape_mimic($inp) {
 }
 
 
-Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $planets, $planet_angle, $ascendant, $colors)
+Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $planets, $planet_angle, $ascendant, $colors, $debug = false)
 {
     $num_planets = count($planets);
     $last_planet_num = $num_planets - 1;
@@ -349,6 +349,16 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
     }
 
     $excluded_names = ['Vertex', 'Lilith', 'POF', 'ParsFortuna', 'TNode', 'NorthNode', 'Chiron'];
+
+    $sign_names = ['Ram', 'Stier', 'Tweelingen', 'Kreeft', 'Leeuw', 'Maagd', 'Weegschaal', 'Schorpioen', 'Boogschutter', 'Steenbok', 'Waterman', 'Vissen'];
+
+    $aspect_names = [1=>'conjunctie', 7=>'semisquare', 6=>'sextiel', 4=>'vierkant', 3=>'driehoek', 8=>'sesquiquadraat', 5=>'inconjunct', 2=>'oppositie'];
+
+    $expected_from_signs = [0, 30, 60, 90, 120, 150, 180, 150, 120, 90, 60, 30];
+
+    $aspect_angles = [1=>0, 7=>45, 6=>60, 4=>90, 3=>120, 8=>135, 5=>150, 2=>180];
+
+    $debug_log = [];
 
     imagesetthickness($im, 2);
 
@@ -398,10 +408,65 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
                     $aspect_color = $colors['aspect_orange'] ?? $colors['orange'];
                 }
 
+                // Out-of-sign check
+                $sign1 = (int)($longitude[$i] / 30);
+                $sign2 = (int)($longitude[$j] / 30);
+                $signDist = ($sign2 - $sign1 + 12) % 12;
+                $expectedAngle = $expected_from_signs[$signDist];
+                $actualAngle = $aspect_angles[$q];
+                $isOutOfSign = ($expectedAngle != $actualAngle);
+
+                // Bepaal gebruikte orb voor dit aspect
+                if ($q == 1) {
+                    $usedOrb = $orb_conj;
+                } elseif ($q == 6) {
+                    $usedOrb = $orb_minor;
+                } elseif (in_array($q, [4, 3, 2])) {
+                    $usedOrb = $orb_major;
+                } elseif ($q == 7 or $q == 8) {
+                    $usedOrb = 2;
+                } elseif ($q == 5) {
+                    $usedOrb = 2.5;
+                }
+
+                if ($isOutOfSign) {
+                    $reducedOrb = min($usedOrb / 2, 2);
+                    $withinReduced = ($actualAngle == 0)
+                        ? ($da <= $reducedOrb)
+                        : ($da >= ($actualAngle - $reducedOrb) and $da <= ($actualAngle + $reducedOrb));
+
+                    if ($debug) {
+                        $debug_log[] = sprintf(
+                            "[ASPECT_DEBUG] %s(%s°|%s %s) x %s(%s°|%s %s) da=%.1f° q=%d(%s) signs: %s→%s=%d exp=%d° out-of-sign=ja orb=%.1f° reduced=%.1f° → %s",
+                            $names[$i], round($longitude[$i], 1), $sign_names[$sign1], $sign1,
+                            $names[$j], round($longitude[$j], 1), $sign_names[$sign2], $sign2,
+                            $da, $q, $aspect_names[$q],
+                            $sign_names[$sign1], $sign_names[$sign2], $signDist, $expectedAngle,
+                            $usedOrb, $reducedOrb,
+                            $withinReduced ? "accept" : "SKIP"
+                        );
+                    }
+
+                    if (!$withinReduced) {
+                        continue;
+                    }
+                } elseif ($debug) {
+                    $debug_log[] = sprintf(
+                        "[ASPECT_DEBUG] %s(%s°|%s %s) x %s(%s°|%s %s) da=%.1f° q=%d(%s) signs: %s→%s=%d exp=%d° → binnen teken → DRAW",
+                        $names[$i], round($longitude[$i], 1), $sign_names[$sign1], $sign1,
+                        $names[$j], round($longitude[$j], 1), $sign_names[$sign2], $sign2,
+                        $da, $q, $aspect_names[$q],
+                        $sign_names[$sign1], $sign_names[$sign2], $signDist, $expectedAngle
+                    );
+                }
+
                 $i_excluded = in_array($names[$i], $excluded_names);
                 $j_excluded = in_array($names[$j], $excluded_names);
 
                 if ($q != 1 and ($i_excluded or $j_excluded)) {
+                    if ($debug) {
+                        $debug_log[] = "[ASPECT_DEBUG]   → excluded ({$names[$i]}/{$names[$j]})";
+                    }
                     continue;
                 }
 
@@ -414,6 +479,10 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
                 imageline($im, (int)($x1 + $center_pt), (int)($y1 + $center_pt), (int)($x2 + $center_pt), (int)($y2 + $center_pt), $aspect_color);
             }
         }
+    }
+
+    if ($debug and !empty($debug_log)) {
+        error_log(implode(PHP_EOL, $debug_log));
     }
 
     imagesetthickness($im, 1);
