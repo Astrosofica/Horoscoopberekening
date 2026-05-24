@@ -1,0 +1,64 @@
+.btn {
+    display: inline-block;
+    padding: 10px var(--spacing-xl);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s, color 0.2s;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.btn--primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn--primary:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn--secondary {
+    background: #e6e3de;
+    color: var(--color-text);
+    border: 1px solid var(--color-accent);
+}
+
+.btn--secondary:hover {
+    background: #dcd8d3;
+}
+
+.btn--danger {
+    background: #c62828;
+    color: white;
+    border: none;
+}
+
+.btn--danger:hover {
+    background: #b71c1c;
+}
+
+.btn--save {
+    background: var(--color-success);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-xxl);
+    width: 100%;
+}
+
+.btn--save:hover {
+    background: #5d8a6d;
+}
+
+.btn--small {
+    padding: 6px var(--spacing-md);
+    font-size: var(--font-size-base);
+}
+
+.btn--full-width {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+}

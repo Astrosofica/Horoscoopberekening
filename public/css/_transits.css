@@ -1,0 +1,5 @@
+/* Transit-specific styles (events form styles in _events-form.css) */
+
+.card--transits {
+    padding: 1.5rem;
+}
