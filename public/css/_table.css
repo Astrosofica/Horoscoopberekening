@@ -161,6 +161,17 @@
     text-align: center;
 }
 
+.orb--out-of-sign {
+    color: #d32f2f;
+}
+
+.text-muted.text-small {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
 .dashboard-controls {
     display: flex;
     justify-content: space-between;

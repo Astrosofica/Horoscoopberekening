@@ -14,6 +14,7 @@ class Aspect
     public float $orb;
     public string $name;
     public bool $isDominant;
+    public bool $isOutOfSign = false;
 
     public function __construct(
         int $planet1Index,
@@ -25,7 +26,8 @@ class Aspect
         int $aspectDegrees,
         float $orb,
         string $name,
-        bool $isDominant = false
+        bool $isDominant = false,
+        bool $isOutOfSign = false
     ) {
         $this->planet1Index = $planet1Index;
         $this->planet2Index = $planet2Index;
@@ -37,6 +39,7 @@ class Aspect
         $this->orb = $orb;
         $this->name = $name;
         $this->isDominant = $isDominant;
+        $this->isOutOfSign = $isOutOfSign;
     }
 
     public function toArray(): array
@@ -51,7 +54,8 @@ class Aspect
             'aspect_degrees' => $this->aspectDegrees,
             'orb' => $this->orb,
             'name' => $this->name,
-            'is_dominant' => $this->isDominant
+            'is_dominant' => $this->isDominant,
+            'is_out_of_sign' => $this->isOutOfSign
         ];
     }
 }

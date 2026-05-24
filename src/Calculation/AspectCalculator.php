@@ -51,7 +51,7 @@ class AspectCalculator
         ],
         [
             'degrees' => 150,
-            'orb' => 2,
+            'orb' => 2.5,
             'name' => 'Inconjunct'
         ],
     ];
@@ -189,6 +189,24 @@ class AspectCalculator
                             $orb
                         );
                         
+                        // Out-of-sign check: alleen voor zodiacale aspecten
+                        $isOutOfSign = false;
+                        $zodiacalDegrees = [0, 60, 90, 120, 150, 180];
+                        if (in_array($definition['degrees'], $zodiacalDegrees)) {
+                            $lon1 = $planetsWithIndices[$p1]['longitude'];
+                            $lon2 = $planetsWithIndices[$p2]['longitude'];
+                            $deg = $definition['degrees'];
+                            $sign1 = (int)($lon1 / 30);
+                            $sign2 = (int)($lon2 / 30);
+                            $expectedSignFrom1 = (int)((($lon1 + $deg) % 360) / 30);
+                            $expectedSignFrom2 = (int)((($lon2 + $deg) % 360) / 30);
+                            $isOutOfSign = ($expectedSignFrom1 != $sign2 && $expectedSignFrom2 != $sign1);
+                            
+                            if ($isOutOfSign && $orb > 2) {
+                                continue; // Buiten teken en te grote orb → vervalt
+                            }
+                        }
+                        
                         $aspect = new Aspect(
                             $p1,
                             $p2,
@@ -199,7 +217,8 @@ class AspectCalculator
                             $definition['degrees'],
                             $orb,
                             $definition['name'],
-                            $isDominant
+                            $isDominant,
+                            $isOutOfSign
                         );
                         
                         $aspects[] = $aspect;
@@ -266,6 +285,7 @@ class AspectCalculator
                 'orb' => $this->formatOrb($aspect->orb),
                 'orb_decimal' => $aspect->orb,
                 'is_dominant' => $aspect->isDominant,
+                'is_out_of_sign' => $aspect->isOutOfSign,
                 'planet1_longitude' => $aspect->planet1Longitude,
                 'planet2_longitude' => $aspect->planet2Longitude,
                 'aspect_glyph' => $this->getAspectGlyph($aspect->aspectDegrees)
