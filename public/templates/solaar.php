@@ -16,7 +16,7 @@
             </div>
             <div class="form-submit">
                 <button type="submit" name="calculate_solaar" value="1">
-                    Zoek Solar Return
+                    Bereken de Solaar
                 </button>
             </div>
         </form>
