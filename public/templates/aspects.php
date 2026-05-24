@@ -21,7 +21,7 @@
                 </tr>
             <?php endforeach; ?>
         </table>
-        <p class="text-muted text-small text-right">B = Aspect buiten teken, orb gemaximeerd op 2°</p>
+        <p class="text-muted text-small">B = Aspect buiten teken, orb gemaximeerd op 2°</p>
         <div class="aspecten-toggle-container">
             <label class="aspecten-toggle-label">
                 <input type="checkbox" id="toggle-dominant-aspects" onchange="toggleDominantAspects()">

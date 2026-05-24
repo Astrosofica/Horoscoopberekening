@@ -149,7 +149,7 @@ $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
                 </tr>
             <?php endforeach; ?>
         </table>
-        <p class="text-muted text-small text-right">B = Aspect buiten teken, orb gemaximeerd op 2°</p>
+        <p class="text-muted text-small">B = Aspect buiten teken, orb gemaximeerd op 2°</p>
     </div>
 
     <p class="back-link"><a href="../dashboard.php">&larr; Terug naar dashboard</a></p>
