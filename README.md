@@ -1,6 +1,7 @@
 # Horoscoopberekening
 
 Een webapplicatie voor astrologische horoscoop berekeningen met Swiss Ephemeris.
+Licentie: [AGPL v3.0](https://www.gnu.org/licenses/agpl-3.0.html)
 
 ## Features
 
@@ -16,7 +17,7 @@ Een webapplicatie voor astrologische horoscoop berekeningen met Swiss Ephemeris.
 
 - **PHP 8.0+** - Backend logic
 - **Swiss Ephemeris** - Astrologische berekeningen via FFI
-- **MySQL/SQLite** - Database
+- **MySQL/MariaDB** - Database
 - **Google Maps API** - Geocoding en timezone
 - **CSS3** - Responsive design
 - **Vanilla JavaScript** - Frontend interactions
@@ -38,7 +39,7 @@ HoroscopeCalculator::calculate(Horoscope $horoscope)
 - PHP 8.0+
 - Composer
 - Swiss Ephemeris library (`libswe.so`)
-- MySQL of SQLite database
+- MySQL/MariaDB database
 - Google Maps API key
 
 ### Setup
@@ -93,42 +94,32 @@ HoroscopeCalculator::calculate(Horoscope $horoscope)
 - **UTC** - Handmatige UTC offset
 - **LMT** - Lokale middentijd berekening
 
-## Directory Structuur
+## Bewuste Keuzes
 
-```
-tijd/
-├── public/           # Web-accessible files
-│   ├── index.php     # Hoofdpagina
-│   ├── dashboard.php # Gebruikers dashboard
-│   ├── css/          # Stylesheets
-│   └── js/           # JavaScript
-├── src/              # PHP classes
-│   ├── Calculation/  # Calculators
-│   ├── Ephemeris/    # Swiss Ephemeris wrapper
-│   ├── Entity/       # Data entities
-│   └── Database/     # Database access
-├── config/           # Configuration
-└── var/              # Logs and cache
-```
+- **Huizensysteem:** Alleen Koch (meest gebruikt in westerse astrologie)
+- **Planeten:** Zon t/m Pluto + Noordknoop + Chiron
+- **Aspecten:** 8 standaard aspecten (0°, 45°, 60°, 90°, 120°, 135°, 150°, 180°)
+- **Ephemeris:** Dagelijkse posities voor buitenplaneten (Jupiter-Pluto)
 
-## API Endpoints
+## Taal
 
-| Endpoint | Beschrijving |
-|----------|-------------|
-| `/` | Horoscoop formulier en resultaten |
-| `/dashboard.php` | Opgeslagen horoscopen |
-| `/horoscope/save.php` | Horoscoop opslaan |
-| `/login.php` | Gebruikers login |
-| `/register.php` | Nieuwe account |
+De interface is momenteel alleen beschikbaar in het Nederlands. Internationalisatie (i18n) is gepland voor een toekomstige versie.
 
-## Contributing
+## Credits
 
-Zie [AGENTS.md](AGENTS.md) voor development guidelines (private documentatie).
+- **Allen Edwall** — Inspiratie PHP horoscoop visualisatie
+- **Michael Erlewine** — Originele BASIC code (1980)
+- **Astrodienst Zürich** — Swiss Ephemeris library
+- **Google** — Geocoding API
 
 ## License
 
-Copyright © 2026 Astrosofica. Alle rechten voorbehouden.
+AGPL v3.0 — [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html)
+
+Swiss Ephemeris is eigendom van Astrodienst Zürich en onderhevig aan een eigen license.
+Google Maps Platform gebruik is onderhevig aan de [Google Maps Platform Terms of Service](https://cloud.google.com/maps-platform/terms).
 
 ## Contact
 
+- **Issues**: [GitHub Issues](https://github.com/Astrosofica/Horoscoopberekening/issues)
 - **Repository**: [github.com/Astrosofica/Horoscoopberekening](https://github.com/Astrosofica/Horoscoopberekening)
