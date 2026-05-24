@@ -1,0 +1,16 @@
+.env
+.online.env
+online.env
+var/
+vendor/
+*.Zone.Identifier
+.opencode/
+*.md
+!README.md
+reference/
+docs/
+test/
+tests/
+open.sh
+.worktrees/
+graphify-out/

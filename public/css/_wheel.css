@@ -1,0 +1,70 @@
+.houses-planets-container {
+    display: flex;
+    gap: var(--spacing-xxl);
+    margin-bottom: var(--spacing-xxl);
+}
+
+.houses-planets-container .card {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.wheel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--spacing-xxl);
+}
+
+.wheel-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 50%;
+}
+
+.wheel-toggle {
+    margin-top: var(--spacing-sm, 8px);
+}
+
+.wheel-toggle a {
+    color: var(--color-text);
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.wheel-toggle a:hover {
+    opacity: 1;
+}
+
+@media (max-width: 600px) {
+    .houses-planets-container {
+        flex-direction: column;
+    }
+
+    .wheel-container img {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+@media print {
+    .wheel-container {
+        page-break-inside: avoid;
+        page-break-after: always;
+    }
+
+    .card h4 {
+        page-break-before: always;
+    }
+
+    .houses-planets-container {
+        display: block;
+    }
+
+    .houses-planets-container .card {
+        width: 100%;
+        margin-bottom: var(--spacing-lg);
+    }
+}

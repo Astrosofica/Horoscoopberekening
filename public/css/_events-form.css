@@ -1,0 +1,284 @@
+/* Shared events form (progression + transit) */
+
+.events-form-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0;
+}
+
+.events-column {
+    flex: 1;
+    min-width: 150px;
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 0.5rem;
+    padding: 0.375rem;
+}
+
+.events-column--tijdvak {
+    min-width: 145px;
+}
+
+.events-column--planets {
+    min-width: 100px;
+}
+
+.events-column--aspects {
+    min-width: 85px;
+}
+
+.events-column--radix {
+    min-width: 110px;
+}
+
+.card.card--large.card--progression-events,
+.card.card--large.card--transit-events {
+    padding: 1.25rem !important;
+}
+
+.card--progression-events h2,
+.card--transit-events h2 {
+    font-size: var(--font-size-xxl);
+    margin-bottom: var(--spacing-lg);
+}
+
+.events-column h4 {
+    margin: 0 0 0.375rem 0;
+    font-size: 0.85rem;
+    color: var(--color-text, #333);
+}
+
+.events-column .toggle-all {
+    font-weight: 600;
+    padding: 0.25rem 0;
+    margin-bottom: 0.375rem;
+    border-bottom: 1px solid var(--color-border, #ddd);
+}
+
+.events-column label {
+    display: block;
+    margin: 0.2rem 0;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.events-datepicker {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.375rem;
+    flex-wrap: wrap;
+}
+
+.events-column--tijdvak .events-datepicker {
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.events-datepicker label {
+    font-size: 0.85rem;
+}
+
+.events-column--tijdvak .events-datepicker label {
+    display: block;
+}
+
+.events-datepicker input[type="date"],
+.events-datepicker input[type="text"] {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 0.25rem;
+    width: 100px;
+    max-width: 100px;
+    box-sizing: border-box;
+    font-size: 0.85rem;
+}
+
+.events-datepicker .form-hint-inline {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    line-height: 1.3;
+}
+
+.events-datepicker .form-hint-inline--error {
+    color: var(--color-danger, #d32f2f);
+    display: none;
+}
+
+.events-datepicker .form-hint-inline--hint {
+    color: var(--color-text-hint, #757575);
+    display: none;
+}
+
+.events-sectie {
+    margin-bottom: 0.375rem;
+}
+
+.events-sectie h5 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-text-hint, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.events-quickdates {
+    margin-bottom: 0.375rem;
+    padding: 0;
+    background-color: var(--color-bg-secondary, #f5f5f5);
+    border-radius: 0.25rem;
+}
+
+.events-column--tijdvak .events-quickdates {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.events-column--tijdvak .events-quickdates label {
+    display: block;
+    margin-right: 0;
+}
+
+.events-quickbtn {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.5rem;
+    margin-bottom: 0.25rem;
+    background-color: var(--color-bg-secondary, #f5f5f5);
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--color-text, #333);
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.events-quickbtn:hover {
+    background-color: var(--color-primary-light, #e8eef0);
+    border-color: var(--color-primary, #5c7a8a);
+    color: var(--color-primary, #5c7a8a);
+}
+
+.events-quickbtn:active {
+    transform: translateY(1px);
+}
+
+.events-quickbtn:last-child {
+    margin-bottom: 0;
+}
+
+.events-options {
+    margin-bottom: 0;
+}
+
+.events-column--tijdvak .events-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.events-column--tijdvak .events-options label {
+    display: block;
+    margin-right: 0;
+}
+
+.events-checkbox-label {
+    display: block;
+    margin: 0.2rem 0;
+    font-size: 0.85rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.events-checkbox-label input[type="checkbox"] {
+    margin-right: 0.375rem;
+    cursor: pointer;
+}
+
+.events-submit {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.events-submit:hover {
+    background: var(--color-primary-dark);
+}
+
+.events-results {
+    margin-top: 1rem;
+    overflow-x: auto;
+}
+
+.events-results table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.events-results th,
+.events-results td {
+    padding: 0.5rem;
+    border: 1px solid var(--color-border, #ddd);
+    text-align: center;
+}
+
+.events-results th {
+    background-color: var(--color-bg-secondary, #f5f5f5);
+    font-weight: 600;
+}
+
+.events-results .astro-glyph {
+    font-family: 'Astro', sans-serif;
+    font-size: 1.2rem;
+    display: inline-block;
+}
+
+.row--ingress td {
+    background-color: #f0f7ff;
+}
+
+.section-divider {
+    border-top: 1px solid var(--color-border, #ddd);
+    margin: 0.375rem 0;
+}
+
+@media (max-width: 768px) {
+    .card.card--large.card--progression-events,
+    .card.card--large.card--transit-events {
+        padding: 1rem !important;
+    }
+
+    .events-column {
+        flex: 1 1 calc(50% - 0.25rem);
+    }
+
+    .events-column--tijdvak {
+        min-width: 130px;
+    }
+
+    .events-column--planets {
+        min-width: 90px;
+    }
+
+    .events-column--radix {
+        min-width: 100px;
+    }
+}
+
+@media (max-width: 600px) {
+    .events-column {
+        flex: 1 1 100%;
+    }
+}

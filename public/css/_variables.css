@@ -1,0 +1,71 @@
+:root {
+    /* PRIMARY (Gebaseerd op de donkerste groen uit de foto) */
+    --color-primary: #404E3B; /* Het diepe woudgroen uit de afbeelding */
+    --color-primary-dark: #2D382A;
+    --color-primary-light: #DCE3D8;
+    
+    /* ACCENT (Een gedempt goud/messing voor het 'astrologische' gevoel) */
+    --color-accent: #C5A059; 
+    
+    /* SUCCESS (Gebaseerd op de mosgroen #7B9669) */
+    --color-success: #7B9669;
+    --color-success-light: #F1F4EE;
+    --color-success-border: #BAC8B1;
+    
+    /* WARNING (Oker/Aarde-tint) */
+    --color-warning: #B8864D;
+    
+    /* DANGER (Gedempt terracotta/roest ipv fel rood) */
+    --color-danger: #A6635B;
+    --color-danger-light: #F8F1F0;
+    
+    /* TEXT (Donkergrijs met een groene ondertoon voor leesbaarheid) */
+    --color-text: #2D312C;
+    --color-text-muted: #5C635A;
+    --color-text-light: #7B8579;
+    --color-text-hint: #9AA398;
+    
+    /* LINK */
+    --color-link: #6C8480; /* De leigrijs/blauwgroene kleur uit de foto */
+    
+    /* BACKGROUNDS */
+    --bg-body: #F2F4F0; /* Een hele lichte variant van de sage-tint */
+    --bg-card: #FFFFFF;
+    --bg-subtle: #E6E6E6; /* Het mistgrijs uit de foto */
+    --bg-card-save: #F1F4EE;
+    --bg-card-alt: #E1E6DC;
+    --bg-error: #F8F1F0;
+    --bg-info: #EBF0EF;
+    --bg-hover: #E6E9E3;
+    --bg-table-header: #E6E6E6;
+    
+    /* BORDERS */
+    --border-color: #D6DCD0;
+    --border-light: #E6E9E3;
+    --border-input: #BAC8B1; /* De zachte saliegroen uit de foto */
+    --border-info: #B8C7C5;
+    --border-success: #BAC8B1;
+    --border-error: #D9C3C0;
+    
+    --border-radius: 8px;
+    --border-radius-lg: 12px;
+    
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.06);
+    
+    --spacing-xxs: 2px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-xxl: 24px;
+    
+    --font-size-sm: 0.75rem;
+    --font-size-base: 0.9rem;
+    --font-size-md: 0.95rem;
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.1rem;
+    --font-size-xxl: 1.3rem;
+    --font-size-xxxl: 1.5rem;
+}

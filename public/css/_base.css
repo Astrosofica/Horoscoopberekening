@@ -1,0 +1,29 @@
+body {
+    background: var(--bg-body);
+    font-family: sans-serif;
+    max-width: 800px;
+    margin: 40px auto;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-xl);
+}
+
+@media (max-width: 600px) {
+    body {
+        margin: var(--spacing-xl) auto;
+        padding: 0 var(--spacing-lg);
+    }
+}
+
+@media print {
+    body {
+        background: white;
+        margin: 0;
+        padding: var(--spacing-xl);
+        line-height: .85;
+    }
+}

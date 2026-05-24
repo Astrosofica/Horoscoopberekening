@@ -1,0 +1,29 @@
+/* 
+ * Horoscoopberekening - Main Stylesheet
+ * Alle modules worden hier geïmporteerd
+ */
+
+@import url('_variables.css');
+@import url('_fonts.css');
+@import url('_base.css');
+@import url('_layout.css');
+@import url('_sidebar.css');
+@import url('_card.css');
+@import url('_form.css');
+@import url('_button.css');
+@import url('_table.css');
+@import url('_flash.css');
+@import url('_birth-info.css');
+@import url('_wheel.css');
+@import url('_utilities.css');
+@import url('_events-form.css');
+@import url('_progression.css');
+@import url('_split-view.css');
+@import url('_antiscia.css');
+@import url('_midpoints.css');
+@import url('_transits.css');
+@import url('_solaar.css');
+
+.tab-content--hidden {
+    display: none !important;
+}

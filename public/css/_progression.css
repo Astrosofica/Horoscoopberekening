@@ -1,0 +1,13 @@
+/* Progression-specific styles (events form styles in _events-form.css) */
+
+.progressions-info {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted, #666);
+    margin-bottom: 1rem;
+}
+
+.progressions-decimal {
+    font-size: 0.85rem;
+    color: var(--color-text-hint, #999);
+    margin-left: 0.5rem;
+}
