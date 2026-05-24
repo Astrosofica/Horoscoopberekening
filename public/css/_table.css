@@ -52,7 +52,6 @@
 
 /* Toggle voor dominante aspecten */
 .aspecten-toggle-container {
-    margin-top: 1rem;
     padding: 0.75rem;
     background: var(--bg-card-secondary, #f9f9f9);
     border-radius: var(--border-radius);
@@ -159,6 +158,10 @@
 
 .text-center {
     text-align: center;
+}
+
+.text-right {
+    text-align: right;
 }
 
 .orb--out-of-sign {
