@@ -414,6 +414,12 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
                 $expectedSignFromJ = (int)((($longitude[$j] + $actualAngle) % 360) / 30);
                 $isOutOfSign = ($expectedSignFromI != $sign2 && $expectedSignFromJ != $sign1);
 
+                // Alleen zodiacale aspecten (0°, 60°, 90°, 120°, 150°, 180°) krijgen
+                // een out-of-sign check. Harmonische aspecten (45°, 135°) zijn gebaseerd
+                // op harmonische hoekverhoudingen, niet op tekenstructuur — die behouden
+                // altijd hun vaste orb.
+                $isZodiacal = in_array($q, [1, 2, 3, 4, 5, 6]);
+
                 // Bepaal gebruikte orb voor dit aspect
                 if ($q == 1) {
                     $usedOrb = $orb_conj;
@@ -427,15 +433,16 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
                     $usedOrb = 2.5;
                 }
 
-                if ($isOutOfSign) {
-                    $reducedOrb = min($usedOrb / 2, 2);
+                if ($isOutOfSign && $isZodiacal) {
+                    // Out-of-sign zodiacale aspecten: max orb 2°
+                    $reducedOrb = min($usedOrb, 2);
                     $withinReduced = ($actualAngle == 0)
                         ? ($da <= $reducedOrb)
                         : ($da >= ($actualAngle - $reducedOrb) and $da <= ($actualAngle + $reducedOrb));
 
                     if ($debug) {
                         $debug_log[] = sprintf(
-                            "[ASPECT_DEBUG] %s(%s°|%s) x %s(%s°|%s) da=%.1f° q=%d(%s) +%d°→%s +%d°→%s out-of-sign=ja orb=%.1f° reduced=%.1f° → %s",
+                            "[ASPECT_DEBUG] %s(%s°|%s) x %s(%s°|%s) da=%.1f° q=%d(%s) +%d°→%s +%d°→%s out-of-sign orb=%.1f°→%.1f° → %s",
                             $names[$i], round($longitude[$i], 1), $sign_names[$sign1],
                             $names[$j], round($longitude[$j], 1), $sign_names[$sign2],
                             $da, $q, $aspect_names[$q],
@@ -450,13 +457,15 @@ Function draw_aspect_lines($im, $center_pt, $radius, $inner_diameter_offset, $pl
                         continue;
                     }
                 } elseif ($debug) {
+                    $tag = $isZodiacal ? "binnen teken" : "harmonic";
                     $debug_log[] = sprintf(
-                        "[ASPECT_DEBUG] %s(%s°|%s) x %s(%s°|%s) da=%.1f° q=%d(%s) +%d°→%s +%d°→%s → binnen teken → DRAW",
+                        "[ASPECT_DEBUG] %s(%s°|%s) x %s(%s°|%s) da=%.1f° q=%d(%s) +%d°→%s +%d°→%s → %s → DRAW",
                         $names[$i], round($longitude[$i], 1), $sign_names[$sign1],
                         $names[$j], round($longitude[$j], 1), $sign_names[$sign2],
                         $da, $q, $aspect_names[$q],
                         (int)$actualAngle, $sign_names[$expectedSignFromI],
-                        (int)$actualAngle, $sign_names[$expectedSignFromJ]
+                        (int)$actualAngle, $sign_names[$expectedSignFromJ],
+                        $tag
                     );
                 }
 
