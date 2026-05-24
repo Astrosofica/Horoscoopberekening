@@ -1,16 +1,16 @@
+# Environment files (secrets)
 .env
 .online.env
 online.env
+
+# Build artifacts
 var/
 vendor/
+
+# Platform specific
 *.Zone.Identifier
+
+# Dev tools
 .opencode/
-*.md
-!README.md
-reference/
-docs/
-test/
-tests/
-open.sh
 .worktrees/
 graphify-out/
