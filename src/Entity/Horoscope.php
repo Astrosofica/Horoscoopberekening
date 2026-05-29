@@ -119,7 +119,14 @@ class Horoscope
 
     public function getName(): string
     {
-        return $this->getFullName();
+        $nameParts = array_filter([$this->firstname, $this->infix]);
+        $givenName = implode(' ', $nameParts);
+
+        if ($givenName === '') {
+            return $this->lastname;
+        }
+
+        return $this->lastname . ', ' . $givenName;
     }
 
     public function getFullName(): string
