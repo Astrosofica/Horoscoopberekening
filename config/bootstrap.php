@@ -18,6 +18,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Detect locale from browser on first visit (if not already set by login)
+if (empty($_SESSION['locale'])) {
+    $_SESSION['locale'] = \Astro\Helpers\LocaleHelper::detectFromBrowser();
+}
+
 // Security headers
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
