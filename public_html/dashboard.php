@@ -4,6 +4,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use Astro\Auth\AuthService;
 use Astro\Database\HoroscopeRepository;
+use Astro\Helpers\Formatter;
 
 $authService = new AuthService();
 
@@ -82,7 +83,12 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
             </div>
 
             <div class="horoscope-list">
-                <?php foreach ($horoscopes as $h): ?>
+                <?php
+                $locale = $_SESSION['locale'] ?? 'nl_NL';
+                foreach ($horoscopes as $h):
+                    $birthTs = strtotime($h->getBirthDate() . ' ' . $h->getBirthTime());
+                    $birthFormatted = Formatter::formatDateTime($birthTs, $locale);
+                ?>
                     <div class="horoscope-card">
                         <div class="horoscope-card__info">
                             <a href="index.php?h=<?= $h->getSlug() ?>" class="horoscope-card__name">
@@ -91,8 +97,8 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                             <div class="horoscope-card__details">
                                 <span class="horoscope-card__detail">
                                     <strong>Geboorte:</strong>
-                                    <?= htmlspecialchars($h->getBirthDate()) ?>, 
-                                    <?= htmlspecialchars(substr($h->getBirthTime(), 0, 5)) ?>
+                                    <?= htmlspecialchars($birthFormatted['date']) ?>,
+                                    <?= htmlspecialchars($birthFormatted['time']) ?>
                                 </span>
                                 <span class="horoscope-card__detail">
                                     <strong>Plaats:</strong>

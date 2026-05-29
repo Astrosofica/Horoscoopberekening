@@ -16,6 +16,7 @@ class User
     private ?\DateTime $passwordResetExpires = null;
     private ?string $newEmail = null;
     private ?\DateTime $createdAt = null;
+    private string $locale = 'nl_NL';
 
     public function __construct(string $email, string $passwordHash = '')
     {
@@ -160,6 +161,17 @@ class User
         return $this;
     }
 
+    public function getLocale(): string
+    {
+        return $this->locale;
+    }
+
+    public function setLocale(string $locale): self
+    {
+        $this->locale = $locale;
+        return $this;
+    }
+
     public static function fromArray(array $data): self
     {
         $user = new self($data['email'], $data['password_hash'] ?? '');
@@ -201,6 +213,10 @@ class User
             $user->setCreatedAt(new \DateTime($data['created_at']));
         }
 
+        if (!empty($data['locale'])) {
+            $user->setLocale($data['locale']);
+        }
+
         return $user;
     }
 
@@ -219,6 +235,7 @@ class User
             'password_reset_expires' => $this->passwordResetExpires?->format('Y-m-d H:i:s'),
             'new_email' => $this->newEmail,
             'created_at' => $this->createdAt?->format('Y-m-d H:i:s'),
+            'locale' => $this->locale,
         ];
     }
 }

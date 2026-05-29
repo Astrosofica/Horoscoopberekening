@@ -277,27 +277,45 @@ class Formatter
     }
     
     /**
-     * Formatteer een timestamp naar Nederlandse datum en tijd
+     * Formatteer een timestamp naar datum en tijd met locale-ondersteuning
      * 
      * @param int $timestamp Unix timestamp
+     * @param string $locale Locale code (bijv. 'nl_NL', 'en_GB', 'en_US')
      * @return array Array met date_string en time_string
      */
-    public static function formatDutchDateTime(int $timestamp): array
+    public static function formatDateTime(int $timestamp, string $locale = 'nl_NL'): array
     {
-        $months = [
-            'januari', 'februari', 'maart', 'april', 'mei', 'juni',
-            'juli', 'augustus', 'september', 'oktober', 'november', 'december'
-        ];
+        $dateFormatter = new \IntlDateFormatter(
+            $locale,
+            \IntlDateFormatter::MEDIUM,
+            \IntlDateFormatter::NONE
+        );
         
-        $date = getdate($timestamp);
+        $timeFormatter = new \IntlDateFormatter(
+            $locale,
+            \IntlDateFormatter::NONE,
+            \IntlDateFormatter::SHORT
+        );
         
-        $dateString = $date['mday'] . ' ' . $months[$date['mon'] - 1] . ' ' . $date['year'];
-        $timeString = sprintf('%02d:%02d:%02d', $date['hours'], $date['minutes'], $date['seconds']);
+        $dateString = $dateFormatter->format($timestamp);
+        $timeString = $timeFormatter->format($timestamp);
         
         return [
             'date' => $dateString,
             'time' => $timeString
         ];
+    }
+    
+    /**
+     * Formatteer een timestamp naar Nederlandse datum en tijd
+     * 
+     * @deprecated Use formatDateTime() with locale parameter
+     * @param int $timestamp Unix timestamp
+     * @return array Array met date_string en time_string
+     */
+    public static function formatDutchDateTime(int $timestamp): array
+    {
+        return self::formatDateTime($timestamp, 'nl_NL');
     }
     
     /**

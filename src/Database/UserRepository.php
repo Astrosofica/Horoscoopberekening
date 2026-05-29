@@ -46,14 +46,15 @@ class UserRepository
     public function create(User $user): int
     {
         $stmt = $this->db->prepare(
-            'INSERT INTO users (email, password_hash, verification_token, verification_token_expires) VALUES (?, ?, ?, ?)'
+            'INSERT INTO users (email, password_hash, verification_token, verification_token_expires, locale) VALUES (?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
             $user->getEmail(),
             $user->getPasswordHash(),
             $user->getVerificationToken(),
-            $user->getVerificationTokenExpires()?->format('Y-m-d H:i:s')
+            $user->getVerificationTokenExpires()?->format('Y-m-d H:i:s'),
+            $user->getLocale()
         ]);
 
         $id = (int) $this->db->lastInsertId();

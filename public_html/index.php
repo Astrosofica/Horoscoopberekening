@@ -645,8 +645,9 @@ if ($requestedTab === 'about') {
 
             <?php if ($result): ?>
                 <?php
-                $localDateTime = Formatter::formatDutchDateTime($result['local_timestamp']);
-                $utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
+                $locale = $_SESSION['locale'] ?? 'nl_NL';
+                $localDateTime = Formatter::formatDateTime($result['local_timestamp'], $locale);
+                $utcDateTime = Formatter::formatDateTime($result['utc_timestamp'], $locale);
                 ?>
                 
                 <section id="tab-horoscope" class="tab-content<?= $currentTab !== 'horoscope' ? ' tab-content--hidden' : '' ?>">

@@ -38,8 +38,9 @@ $wheelData = $calculator->prepareWheelData($result);
 
 $_SESSION['wheel_data'] = $wheelData;
 
-$localDateTime = Formatter::formatDutchDateTime($result['local_timestamp']);
-$utcDateTime = Formatter::formatDutchDateTime($result['utc_timestamp']);
+$locale = $_SESSION['locale'] ?? 'nl_NL';
+$localDateTime = Formatter::formatDateTime($result['local_timestamp'], $locale);
+$utcDateTime = Formatter::formatDateTime($result['utc_timestamp'], $locale);
 ?>
 <!DOCTYPE html>
 <html lang="nl">

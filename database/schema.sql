@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS users (
     password_reset_token VARCHAR(64) DEFAULT NULL,
     password_reset_expires TIMESTAMP NULL DEFAULT NULL,
     new_email VARCHAR(255) DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    locale VARCHAR(10) DEFAULT 'nl_NL'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Horoscopes tabel
