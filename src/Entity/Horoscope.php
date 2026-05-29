@@ -119,6 +119,11 @@ class Horoscope
 
     public function getName(): string
     {
+        return $this->getFullName();
+    }
+
+    public function getFormalName(): string
+    {
         $nameParts = array_filter([$this->firstname, $this->infix]);
         $givenName = implode(' ', $nameParts);
 

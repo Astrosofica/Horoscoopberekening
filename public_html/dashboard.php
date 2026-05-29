@@ -92,7 +92,7 @@ unset($_SESSION['flash_success'], $_SESSION['flash_error']);
                     <div class="horoscope-card">
                         <div class="horoscope-card__info">
                             <a href="index.php?h=<?= $h->getSlug() ?>" class="horoscope-card__name">
-                                <?= htmlspecialchars($h->getName()) ?>
+                                <?= htmlspecialchars($h->getFormalName()) ?>
                             </a>
                             <div class="horoscope-card__details">
                                 <span class="horoscope-card__detail">
