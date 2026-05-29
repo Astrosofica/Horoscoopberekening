@@ -287,7 +287,7 @@ class Formatter
     {
         $dateFormatter = new \IntlDateFormatter(
             $locale,
-            \IntlDateFormatter::MEDIUM,
+            \IntlDateFormatter::LONG,
             \IntlDateFormatter::NONE
         );
         
