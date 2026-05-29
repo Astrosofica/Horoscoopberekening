@@ -100,7 +100,7 @@ if (!isset($error)) {
             $viewHoroscope->setTimeCorrection($timeCorrection);
             $viewHoroscope->setOffsetSource($offsetSource);
             $viewHoroscope->setOffsetLabel($offsetLabel);
-            $viewHoroscope->setFormattedAddress($geoResult['address']);
+            $viewHoroscope->setFormattedAddress(trim(preg_replace('/\s+/', ' ', preg_replace('/\d{4}\s?[A-Z]{2}|\d{4}/', '', $geoResult['address']))));
             
             // Save to database
             $horoscopeRepo = new HoroscopeRepository();

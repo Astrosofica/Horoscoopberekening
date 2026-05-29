@@ -179,7 +179,7 @@ if (!isset($error)) {
                     'label' => $timeResult['label'],
                     'time_correction' => $timeCorrection,
                     'coords' => ['lat' => $lat, 'lng' => $lng],
-                    'address' => $geoResult['address'],
+                    'address' => trim(preg_replace('/\s+/', ' ', preg_replace('/\d{4}\s?[A-Z]{2}|\d{4}/', '', $geoResult['address']))),
                     'location_name' => $location,
                     'timezone' => $timezoneId,
                     'planets' => $planetResult['planets'],

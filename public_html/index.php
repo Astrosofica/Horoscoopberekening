@@ -375,7 +375,7 @@ if ($result === null && !$isSolaarPrefill && isset($_SESSION['horoscope']['core'
         'firstname' => $input['firstname'] ?? '',
         'infix' => $input['infix'] ?? '',
         'lastname' => $input['lastname'] ?? '',
-        'address' => $input['location_name'] ?? '',
+        'address' => trim(preg_replace('/\s+/', ' ', preg_replace('/\d{4}\s?[A-Z]{2}|\d{4}/', '', $input['location_name'] ?? ''))),
         'location_name' => $input['location_name'] ?? '',
         'coords' => ['lat' => $input['latitude'] ?? 0, 'lng' => $input['longitude'] ?? 0],
         'timezone' => $input['timezone_id'] ?? '',
