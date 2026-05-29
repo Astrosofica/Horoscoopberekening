@@ -1,9 +1,9 @@
 <?php
 
-namespace Tijd\Database;
+namespace Astro\Database;
 
 use PDO;
-use Tijd\Entity\User;
+use Astro\Entity\User;
 
 class UserRepository
 {

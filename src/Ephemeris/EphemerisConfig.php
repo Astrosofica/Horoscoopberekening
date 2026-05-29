@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Ephemeris;
+namespace Astro\Ephemeris;
 
 class EphemerisConfig
 {

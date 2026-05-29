@@ -1,11 +1,11 @@
 <?php
 
-namespace Tijd\Auth;
+namespace Astro\Auth;
 
-use Tijd\Database\UserRepository;
-use Tijd\Entity\User;
-use Tijd\Mail\Mailer;
-use Tijd\Mail\EmailTemplate;
+use Astro\Database\UserRepository;
+use Astro\Entity\User;
+use Astro\Mail\Mailer;
+use Astro\Mail\EmailTemplate;
 
 class AuthService
 {

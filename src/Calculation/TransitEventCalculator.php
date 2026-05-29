@@ -1,8 +1,8 @@
 <?php
 
-namespace Tijd\Calculation;
+namespace Astro\Calculation;
 
-use Tijd\Database\EphemerisRepository;
+use Astro\Database\EphemerisRepository;
 
 class TransitEventCalculator
 {

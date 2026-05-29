@@ -1,8 +1,8 @@
 <?php
 
-namespace Tijd\Helpers;
+namespace Astro\Helpers;
 
-use Tijd\Glyph\SymbolGlyph;
+use Astro\Glyph\SymbolGlyph;
 
 class Formatter
 {

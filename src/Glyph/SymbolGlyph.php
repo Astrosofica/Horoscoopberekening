@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Glyph;
+namespace Astro\Glyph;
 
 class SymbolGlyph
 {

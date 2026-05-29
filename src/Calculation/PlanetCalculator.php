@@ -1,8 +1,8 @@
 <?php
 
-namespace Tijd\Calculation;
+namespace Astro\Calculation;
 
-use Tijd\Ephemeris\SwissEphemeris;
+use Astro\Ephemeris\SwissEphemeris;
 
 class PlanetCalculator
 {

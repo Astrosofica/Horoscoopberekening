@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Geo;
+namespace Astro\Geo;
 
 class GeocodingService
 {

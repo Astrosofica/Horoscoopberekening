@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Mail;
+namespace Astro\Mail;
 
 class EmailTemplate
 {

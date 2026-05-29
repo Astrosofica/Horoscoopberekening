@@ -1,10 +1,10 @@
 <?php
 
-namespace Tijd\Calculation;
+namespace Astro\Calculation;
 
-use Tijd\Entity\Horoscope;
-use Tijd\Ephemeris\SwissEphemeris;
-use Tijd\Helpers\Formatter;
+use Astro\Entity\Horoscope;
+use Astro\Ephemeris\SwissEphemeris;
+use Astro\Helpers\Formatter;
 
 class HoroscopeCalculator
 {

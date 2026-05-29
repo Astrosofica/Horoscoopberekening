@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Time;
+namespace Astro\Time;
 
 class AstroTime
 {

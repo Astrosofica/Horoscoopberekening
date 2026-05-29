@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Entity;
+namespace Astro\Entity;
 
 class Horoscope
 {
