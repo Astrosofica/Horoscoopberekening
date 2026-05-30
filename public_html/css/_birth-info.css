@@ -35,3 +35,9 @@
         margin-bottom: var(--spacing-xs);
     }
 }
+
+@media print {
+    .birth-info-value .coordinates {
+        margin-top: 0.5rem;
+    }
+}

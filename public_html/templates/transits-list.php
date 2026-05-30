@@ -2,11 +2,36 @@
     <div class="card card--large card--transit-events">
         <h2>Transit Events</h2>
 
+        <?php
+        $transitPersonName = '';
+        $transitBirthDate = '';
+        $transitBirthTime = '';
+        $transitLocationName = '';
+        if (isset($_SESSION['horoscope']['input'])) {
+            $tinp = $_SESSION['horoscope']['input'];
+            $transitPersonName = trim(($tinp['firstname'] ?? '') . ' ' . ($tinp['infix'] ?? '') . ' ' . ($tinp['lastname'] ?? ''));
+            $transitBirthDate = $tinp['birth_date'] ?? '';
+            $transitBirthTime = $tinp['birth_time'] ?? '';
+            $transitLocationName = $tinp['location_name'] ?? '';
+        }
+        ?>
+        <?php if ($transitPersonName): ?>
+        <div class="print-only print-horoscope-info">
+            <?= htmlspecialchars($transitPersonName) ?> — <?= $transitBirthDate ? date('d-m-Y', strtotime($transitBirthDate)) : '' ?>
+            <?php if ($transitBirthTime): ?>
+                <?= htmlspecialchars($transitBirthTime) ?>
+            <?php endif; ?>
+            <?php if ($transitLocationName): ?>
+                <?= htmlspecialchars($transitLocationName) ?>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
         <?php if (isset($error)): ?>
             <p class="form-error"><?= htmlspecialchars($error) ?></p>
         <?php endif; ?>
 
-        <form method="POST" class="events-form">
+        <form method="POST" class="events-form no-print">
             <div class="events-form-columns">
                     <div class="events-column events-column--tijdvak">
                         <h4>Tijdvak</h4>

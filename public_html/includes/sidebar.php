@@ -36,10 +36,10 @@ $transitsGroup = [
     'transits-list' => 'lijst',
 ];
 ?>
-<button class="mobile-menu-toggle" aria-label="Menu openen">&#9776;</button>
-<div class="sidebar__overlay"></div>
+<button class="mobile-menu-toggle no-print" aria-label="Menu openen">&#9776;</button>
+<div class="sidebar__overlay no-print"></div>
 
-<aside class="sidebar">
+<aside class="sidebar no-print">
     <nav class="sidebar__nav">
         <div class="sidebar__section">
             <?php foreach ($menuItems as $id => $label): ?>
@@ -130,6 +130,14 @@ $transitsGroup = [
                     </a>
                 </div>
             <?php endif; ?>
+
+            <div class="sidebar__separator"></div>
+
+            <div class="sidebar__section">
+                <a href="javascript:window.print()" class="sidebar__item sidebar__item--print">
+                    Afdrukken
+                </a>
+            </div>
         <?php endif; ?>
     </nav>
 </aside>

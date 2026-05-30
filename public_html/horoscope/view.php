@@ -47,7 +47,7 @@ $utcDateTime = Formatter::formatDateTime($result['utc_timestamp'], $locale);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($result['name']) ?> - Horoscoopberekening</title>
+    <title><?= htmlspecialchars($result['name']) ?><?= $result['birth_date'] ? ' (' . date('d-m-Y', strtotime($result['birth_date'])) . ')' : '' ?> - Horoscoopberekening</title>
     <link rel="stylesheet" href="../css/style.css?v=<?= BUILD_VERSION ?>">
 </head>
 <body>

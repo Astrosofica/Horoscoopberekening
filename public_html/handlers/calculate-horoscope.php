@@ -174,6 +174,7 @@ if (!isset($error)) {
                     'firstname' => $firstname,
                     'infix' => $infix,
                     'lastname' => $lastname,
+                    'birth_date' => $birthDate,
                     'offset' => $timeResult['offset'],
                     'source' => $timeResult['source'],
                     'label' => $timeResult['label'],

@@ -99,6 +99,16 @@
     margin-right: 0.25rem;
 }
 
+.sidebar__item--print {
+    color: var(--color-text-muted);
+}
+
+.sidebar__item--print::before {
+    content: "🖨";
+    font-size: 0.85em;
+    margin-right: 0.25rem;
+}
+
 .mobile-menu-toggle {
     display: none;
     position: fixed;
@@ -149,5 +159,11 @@
     
     .sidebar__overlay--visible {
         display: block;
+    }
+}
+
+@media print {
+    .sidebar {
+        height: auto;
     }
 }

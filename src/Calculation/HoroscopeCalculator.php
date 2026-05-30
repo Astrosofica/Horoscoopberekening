@@ -66,6 +66,7 @@ class HoroscopeCalculator
             'firstname' => $horoscope->getFirstname(),
             'infix' => $horoscope->getInfix(),
             'lastname' => $horoscope->getLastname(),
+            'birth_date' => $horoscope->getBirthDate(),
             'offset' => $horoscope->getUtcOffset(),
             'source' => $horoscope->getOffsetSource(),
             'label' => $horoscope->getOffsetLabel(),

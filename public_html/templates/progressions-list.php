@@ -1,7 +1,33 @@
 <section id="tab-progressions-list" class="tab-content<?= $currentTab !== 'progressions-list' ? ' tab-content--hidden' : '' ?>">
     <div class="card card--large card--progression-events">
         <h2>Progressie Events</h2>
-        <form method="POST" class="events-form">
+
+        <?php
+        $progPersonName = '';
+        $progBirthDate = '';
+        $progBirthTime = '';
+        $progLocationName = '';
+        if (isset($_SESSION['horoscope']['input'])) {
+            $pinp = $_SESSION['horoscope']['input'];
+            $progPersonName = trim(($pinp['firstname'] ?? '') . ' ' . ($pinp['infix'] ?? '') . ' ' . ($pinp['lastname'] ?? ''));
+            $progBirthDate = $pinp['birth_date'] ?? '';
+            $progBirthTime = $pinp['birth_time'] ?? '';
+            $progLocationName = $pinp['location_name'] ?? '';
+        }
+        ?>
+        <?php if ($progPersonName): ?>
+        <div class="print-only print-horoscope-info">
+            <?= htmlspecialchars($progPersonName) ?> — <?= $progBirthDate ? date('d-m-Y', strtotime($progBirthDate)) : '' ?>
+            <?php if ($progBirthTime): ?>
+                <?= htmlspecialchars($progBirthTime) ?>
+            <?php endif; ?>
+            <?php if ($progLocationName): ?>
+                <?= htmlspecialchars($progLocationName) ?>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <form method="POST" class="events-form no-print">
             <div class="events-form-columns">
             <div class="events-column events-column--tijdvak">
                 <h4>Tijdvak</h4>

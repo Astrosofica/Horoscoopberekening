@@ -4,6 +4,12 @@
     min-height: 100vh;
 }
 
+@media print {
+    .app-wrapper {
+        min-height: auto;
+    }
+}
+
 .app-layout {
     display: grid;
     grid-template-columns: 160px 1fr;

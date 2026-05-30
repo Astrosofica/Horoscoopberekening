@@ -232,14 +232,7 @@
     color: var(--color-danger);
 }
 
-@media print {
-    .card--form,
-    .form-submit,
-    .form-error,
-    p[style*="margin-top"] {
-        display: none !important;
-    }
-}
+
 
 .advanced-settings {
     margin-top: var(--spacing-lg);

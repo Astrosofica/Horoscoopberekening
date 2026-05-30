@@ -44,3 +44,14 @@
 .midpoints-tree-planet-header .astro-glyph {
     margin-right: 0.25rem;
 }
+
+@media print {
+    .card.card--large.card--midpoints {
+        padding: 0.5rem !important;
+    }
+
+    .card--midpoints h2 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+}

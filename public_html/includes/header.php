@@ -14,7 +14,7 @@ $isDashboard = ($currentScript === 'dashboard.php');
 <header class="card card--header">
     <div class="header-content">
         <h1><a href="<?= $baseUrl . ($isLoggedIn ? 'dashboard.php' : 'index.php') ?>" class="header-brand"><?= APP_NAME ?></a></h1>
-        <nav class="header-nav">
+        <nav class="header-nav no-print">
             <?php if ($isLoggedIn): ?>
                 <?php if (!$isDashboard): ?>
                     <a href="<?= $baseUrl ?>index.php">Horoscoop berekenen</a>

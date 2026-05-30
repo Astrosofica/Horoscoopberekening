@@ -23,7 +23,7 @@
 }
 
 .split-view-column td {
-    padding: 0.25rem 0.5rem;
+    padding: 0.15rem 0.5rem;
     font-size: 0.9rem;
 }
 
@@ -39,5 +39,22 @@
     .split-view-column {
         flex: 0 0 100%;
         max-width: 100%;
+    }
+}
+
+@media print {
+    .split-view-column {
+        border: none;
+        padding: 0;
+    }
+
+    .split-view-column td {
+        padding: 0.1rem 0.25rem;
+        font-size: 10pt;
+        line-height: 1;
+    }
+
+    .midpoints-row--separator td {
+        height: 0.3rem;
     }
 }

@@ -282,3 +282,15 @@
         flex: 1 1 100%;
     }
 }
+
+@media print {
+    .events-results table {
+        font-size: 8pt;
+    }
+
+    .events-results th,
+    .events-results td {
+        padding: 0.15rem 0.25rem;
+        line-height: 1;
+    }
+}

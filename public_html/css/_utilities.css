@@ -21,8 +21,61 @@
     text-decoration: underline;
 }
 
+.no-print {
+    /* default: zichtbaar */
+}
+
+.print-only {
+    display: none;
+}
+
+.print-horoscope-info {
+    font-size: 10pt;
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--color-border, #ccc);
+    color: var(--color-text-muted, #666);
+    line-height: 1;
+}
+
 @media print {
-    .back-link {
+    .no-print {
         display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    .back-link,
+    .sidebar,
+    .sidebar__overlay,
+    .mobile-menu-toggle,
+    .header-nav,
+    .tab-content--hidden,
+    .flash {
+        display: none !important;
+    }
+
+    .card {
+        margin-bottom: var(--spacing-md);
+        page-break-inside: auto;
+    }
+
+    .events-results table {
+        page-break-inside: auto;
+    }
+
+    .events-results thead {
+        display: table-header-group;
+    }
+
+    .events-results table {
+        font-size: 9pt;
+    }
+
+    .events-results th,
+    .events-results td {
+        padding: 0.2rem 0.3rem;
     }
 }

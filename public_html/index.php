@@ -375,6 +375,7 @@ if ($result === null && !$isSolaarPrefill && isset($_SESSION['horoscope']['core'
         'firstname' => $input['firstname'] ?? '',
         'infix' => $input['infix'] ?? '',
         'lastname' => $input['lastname'] ?? '',
+        'birth_date' => $input['birth_date'] ?? '',
         'address' => trim(preg_replace('/\s+/', ' ', preg_replace('/\d{4}\s?[A-Z]{2}|\d{4}/', '', $input['location_name'] ?? ''))),
         'location_name' => $input['location_name'] ?? '',
         'coords' => ['lat' => $input['latitude'] ?? 0, 'lng' => $input['longitude'] ?? 0],
@@ -477,7 +478,7 @@ if ($requestedTab === 'about') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $result ? htmlspecialchars($result['name']) . ' - ' : '' ?>Horoscoopberekening</title>
+    <title><?= $result ? htmlspecialchars($result['name']) . ($result['birth_date'] ? ' (' . date('d-m-Y', strtotime($result['birth_date'])) . ')' : '') . ' - ' : '' ?>Horoscoopberekening</title>
     <link rel="stylesheet" href="css/style.css?v=<?= BUILD_VERSION ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -489,14 +490,14 @@ if ($requestedTab === 'about') {
     <header class="card card--header card--header--app">
         <div class="header-content">
             <h1><a href="index.php" class="header-brand"><?= APP_NAME ?></a></h1>
-            <nav class="header-nav">
+            <nav class="header-nav no-print">
                 <?php if ($isLoggedIn): ?>
-                    <a href="dashboard.php">Dashboard</a>
-                    <span class="header-user"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
-                    <a href="logout.php" class="header-logout">Uitloggen</a>
+                    <a href="dashboard.php" class="no-print">Dashboard</a>
+                    <span class="header-user no-print"><?= htmlspecialchars($currentUser->getEmail()) ?></span>
+                    <a href="logout.php" class="header-logout no-print">Uitloggen</a>
                 <?php else: ?>
-                    <a href="login.php">Inloggen</a>
-                    <a href="register.php">Registreren</a>
+                    <a href="login.php" class="no-print">Inloggen</a>
+                    <a href="register.php" class="no-print">Registreren</a>
                 <?php endif; ?>
             </nav>
         </div>
@@ -532,7 +533,7 @@ if ($requestedTab === 'about') {
                     <p class="intro-text">Je bewerkt de horoscoop van <strong><?= htmlspecialchars($viewHoroscope->getName()) ?></strong>.</p>
                 <?php endif; ?>
                 
-                <div class="card card--large card--form">
+                <div class="card card--large card--form no-print">
                     <h2>Geboortegegevens</h2>
                     <form method="POST">
                         <div class="form-row name-row">

@@ -55,16 +55,28 @@
         page-break-after: always;
     }
 
-    .card h4 {
+    .card--planets h4,
+    .card--houses h4 {
         page-break-before: always;
     }
 
     .houses-planets-container {
-        display: block;
+        display: flex;
+        gap: var(--spacing-lg);
     }
 
     .houses-planets-container .card {
-        width: 100%;
-        margin-bottom: var(--spacing-lg);
+        width: 50%;
+        margin-bottom: 0;
+        padding: 0.5rem !important;
+    }
+
+    .houses-planets-container .card table {
+        font-size: 9pt;
+    }
+
+    .houses-planets-container .card th,
+    .houses-planets-container .card td {
+        padding: 0.15rem 0.3rem;
     }
 }
