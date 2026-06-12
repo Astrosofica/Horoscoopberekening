@@ -186,6 +186,27 @@
     gap: var(--spacing-md);
 }
 
+.search-input {
+    flex: 1;
+    min-width: 180px;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    background: var(--bg-card, #fff);
+    color: var(--color-text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    border-color: var(--color-primary);
+}
+
+.search-input::placeholder {
+    color: var(--color-text-muted);
+}
+
 .horoscope-count {
     color: var(--color-text);
     font-size: var(--font-size-base);
