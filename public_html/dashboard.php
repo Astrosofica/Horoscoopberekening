@@ -152,6 +152,7 @@ if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQ
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Horoscoopberekening</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js?v=<?= BUILD_VERSION ?>"></script>
 </head>
 <body>
 <div class="container">
