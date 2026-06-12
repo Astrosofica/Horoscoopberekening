@@ -8,7 +8,6 @@ vendor/
 *.md
 !README.md
 reference/
-docs/
 test/
 tests/
 open.sh
