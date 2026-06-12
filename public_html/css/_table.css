@@ -1,0 +1,351 @@
+.card > table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 0;
+}
+
+.card th {
+    padding: 10px var(--spacing-sm);
+    text-align: center;
+    font-weight: 600;
+}
+
+.card th:first-child {
+    border-top-left-radius: var(--border-radius);
+}
+
+.card th:last-child {
+    border-top-right-radius: var(--border-radius);
+}
+
+.card td {
+    padding: 0 var(--spacing-sm);
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.card tr:last-child td {
+    border-bottom: none;
+}
+
+.card tr:hover td {
+    background-color: var(--bg-hover);
+}
+
+/* Default: geen speciale achtergrond voor dominante aspecten */
+.row--dominant {
+    /* Geen background-color - gebruikt standaard rij kleur */
+}
+
+.row--dominant:hover td {
+    background-color: var(--bg-hover);
+}
+
+/* Met toggle: signaal kleur - verhoogde specificiteit */
+.card--aspects .table--dominant-highlight .row--dominant td {
+    background-color: #ffcdd2 !important; /* Licht rood */
+}
+
+.card--aspects .table--dominant-highlight .row--dominant:hover td {
+    background-color: #ef9a9a !important; /* Donkerder rood bij hover */
+}
+
+/* Toggle voor dominante aspecten */
+.aspecten-toggle-container {
+    padding: 0.75rem;
+    background: var(--bg-card-secondary, #f9f9f9);
+    border-radius: var(--border-radius);
+    display: inline-block;
+}
+
+.aspecten-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--font-size-base);
+    cursor: pointer;
+    user-select: none;
+}
+
+.aspecten-toggle-label input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.horoscope-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.horoscope-card {
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.horoscope-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 8px rgba(92, 122, 138, 0.15);
+}
+
+.horoscope-card__info {
+    margin-bottom: var(--spacing-xs);
+}
+
+.horoscope-card__name {
+    display: block;
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+    color: var(--color-text);
+    text-decoration: none;
+    margin-bottom: var(--spacing-xs);
+}
+
+.horoscope-card__name:hover {
+    color: var(--color-primary);
+}
+
+.horoscope-card__details {
+    display: flex;
+    flex-direction: column;
+    /*gap: var(--spacing-xs);*/
+}
+
+.horoscope-card__detail {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+}
+
+.horoscope-card__detail strong {
+    color: var(--color-text-light);
+    font-weight: 500;
+}
+
+.horoscope-card__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    border-top: 1px solid var(--border-light);
+    align-items: center;
+}
+
+.horoscope-card__actions a,
+.horoscope-card__actions button {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.horoscope-card__actions a:hover,
+.horoscope-card__actions button:hover {
+    text-decoration: underline;
+}
+
+.link--danger {
+    color: var(--color-danger) !important;
+}
+
+.link--danger:hover {
+    color: var(--color-danger) !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.orb--out-of-sign {
+    color: #d32f2f;
+}
+
+.text-muted.text-small {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+}
+
+.dashboard-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-light);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.search-input {
+    flex: 1;
+    min-width: 180px;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    background: var(--bg-card, #fff);
+    color: var(--color-text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    border-color: var(--color-primary);
+}
+
+.search-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.horoscope-count {
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+}
+
+.sort-buttons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.sort-label {
+    color: var(--color-text-hint);
+    font-size: var(--font-size-sm);
+    margin-right: var(--spacing-sm);
+}
+
+.sort-btn {
+    padding: 4px 10px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border: none;
+    background: transparent;
+    transition: color 0.15s;
+}
+
+.sort-btn:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.sort-btn--active {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-light);
+}
+
+.pagination__numbers {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.pagination__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 var(--spacing-sm);
+    font-size: var(--font-size-base);
+    color: var(--color-primary);
+    text-decoration: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    transition: all 0.15s;
+}
+
+.pagination__link:hover:not(.pagination__link--disabled):not(.pagination__link--current) {
+    background: var(--color-primary-light);
+    border-color: var(--color-primary);
+}
+
+.pagination__link--current {
+    background: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+    font-weight: 500;
+}
+
+.pagination__link--disabled {
+    color: var(--color-text-hint);
+    cursor: default;
+    border-color: var(--border-light);
+}
+
+.pagination__link--nav {
+    padding: 0 var(--spacing-md);
+}
+
+.pagination__info {
+    text-align: center;
+    color: var(--color-text-hint);
+    font-size: var(--font-size-sm);
+    margin-top: var(--spacing-sm);
+}
+
+@media (max-width: 600px) {
+    .horoscope-card__actions {
+        flex-wrap: wrap;
+        gap: var(--spacing-md);
+    }
+
+    table {
+        font-size: var(--font-size-base);
+    }
+
+    .card th,
+    .card td {
+        padding: var(--spacing-sm) var(--spacing-xs);
+    }
+    
+    .dashboard-controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+    
+    .pagination__link--nav {
+        flex: 1;
+        text-align: center;
+    }
+}
+
+@media print {
+    a[href] {
+        color: #000;
+        text-decoration: none;
+    }
+
+    table {
+        page-break-inside: auto;
+    }
+
+    tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+}

@@ -1,11 +1,11 @@
 <?php
 
-namespace Tijd\Auth;
+namespace Astro\Auth;
 
-use Tijd\Database\UserRepository;
-use Tijd\Entity\User;
-use Tijd\Mail\Mailer;
-use Tijd\Mail\EmailTemplate;
+use Astro\Database\UserRepository;
+use Astro\Entity\User;
+use Astro\Mail\Mailer;
+use Astro\Mail\EmailTemplate;
 
 class AuthService
 {
@@ -74,6 +74,7 @@ class AuthService
         $user = new User($email, $passwordHash);
         $user->setVerificationToken($verificationToken);
         $user->setVerificationTokenExpires($verificationExpires);
+        $user->setLocale('nl_NL');
 
         $this->userRepository->create($user);
 
@@ -207,6 +208,7 @@ class AuthService
         $_SESSION['user_id'] = $user->getId();
         $_SESSION['user_email'] = $user->getEmail();
         $_SESSION['email_verified'] = $user->isEmailVerified();
+        $_SESSION['locale'] = $user->getLocale() ?? 'nl_NL';
     }
 
     private function setRememberCookie(User $user): void

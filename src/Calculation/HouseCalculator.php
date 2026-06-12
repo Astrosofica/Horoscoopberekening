@@ -1,9 +1,9 @@
 <?php
 
-namespace Tijd\Calculation;
+namespace Astro\Calculation;
 
-use Tijd\Ephemeris\SwissEphemeris;
-use Tijd\Helpers\Formatter;
+use Astro\Ephemeris\SwissEphemeris;
+use Astro\Helpers\Formatter;
 
 class HouseCalculator
 {

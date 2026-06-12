@@ -1,10 +1,10 @@
 <?php
 
-namespace Tijd\Calculation;
+namespace Astro\Calculation;
 
-use Tijd\Calculation\PlanetCalculator;
-use Tijd\Calculation\HouseCalculator;
-use Tijd\Ephemeris\SwissEphemeris;
+use Astro\Calculation\PlanetCalculator;
+use Astro\Calculation\HouseCalculator;
+use Astro\Ephemeris\SwissEphemeris;
 
 class ProgressionEventCalculator
 {

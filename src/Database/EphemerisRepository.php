@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Database;
+namespace Astro\Database;
 
 use PDO;
 

@@ -14,3 +14,4 @@ tests/
 open.sh
 .worktrees/
 graphify-out/
+*.zip

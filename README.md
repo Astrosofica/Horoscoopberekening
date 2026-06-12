@@ -5,7 +5,7 @@ License: [AGPL v3.0](https://www.gnu.org/licenses/agpl-3.0.html)
 
 Horoscoopberekening is a personal project by Jan van der Velde, astrology teacher at [The Center for Humanistic and Transpersonal Astrology](https://www.astrologie.ws). It was built as a practical tool for students of our courses, which explains some of the design choices — such as the Dutch interface, the focus on the Koch house system, and the selection of planets and aspects taught in our curriculum.
 
-> **Language:** The user interface is currently only available in Dutch. Internationalization (i18n) is planned for a future release.
+> **Language:** The user interface is currently only available in Dutch. Internationalization (i18n) is in progress — date/time formatting already supports multiple locales via `ext-intl`.
 
 ## Features
 
@@ -20,6 +20,7 @@ Horoscoopberekening is a personal project by Jan van der Velde, astrology teache
 ## Technology
 
 - **PHP 8.0+** - Backend logic
+- **ext-intl** - Internationalization (date/time formatting)
 - **Swiss Ephemeris** - Astrological calculations via FFI
 - **MySQL/MariaDB** - Database
 - **Google Maps API** - Geocoding and timezone
@@ -41,6 +42,7 @@ HoroscopeCalculator::calculate(Horoscope $horoscope)
 ### Requirements
 
 - PHP 8.0+
+- PHP ext-intl
 - Composer
 - Swiss Ephemeris library (`libswe.so`)
 - MySQL/MariaDB database
@@ -73,7 +75,7 @@ HoroscopeCalculator::calculate(Horoscope $horoscope)
 5. **Start application**
    ```bash
    # Start PHP server or configure web server (Apache/Nginx)
-   php -S localhost:8000 -t public
+    php -S localhost:8000 -t public_html
    ```
 
 ## Usage

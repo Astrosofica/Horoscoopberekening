@@ -1,8 +1,8 @@
 <?php
 
-namespace Tijd\Calculation;
+namespace Astro\Calculation;
 
-use Tijd\Calculation\ParsFortuna;
+use Astro\Calculation\ParsFortuna;
 
 class MirrorPointCalculator
 {

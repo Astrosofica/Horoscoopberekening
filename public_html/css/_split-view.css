@@ -1,0 +1,60 @@
+/* Shared split-view styles (antiscia + midpoints) */
+
+.card.card--large.card--antiscia,
+.card.card--large.card--midpoints {
+    padding: 1rem !important;
+}
+
+.split-view-container {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.split-view-column {
+    border: 1px solid var(--color-border, #ddd);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+}
+
+.split-view-column table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.split-view-column td {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+.split-view-column tr:hover td {
+    background-color: var(--bg-hover, #e0e0e0);
+}
+
+@media (max-width: 900px) {
+    .split-view-container {
+        flex-wrap: wrap;
+    }
+
+    .split-view-column {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+@media print {
+    .split-view-column {
+        border: none;
+        padding: 0;
+    }
+
+    .split-view-column td {
+        padding: 0.1rem 0.25rem;
+        font-size: 10pt;
+        line-height: 1;
+    }
+
+    .midpoints-row--separator td {
+        height: 0.3rem;
+    }
+}

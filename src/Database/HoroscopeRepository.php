@@ -1,9 +1,9 @@
 <?php
 
-namespace Tijd\Database;
+namespace Astro\Database;
 
 use PDO;
-use Tijd\Entity\Horoscope;
+use Astro\Entity\Horoscope;
 
 class HoroscopeRepository
 {
@@ -187,6 +187,61 @@ class HoroscopeRepository
     {
         $stmt = $this->db->prepare('DELETE FROM horoscopes WHERE slug = ? AND user_id = ?');
         return $stmt->execute([$slug, $userId]);
+    }
+
+    public function searchByNamePaginated(
+        int $userId,
+        string $query,
+        string $sort = 'newest',
+        int $page = 1,
+        int $perPage = 10
+    ): array {
+        $offset = max(0, ($page - 1) * $perPage);
+
+        $orderBy = match($sort) {
+            'name' => 'lastname ASC, firstname ASC',
+            'name_desc' => 'lastname DESC, firstname DESC',
+            'oldest' => 'created_at ASC',
+            default => 'created_at DESC',
+        };
+
+        $likeQuery = '%' . $query . '%';
+
+        $stmt = $this->db->prepare(
+            "SELECT * FROM horoscopes
+             WHERE user_id = ?
+               AND (LOWER(firstname) LIKE LOWER(?)
+                 OR LOWER(infix) LIKE LOWER(?)
+                 OR LOWER(lastname) LIKE LOWER(?)
+                 OR LOWER(CONCAT(lastname, ', ', firstname, ' ', COALESCE(infix, ''))) LIKE LOWER(?))
+             ORDER BY {$orderBy}
+             LIMIT ? OFFSET ?"
+        );
+        $stmt->execute([$userId, $likeQuery, $likeQuery, $likeQuery, $likeQuery, $perPage, $offset]);
+        $rows = $stmt->fetchAll();
+
+        $horoscopes = [];
+        foreach ($rows as $row) {
+            $horoscopes[] = Horoscope::fromArray($row);
+        }
+
+        return $horoscopes;
+    }
+
+    public function countSearchResults(int $userId, string $query): int
+    {
+        $likeQuery = '%' . $query . '%';
+
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) FROM horoscopes
+             WHERE user_id = ?
+               AND (LOWER(firstname) LIKE LOWER(?)
+                 OR LOWER(infix) LIKE LOWER(?)
+                 OR LOWER(lastname) LIKE LOWER(?)
+                 OR LOWER(CONCAT(lastname, ', ', firstname, ' ', COALESCE(infix, ''))) LIKE LOWER(?))"
+        );
+        $stmt->execute([$userId, $likeQuery, $likeQuery, $likeQuery, $likeQuery]);
+        return (int) $stmt->fetchColumn();
     }
 
     public function countByUserId(int $userId): int

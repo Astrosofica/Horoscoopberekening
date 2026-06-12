@@ -4,10 +4,12 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "Tijd\\": "src/"
+            "Astro\\": "src/"
         }
     },
     "require": {
-        "php": ">=8.0"
+        "php": ">=8.0",
+        "ext-intl": "*",
+        "ext-ffi": "*"
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Calculation;
+namespace Astro\Calculation;
 
 class AspectCalculator
 {

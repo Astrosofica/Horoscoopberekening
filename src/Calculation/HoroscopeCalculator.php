@@ -1,10 +1,10 @@
 <?php
 
-namespace Tijd\Calculation;
+namespace Astro\Calculation;
 
-use Tijd\Entity\Horoscope;
-use Tijd\Ephemeris\SwissEphemeris;
-use Tijd\Helpers\Formatter;
+use Astro\Entity\Horoscope;
+use Astro\Ephemeris\SwissEphemeris;
+use Astro\Helpers\Formatter;
 
 class HoroscopeCalculator
 {
@@ -66,6 +66,7 @@ class HoroscopeCalculator
             'firstname' => $horoscope->getFirstname(),
             'infix' => $horoscope->getInfix(),
             'lastname' => $horoscope->getLastname(),
+            'birth_date' => $horoscope->getBirthDate(),
             'offset' => $horoscope->getUtcOffset(),
             'source' => $horoscope->getOffsetSource(),
             'label' => $horoscope->getOffsetLabel(),
@@ -73,7 +74,7 @@ class HoroscopeCalculator
                 'lat' => $horoscope->getLatitude(),
                 'lng' => $horoscope->getLongitude()
             ],
-            'address' => $horoscope->getFormattedAddress() ?? $horoscope->getLocationName(),
+            'address' => $this->stripPostcode($horoscope->getFormattedAddress() ?? $horoscope->getLocationName()),
             'location_name' => $horoscope->getLocationName(),
             'timezone' => $horoscope->getTimezoneId(),
             'planets' => $planetResult['planets'],
@@ -103,5 +104,11 @@ class HoroscopeCalculator
             'house_cusps' => $houseCuspsForWheel,
             'planets' => $planetsForWheel
         ];
+    }
+
+    private function stripPostcode(string $address): string
+    {
+        // NL: 1234 AB | BE: 1234
+        return trim(preg_replace('/\s+/', ' ', preg_replace('/\d{4}\s?[A-Z]{2}|\d{4}/', '', $address)));
     }
 }

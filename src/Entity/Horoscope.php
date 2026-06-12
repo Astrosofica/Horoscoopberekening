@@ -1,6 +1,6 @@
 <?php
 
-namespace Tijd\Entity;
+namespace Astro\Entity;
 
 class Horoscope
 {
@@ -120,6 +120,18 @@ class Horoscope
     public function getName(): string
     {
         return $this->getFullName();
+    }
+
+    public function getFormalName(): string
+    {
+        $nameParts = array_filter([$this->firstname, $this->infix]);
+        $givenName = implode(' ', $nameParts);
+
+        if ($givenName === '') {
+            return $this->lastname;
+        }
+
+        return $this->lastname . ', ' . $givenName;
     }
 
     public function getFullName(): string

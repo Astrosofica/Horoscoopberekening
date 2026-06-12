@@ -1,0 +1,57 @@
+/* Midpoints-specific styles (split-view shared styles in _split-view.css) */
+
+.card--midpoints h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.split-view-column--left,
+.split-view-column--right {
+    flex: 1;
+    min-width: 250px;
+}
+
+.split-view-column td:nth-child(1) {
+    white-space: nowrap;
+}
+
+.split-view-column td:nth-child(2) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.midpoints-row--separator td {
+    height: 0.75rem;
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .card.card--large.card--midpoints {
+        padding: 0.75rem !important;
+    }
+}
+
+.midpoints-tree-planet-header td {
+    background-color: #F5F5F5;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.midpoints-tree-planet-header strong {
+    font-weight: 600;
+}
+
+.midpoints-tree-planet-header .astro-glyph {
+    margin-right: 0.25rem;
+}
+
+@media print {
+    .card.card--large.card--midpoints {
+        padding: 0.5rem !important;
+    }
+
+    .card--midpoints h2 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+}
