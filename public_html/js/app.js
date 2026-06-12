@@ -141,6 +141,80 @@ class TijdApp {
     }
 }
 
+class DashboardSearch {
+    constructor() {
+        this.input = document.getElementById('dashboard-search');
+        if (!this.input) return;
+
+        this.list = document.querySelector('.horoscope-list');
+        this.count = document.querySelector('.horoscope-count');
+        this.timer = null;
+        this.currentSearch = '';
+
+        this.input.addEventListener('input', () => this.onInput());
+    }
+
+    onInput() {
+        const value = this.input.value.trim();
+
+        if (value.length > 0 && value.length < 3) return;
+
+        clearTimeout(this.timer);
+        this.timer = setTimeout(() => this.fetch(value), 300);
+    }
+
+    async fetch(search) {
+        try {
+            this.currentSearch = search;
+            const sort = new URLSearchParams(window.location.search).get('sort') || 'newest';
+            const url = search.length >= 3
+                ? `dashboard.php?search=${encodeURIComponent(search)}&sort=${sort}&page=1`
+                : `dashboard.php?sort=${sort}&page=1`;
+
+            const response = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            const html = await response.text();
+
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+
+            const newList = temp.querySelector('.horoscope-list');
+            if (newList && this.list) {
+                this.list.innerHTML = newList.innerHTML;
+                this.list.dataset.searchValue = search;
+            }
+
+            const newCount = temp.querySelector('.horoscope-count');
+            if (newCount && this.count) {
+                this.count.textContent = newCount.textContent;
+            }
+
+            const pagination = document.querySelector('.pagination');
+            const newPagination = temp.querySelector('.pagination');
+            if (newPagination) {
+                if (pagination) {
+                    pagination.outerHTML = newPagination.outerHTML;
+                }
+            } else if (pagination) {
+                pagination.remove();
+            }
+
+            const paginationInfo = document.querySelector('.pagination__info');
+            const newPaginationInfo = temp.querySelector('.pagination__info');
+            if (newPaginationInfo) {
+                if (paginationInfo) {
+                    paginationInfo.outerHTML = newPaginationInfo.outerHTML;
+                }
+            } else if (paginationInfo) {
+                paginationInfo.remove();
+            }
+        } catch (err) {
+            console.error('Dashboard search error:', err);
+        }
+    }
+}
+
 class DateTimeInput {
     constructor(displayElementId, hiddenElementId, type = 'birth') {
         this.displayElement = document.getElementById(displayElementId);
@@ -444,6 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const hasResult = hasResultElement ? hasResultElement.dataset.hasResult === 'true' : false;
     
     window.tijdApp = new TijdApp();
+    new DashboardSearch();
     
     // Sync hasResult state if page already has result
     if (hasResult) {
