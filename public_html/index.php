@@ -496,7 +496,7 @@ if ($requestedTab === 'about') {
 <div class="app-wrapper">
     <header class="card card--header card--header--app">
         <div class="header-content">
-            <h1><a href="index.php" class="header-brand"><?= APP_NAME ?></a></h1>
+            <h1><a href="<?= $horoscopeSlug ? 'index.php?h=' . urlencode($horoscopeSlug) . '&tab=horoscope' : 'index.php' ?>" class="header-brand"><?= APP_NAME ?></a></h1>
             <nav class="header-nav no-print">
                 <?php if ($isLoggedIn): ?>
                     <a href="dashboard.php" class="no-print">Dashboard</a>
