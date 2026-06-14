@@ -40,7 +40,7 @@ $_SESSION['wheel_data'] = $wheelData;
 
 $locale = $_SESSION['locale'] ?? 'nl_NL';
 $localDateTime = Formatter::formatDateTime($result['local_timestamp'], $locale);
-$utcDateTime = Formatter::formatDateTime($result['utc_timestamp'], $locale);
+$utcDateTime = Formatter::formatUTC($result['utc_timestamp'], $locale);
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -76,7 +76,7 @@ $utcDateTime = Formatter::formatDateTime($result['utc_timestamp'], $locale);
 
     <div class="wheel-container">
         <img src="../Wheel/wheel.php" alt="Astrologisch Radix" id="wheel-image">
-        <div class="wheel-toggle">
+        <div class="wheel-toggle no-print">
             <a href="#" id="wheel-aspect-toggle">Toon aspectlijnen</a>
         </div>
     </div>

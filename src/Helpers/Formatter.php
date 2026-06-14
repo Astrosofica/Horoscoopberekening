@@ -305,6 +305,35 @@ class Formatter
             'time' => $timeString
         ];
     }
+
+    /**
+     * Formatteer een timestamp naar datum en tijd in UTC
+     *
+     * @param int $timestamp Unix timestamp
+     * @param string $locale Locale code (bijv. 'nl_NL', 'en_GB', 'en_US')
+     * @return array Array met date_string en time_string in UTC
+     */
+    public static function formatUTC(int $timestamp, string $locale = 'nl_NL'): array
+    {
+        $dateFormatter = new \IntlDateFormatter(
+            $locale,
+            \IntlDateFormatter::LONG,
+            \IntlDateFormatter::NONE,
+            'UTC'
+        );
+
+        $timeFormatter = new \IntlDateFormatter(
+            $locale,
+            \IntlDateFormatter::NONE,
+            \IntlDateFormatter::SHORT,
+            'UTC'
+        );
+
+        return [
+            'date' => $dateFormatter->format($timestamp),
+            'time' => $timeFormatter->format($timestamp)
+        ];
+    }
     
     /**
      * Formatteer een timestamp naar Nederlandse datum en tijd
