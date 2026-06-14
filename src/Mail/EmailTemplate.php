@@ -11,7 +11,7 @@ class EmailTemplate
         return self::wrapHtml(
             'Verifieer je e-mailadres',
             <<<HTML
-<p>Bedankt voor je registratie bij Tijd Horoscopen!</p>
+<p>Bedankt voor je registratie voor CHTA Horoscoopberekening!</p>
 
 <p>Bevestig je e-mailadres door op de onderstaande link te klikken:</p>
 
@@ -28,7 +28,7 @@ class EmailTemplate
 
 <p>Als je je niet hebt geregistreerd, kun je deze e-mail negeren.</p>
 
-<p>Met vriendelijke groet,<br>Tijd Horoscopen</p>
+<p>Met vriendelijke groet,<br>Jan van der Velde</p>
 HTML
         );
     }
@@ -57,7 +57,7 @@ HTML
 
 <p>Als je geen wachtwoord reset hebt aangevraagd, kun je deze e-mail negeren.</p>
 
-<p>Met vriendelijke groet,<br>Tijd Horoscopen</p>
+<p>Met vriendelijke groet,<br>Jan van der Velde</p>
 HTML
         );
     }
@@ -86,7 +86,7 @@ HTML
 
 <p>Als je dit niet hebt aangevraagd, neem dan contact met ons op.</p>
 
-<p>Met vriendelijke groet,<br>Tijd Horoscopen</p>
+<p>Met vriendelijke groet,<br>Jan van der Velde</p>
 HTML
         );
     }
@@ -116,7 +116,7 @@ HTML
                     </tr>
                 </table>
                 <p style="margin-top: 20px; font-size: 12px; color: #999;">
-                    Dit is een automatisch bericht van Tijd Horoscopen.
+                    Dit is een automatisch bericht van https://astro.astrosofica.nl
                 </p>
             </td>
         </tr>

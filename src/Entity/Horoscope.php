@@ -301,7 +301,15 @@ class Horoscope
 
     public function getUtcTimestamp(): int
     {
-        return $this->getLocalTimestamp() - $this->utcOffset;
+        if ($this->timeCorrection === 'lmt') {
+            $lmtOffset = (int) round($this->longitude * 240);
+            return strtotime("{$this->birthDate} {$this->birthTime} UTC") - $lmtOffset;
+        }
+        $localTs = $this->getLocalTimestamp();
+        $serverTz = new \DateTimeZone(date_default_timezone_get());
+        $trans = $serverTz->getTransitions($localTs, $localTs);
+        $serverOffset = $trans[0]['offset'] ?? 0;
+        return $localTs + ($serverOffset - $this->utcOffset);
     }
 
     public static function fromArray(array $data): self

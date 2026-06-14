@@ -385,7 +385,14 @@ if ($result === null && !$isSolaarPrefill && isset($_SESSION['horoscope']['core'
         'time_correction' => $input['time_correction'] ?? null,
         'source' => $input['offset_source'] ?? 'session',
         'local_timestamp' => $localTs,
-        'utc_timestamp' => $localTs - ($input['utc_offset'] ?? 0),
+        'utc_timestamp' => ($input['time_correction'] ?? null) === 'lmt'
+            ? strtotime(($input['birth_date'] ?? '') . ' ' . ($input['birth_time'] ?? '') . ' UTC') - (int)round(($input['longitude'] ?? 0) * 240)
+            : (function() use ($localTs, $input) {
+                $serverTz = new \DateTimeZone(date_default_timezone_get());
+                $trans = $serverTz->getTransitions($localTs, $localTs);
+                $serverOffset = $trans[0]['offset'] ?? 0;
+                return $localTs + ($serverOffset - ($input['utc_offset'] ?? 0));
+            })(),
         'planets' => $core['planets'] ?? [],
         'houses' => [
             'houses' => $core['houses'] ?? [],
@@ -489,7 +496,7 @@ if ($requestedTab === 'about') {
 <div class="app-wrapper">
     <header class="card card--header card--header--app">
         <div class="header-content">
-            <h1><a href="index.php" class="header-brand"><?= APP_NAME ?></a></h1>
+            <h1><a href="<?= $horoscopeSlug ? 'index.php?h=' . urlencode($horoscopeSlug) . '&tab=horoscope' : 'index.php' ?>" class="header-brand"><?= APP_NAME ?></a></h1>
             <nav class="header-nav no-print">
                 <?php if ($isLoggedIn): ?>
                     <a href="dashboard.php" class="no-print">Dashboard</a>
@@ -648,7 +655,7 @@ if ($requestedTab === 'about') {
                 <?php
                 $locale = $_SESSION['locale'] ?? 'nl_NL';
                 $localDateTime = Formatter::formatDateTime($result['local_timestamp'], $locale);
-                $utcDateTime = Formatter::formatDateTime($result['utc_timestamp'], $locale);
+                $utcDateTime = Formatter::formatUTC($result['utc_timestamp'], $locale);
                 ?>
                 
                 <section id="tab-horoscope" class="tab-content<?= $currentTab !== 'horoscope' ? ' tab-content--hidden' : '' ?>">
@@ -698,7 +705,7 @@ if ($requestedTab === 'about') {
 
                         <div class="wheel-container">
                             <img src="./Wheel/wheel.php" alt="Astrologisch Radix" id="wheel-image">
-                            <div class="wheel-toggle">
+                            <div class="wheel-toggle no-print">
                                 <a href="#" id="wheel-aspect-toggle">Toon aspectlijnen</a>
                             </div>
                         </div>

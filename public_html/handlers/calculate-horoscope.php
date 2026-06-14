@@ -107,7 +107,7 @@ if (!isset($error)) {
             }
         } elseif ($isLmt) {
             $lmtOffset = (int) round($lng * 240);
-            $utcTimestamp = $timestamp - $lmtOffset;
+            $utcTimestamp = strtotime("$date $time UTC") - $lmtOffset;
             $timeResult = [
                 'offset' => $lmtOffset,
                 'source' => 'manual',
@@ -123,7 +123,10 @@ if (!isset($error)) {
             } else {
                 $astroTime = new AstroTime($tzResult['timezoneId'], $lng);
                 $timeResult = $astroTime->getOffset($timestamp);
-                $utcTimestamp = $timestamp - $timeResult['offset'];
+                $serverTz = new \DateTimeZone(date_default_timezone_get());
+                $serverTrans = $serverTz->getTransitions($timestamp, $timestamp);
+                $serverOffset = $serverTrans[0]['offset'] ?? 0;
+                $utcTimestamp = $timestamp + ($serverOffset - $timeResult['offset']);
                 $timezoneId = $tzResult['timezoneId'];
             }
         }
@@ -174,7 +177,7 @@ if (!isset($error)) {
                     'firstname' => $firstname,
                     'infix' => $infix,
                     'lastname' => $lastname,
-                    'birth_date' => $birthDate,
+                    'birth_date' => $date,
                     'offset' => $timeResult['offset'],
                     'source' => $timeResult['source'],
                     'label' => $timeResult['label'],

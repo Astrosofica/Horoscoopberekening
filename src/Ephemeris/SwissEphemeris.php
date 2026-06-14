@@ -68,10 +68,10 @@ class SwissEphemeris
     public function julianDayFromTimestamp(int $timestamp): float
     {
         return $this->julianDay(
-            (int)date('Y', $timestamp),
-            (int)date('n', $timestamp),
-            (int)date('j', $timestamp),
-            (float)date('G', $timestamp) + (float)date('i', $timestamp)/60 + (float)date('s', $timestamp)/3600
+            (int)gmdate('Y', $timestamp),
+            (int)gmdate('n', $timestamp),
+            (int)gmdate('j', $timestamp),
+            (float)gmdate('G', $timestamp) + (float)gmdate('i', $timestamp)/60 + (float)gmdate('s', $timestamp)/3600
         );
     }
 

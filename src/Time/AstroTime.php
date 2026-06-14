@@ -228,10 +228,23 @@ class AstroTime
                 );
             }
 
+            $abbr = $transitions[0]['abbr'] ?? 'UNKNOWN';
+
+            // When the IANA database returns "LMT" as abbreviation, it reflects the
+            // timezone's reference meridian LMT (e.g., Berlin for Europe/Berlin).
+            // Actual LMT for the birth location depends on its specific longitude.
+            if ($abbr === 'LMT') {
+                return [
+                    'offset' => (int)round($this->longitude * self::SECONDS_PER_DEGREE),
+                    'source' => 'Auto LMT (location-based)',
+                    'label'  => 'LMT'
+                ];
+            }
+
             return [
                 'offset' => $transitions[0]['offset'],
                 'source' => 'IANA Database',
-                'label'  => $transitions[0]['abbr'] ?? 'UNKNOWN'
+                'label'  => $abbr
             ];
         } catch (\Exception $e) {
             error_log(
